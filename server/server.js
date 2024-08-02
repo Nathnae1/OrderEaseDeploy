@@ -56,7 +56,43 @@ app.get("/quotation", (req, res) => {
 
 })
 
+app.post("/add", (req, res) => {
+  const q = "INSERT INTO quotation (`id`,`date`,`Bill To`,`Size`,`Desc`,`Qty`,`colour`,`Packing`,`Unit Price`,`Before VAT`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+  const values = [
+      req.body.ref,
+      new Date(req.body.date),
+      req.body.billTo,
+      req.body.size,
+      req.body.description,
+      parseInt(req.body.quantity),
+      req.body.colour,
+      req.body.packing,
+      parseFloat(req.body.unitPrice),
+      parseFloat(req.body.beforeVat)
+  ];
+
+  pool.query(q, values, (err, data) => {
+    if (err) return res.json(err);
+    return res.json("Proforma has been added");
+  });
+});
+
+app.post("/addtest", (req, res) => {
+  const q = "INSERT INTO test (`id`,`name`) VALUES (?, ?)";
+
+  const values = [
+      req.body.id,
+      req.body.name
+  ];
+
+  pool.query(q, values, (err, data) => {
+    if (err) return res.json(err);
+    return res.json("Proforma has been added");
+  });
+});
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
-})
+});

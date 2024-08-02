@@ -1,5 +1,7 @@
-import { useState } from 'react'
+
 import './App.css'
+import Quotation from './Quotation'
+import Add from './Add'
 
 import {
   BrowserRouter,
@@ -8,19 +10,14 @@ import {
 } from 'react-router-dom'
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <>
       <div>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<App />} />
-            <Route path="/about" element={<About />} />
-            <Route
-              path="/contact"
-              element={<Contact />}
-            />
+            <Route path="/quotation" element={<Quotation />} />
+            <Route path="/add" element={<Add />} />
           </Routes>
         </BrowserRouter>
       </div>
