@@ -1,7 +1,20 @@
+
+// function Home() {
+//   return (
+//     <>
+//       <div>
+//         <h1>Welcome User</h1>
+//       </div>
+//     </>
+//   );
+// }
+
+// export default Home
+
+
 import React, { useState } from 'react';
 import axios from 'axios';
 
-// InputField component for rendering input fields
 function InputField({ label, type = 'text', value, onChange }) {
   return (
     <div className="input-field">
@@ -11,9 +24,7 @@ function InputField({ label, type = 'text', value, onChange }) {
   );
 }
 
-// Add component for the form
-function Add() {
-  // State variables for each input field
+function AddDisp() {
   const [ref, setRef] = useState('');
   const [name, setName] = useState('');
   const [date, setDate] = useState('');
@@ -25,15 +36,10 @@ function Add() {
   const [packing, setPacking] = useState('');
   const [unitPrice, setUnitPrice] = useState('');
   const [beforeVat, setBeforeVat] = useState('');
+  const [fullData, setFullData] = useState([{ ref: '', name: '', date: '', billTo: '', size: '', description: '', quantity: '', colour: '', packing: '', unitPrice: '', beforeVat: '' }]);
 
-  //Single line Data
-  const [singleData, setSingleData] = useState([{}]);
-
-   // Function to handle form submission
-   const handleClick = async (e) => {
-   
-    // Create an object with the form data
-    const formData = {
+  const addSingleItem = (e) => {
+    const newSingleData = {
       ref,
       name,
       date,
@@ -44,29 +50,23 @@ function Add() {
       colour,
       packing,
       unitPrice,
-      beforeVat
+      beforeVat,
     };
+    setFullData((prevItems) => [...prevItems, newSingleData]);
+    setSize('');
+    setDescription('');
+    setQuantity('');
+    setColour('');
+    setPacking('');
+    setUnitPrice('');
+  };
 
-    console.log(formData);
-
+  const handleClick = async (e) => {
     try {
-      // Use Axios to send a POST request
-      const response = await axios.post('http://localhost:5000/add', formData);
-
+      const response = await axios.post('http://localhost:5000/add', fullData);
       if (response.status === 200) {
         console.log('Data submitted successfully!');
-        // reset the form fields
-        setRef('');
-        setName('');
-        setDate('');
-        setBillTo('');
-        setSize('');
-        setDescription('');
-        setQuantity('');
-        setColour('');
-        setPacking('');
-        setUnitPrice('');
-        setBeforeVat('');
+        setFullData([]);
       } else {
         console.error('Error submitting data to the database');
       }
@@ -77,8 +77,6 @@ function Add() {
 
   return (
     <>
-      
-
       <div className="add-identity">
         <InputField label="Ref" type="text" value={ref} onChange={(e) => setRef(e.target.value)} />
         <InputField label="Name" type="text" value={name} onChange={(e) => setName(e.target.value)} />
@@ -87,8 +85,44 @@ function Add() {
       </div>
 
       <div>
-        <h1>Data to be added</h1>
-
+        {fullData.length > 0 ? (
+          <table>
+            <thead>
+              <tr>
+                <th>Ref</th>
+                <th>Name</th>
+                <th>Date</th>
+                <th>Bill To</th>
+                <th>Size</th>
+                <th>Description</th>
+                <th>Quantity</th>
+                <th>Colour</th>
+                <th>Packing</th>
+                <th>Unit Price</th>
+                <th>Before VAT</th>
+              </tr>
+            </thead>
+            <tbody>
+              {fullData.map((quotation, index) => (
+                <tr key={index}>
+                  <td>{quotation.ref}</td>
+                  <td>{quotation.name}</td>
+                  <td>{quotation.date}</td>
+                  <td>{quotation.billTo}</td>
+                  <td>{quotation.size}</td>
+                  <td>{quotation.description}</td>
+                  <td>{quotation.quantity}</td>
+                  <td>{quotation.colour}</td>
+                  <td>{quotation.packing}</td>
+                  <td>{quotation.unitPrice}</td>
+                  <td>{quotation.beforeVat}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>No data available. Please add </p>
+        )}
       </div>
 
       <div className="add-item">
@@ -98,14 +132,12 @@ function Add() {
         <InputField label="Colour" type="text" value={colour} onChange={(e) => setColour(e.target.value)} />
         <InputField label="Packing" type="text" value={packing} onChange={(e) => setPacking(e.target.value)} />
         <InputField label="Unit Price" type="number" value={unitPrice} onChange={(e) => setUnitPrice(e.target.value)} />
-        <InputField label="Before Vat" type="number" value={beforeVat} onChange={(e) => setBeforeVat(e.target.value)} />
       </div>
 
-      <button className="submit-button">Add Item</button> 
-
+      <button className="submit-button" onClick={(e) => addSingleItem(e)}>Add Item</button>
       <button className="submit-button" onClick={(e) => handleClick(e)}>Add Data</button>
     </>
   );
 }
 
-export default Add;
+export default AddDisp;

@@ -44,9 +44,10 @@ app.get("/", (req, res) =>{
 })
 
 // Quotation route
-app.get("/quotation", (req, res) => {
-  const q = "SELECT * FROM quotation";
-  pool.query(q, (err, data) => {
+app.get("/get_quotation/:id", (req, res) => {
+  const id = req.params.id;
+  const q = "SELECT * FROM quotation WHERE `refNum`= ?";
+  pool.query(q,[id], (err, data) => {
     if(err) {
       console.error('Query error:', err);
       return res.status(500).json({error: 'Query error' });
@@ -56,26 +57,72 @@ app.get("/quotation", (req, res) => {
 
 })
 
-app.post("/add", (req, res) => {
-  const q = "INSERT INTO quotation (`id`,`date`,`Bill To`,`Size`,`Desc`,`Qty`,`colour`,`Packing`,`Unit Price`,`Before VAT`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+// app.post("/add", (req, res) => {                                                                                    
+//   const q = "INSERT INTO quotation (`refNum`,`Name`,`date`,`BillTo`,`Size`,`Desc`,`Qty`,`colour`,`Packing`,`UnitPrice`,`BeforeVAT`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-  const values = [
-      req.body.ref,
-      new Date(req.body.date),
-      req.body.billTo,
-      req.body.size,
-      req.body.description,
-      parseInt(req.body.quantity),
-      req.body.colour,
-      req.body.packing,
-      parseFloat(req.body.unitPrice),
-      parseFloat(req.body.beforeVat)
-  ];
+//   const values = [
+//       req.body.ref,
+//       req.body.name,
+//       new Date(req.body.date),
+//       req.body.billTo,
+//       req.body.size,
+//       req.body.description,
+//       req.body.quantity,
+//       req.body.colour,
+//       req.body.packing,
+//       req.body.unitPrice,
+//       req.body.beforeVat
+//   ];
 
-  pool.query(q, values, (err, data) => {
-    if (err) return res.json(err);
-    return res.json("Proforma has been added");
-  });
+//   pool.query(q, values, (err, data) => {
+//     if (err) return res.json(err);
+//     return res.json("Proforma has been added");
+//   });
+// });
+
+app.post("/add", async (req, res) => {
+  const objectsArray = req.body; // Ensure this is an array of objects
+
+  try {
+    // Map each object to a promise of the database insertion
+    const insertionPromises = objectsArray.map(object => {
+      const q = "INSERT INTO quotation (`refNum`,`Name`,`date`,`BillTo`,`Size`,`Desc`,`Qty`,`colour`,`Packing`,`UnitPrice`,`BeforeVAT`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      
+      const values = [
+        object.ref,
+        object.name,
+        new Date(object.date), // Convert date to ISO format if needed
+        object.billTo,
+        object.size,
+        object.description,
+        object.quantity,
+        object.colour,
+        object.packing,
+        object.unitPrice,
+        object.beforeVat
+      ];
+
+      return new Promise((resolve, reject) => {
+        pool.query(q, values, (err, data) => {
+          if (err) {
+            reject(err); // Reject the promise if there is an error
+          } else {
+            resolve(data); // Resolve the promise if the query is successful
+          }
+        });
+      });
+    });
+
+    // Wait for all insertion promises to complete
+    await Promise.all(insertionPromises);
+
+    // Send response after all insertions
+    res.json("Proformas have been added");
+
+  } catch (err) {
+    // Handle any errors that occurred during insertion
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.post("/addtest", (req, res) => {

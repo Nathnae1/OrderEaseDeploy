@@ -38,11 +38,27 @@
   border: none;
 }
 
-.add-button {
+.submit-button {
   font-size: 1.5em;
   border: none;
   border-radius: 20px;
   padding: 10px 50px;
   background-color: rgb(24, 100, 170);
   cursor: pointer;
+}
+
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+th {
+  background-color: #f2f2f2;
+  text-align: left;
 }

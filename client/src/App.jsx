@@ -2,6 +2,8 @@
 import './App.css'
 import Quotation from './Quotation'
 import Add from './Add'
+import Home from './Home'
+import AddDisp from './AddDisp'
 
 import {
   BrowserRouter,
@@ -16,8 +18,9 @@ function App() {
       <div>
         <BrowserRouter>
           <Routes>
-            <Route path="/quotation" element={<Quotation />} />
-            <Route path="/add" element={<Add />} />
+            {/* <Route path="/" element={<Home />} /> */}
+            <Route path="/get_quotation" element={<Quotation />} />
+            <Route path="/add" element={<AddDisp />} />
           </Routes>
         </BrowserRouter>
       </div>
