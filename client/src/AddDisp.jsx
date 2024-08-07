@@ -29,6 +29,9 @@ function AddDisp() {
   //Full line Data
   const [fullData, setFullData] = useState([{ ref: '', name: '', date: '', billTo: '', size: '', description: '', quantity: '', colour: '', packing: '', unitPrice: '', beforeVat: '' }]);
 
+  // Checking data submisssion is succefull
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
    // Function to handle form submission
    const handleClick = async (e) => {
    
@@ -43,11 +46,19 @@ function AddDisp() {
 
       if (response.status === 200) {
         console.log('Data submitted successfully!');
+        setIsSubmitted(true);
+        // Set a timeout to hide the success message after 10 seconds
+        setTimeout(() => {
+          setIsSubmitted(false);
+        }, 2000);
+
         // reset the form fields
         setRef('');
         setName('');
-        setDate('');
+        // setDate('');
         setBillTo('');
+        setFullData([{ ref: '', name: '', date: '', billTo: '', size: '', description: '', quantity: '', colour: '', packing: '', unitPrice: '', beforeVat: '' }]);
+
       } else {
         console.error('Error submitting data to the database');
       }
@@ -104,15 +115,20 @@ function AddDisp() {
     <>
       
 
-      <div className="add-identity">
-        <InputField label="Ref" type="text" value={ref} onChange={(e) => setRef(e.target.value)} />
-        <InputField label="Name" type="text" value={name} onChange={(e) => setName(e.target.value)} />
-        <InputField label="Date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-        <InputField label="Bill To" type="text" value={billTo} onChange={(e) => setBillTo(e.target.value)} />
-      </div>
+      
 
       <div className="top-section">
-        <p>top section</p>
+        {isSubmitted && <div className="success-message"> Data submitted successfully! </div>}
+      </div>
+
+      <div className="get-top-section">
+        <p>Ref No: {fullData.length > 1 ? fullData[1].ref : ''}</p>
+        <p>Date: {fullData.length > 1 ? fullData[1].date.split('T')[0] : ''}</p>
+        <p>Name: {fullData.length > 1 ? fullData[1].name : ''}</p>
+      </div>
+
+      <div className="get-bill-to">
+        <p>Bill To: {fullData.length > 1 ? fullData[1].billTo : ''}</p>
       </div>
 
       <div>
@@ -120,9 +136,7 @@ function AddDisp() {
         <table>
           <thead>
             <tr>
-              <th>refNum</th>
-              <th>Name</th>
-              <th>Date</th>
+              <th>No.</th>
               <th>Bill To</th>
               <th>Size</th>
               <th>Description</th>
@@ -136,9 +150,7 @@ function AddDisp() {
           <tbody>
             {fullData.map((quotation, index) => (
               <tr key={index}>
-                <td>{quotation.ref}</td>
-                  <td>{quotation.name}</td>
-                  <td>{quotation.date}</td>
+                  <td>{index > 0 ? index:''}</td>
                   <td>{quotation.billTo}</td>
                   <td>{quotation.size}</td>
                   <td>{quotation.description}</td>
@@ -154,6 +166,13 @@ function AddDisp() {
       ) : (
         <p>No data available. Please add </p>
       )}
+      </div>
+
+      <div className="add-identity">
+        <InputField label="Ref" type="text" value={ref} onChange={(e) => setRef(e.target.value)} />
+        <InputField label="Name" type="text" value={name} onChange={(e) => setName(e.target.value)} /> 
+        <InputField label="Date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+        <InputField label="Bill To" type="text" value={billTo} onChange={(e) => setBillTo(e.target.value)} />
       </div>
 
       <div className="add-item">

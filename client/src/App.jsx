@@ -18,7 +18,7 @@ function App() {
       <div>
         <BrowserRouter>
           <Routes>
-            {/* <Route path="/" element={<Home />} /> */}
+            <Route path="/" element={<Home />} />
             <Route path="/get_quotation" element={<Quotation />} />
             <Route path="/add" element={<AddDisp />} />
           </Routes>

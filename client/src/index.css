@@ -62,3 +62,23 @@ th {
   background-color: #f2f2f2;
   text-align: left;
 }
+
+
+.get-top-section {
+  background-color: rgb(107, 126, 108);
+  text-align: end;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  padding: 5px 30px;
+}
+
+.get-top-section p{
+  font-size: 1.2em;
+}
+
+.get-bill-to {
+  background-color: antiquewhite;
+  text-align: center;
+  padding: 1px;
+}
+

@@ -10,7 +10,7 @@ function Quotation(){
     try {
       const response = await axios.get(`http://localhost:5000/get_quotation/${id}`);
       setData(response.data);
-      // console.log(data);
+      console.log(data);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -29,15 +29,22 @@ function Quotation(){
 
   return (
     <div>
+
+      <div className="get-top-section">
+        <p>Ref No: {data.length > 0 ? data[0].refNum : ''}</p>
+        <p>Date: {data.length > 0 ? data[0].Date.split('T')[0] : ''}</p>
+        <p>Name: {data.length > 0 ? data[0].Name : ''}</p>
+      </div>
+      <div className="get-bill-to">
+        <p>Bill To: {data.length > 0 ? data[0].BillTo : ''}</p>
+      </div>
+
       <div>
       {data.length > 0 ? (
         <table>
           <thead>
             <tr>
-              <th>refNum</th>
-              <th>Name</th>
-              <th>Date</th>
-              <th>Bill To</th>
+              <th>No</th>
               <th>Size</th>
               <th>Description</th>
               <th>QTY</th>
@@ -48,12 +55,9 @@ function Quotation(){
             </tr>
           </thead>
           <tbody>
-            {data.map((quotation) => (
+            {data.map((quotation, index) => (
               <tr key={quotation.id}>
-                <td>{quotation.refNum}</td>
-                <td>{quotation.Name}</td>
-                <td>{quotation.Date}</td>
-                <td>{quotation.BillTo}</td>
+                <td>{++index}</td>
                 <td>{quotation.Size}</td>
                 <td>{quotation.Desc}</td>
                 <td>{quotation.QTY}</td>
