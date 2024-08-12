@@ -11,18 +11,6 @@ function InputField({ label, type = 'text', value, onChange }) {
   );
 }
 
-function EditableTable({initialData}) {
-  const [data, setData] = useState(initialData);
-
-  return (
-    <table>
-      <thead>
-        
-      </thead>
-    </table>
-  );
-
-}
 
 // Add component for the form
 function AddDisp() {
@@ -41,6 +29,9 @@ function AddDisp() {
 
   //Full line Data
   const [fullData, setFullData] = useState([{ ref: '', name: '', date: '', billTo: '', size: '', description: '', quantity: '', colour: '', packing: '', unitPrice: '', beforeVat: '' }]);
+
+  // data keys
+const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity','colour','packing', 'unitPrice','beforeVat'];
 
   // Checking data submisssion is succefull
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -90,47 +81,41 @@ function AddDisp() {
 
     setBeforeVat(temp);
 
-  },[unitPrice])
+  },[fullData])
   
 
   const addSingleItem = (e) => {
 
-    // Create an object for the single Data
-    let newSingleData = {
-      ref,
-      name,
-      date,
-      billTo,
-      size,
-      description,
-      quantity,
-      colour,
-      packing,
-      unitPrice,
-      beforeVat
-    };
+    // Create new empty data
+    const newSingleData = [{ ref: '', name: '', date: '', billTo: '', size: '', description: '', quantity: '', colour: '', packing: '', unitPrice: '', beforeVat: '' }];
 
-    
-
-    setFullData((prevItems) => [...prevItems, newSingleData]);
-
-    console.log(newSingleData);
+    setFullData((prevItems) => [...prevItems, ...newSingleData]);
     console.log(fullData);
-
-    setSize('');
-    setDescription('');
-    setQuantity('');
-    setColour('');
-    setPacking('');
-    setUnitPrice('');
-  
 
   }
 
-  let [noOfTable, setNoTable] = useState(1);
-  const handleAddTable = (e) => {
-     setNoTable(noOfTable++);
-     console.log(noOfTable);
+  // Table handle cell change
+  const handleCellChange = (rowIndex, colIndex, value) => {
+    
+    const updatedData = [...fullData];
+    
+    let tempKey = dataKeys[colIndex];
+    updatedData[rowIndex][tempKey] = value;
+
+    console.log(`See me ${ updatedData[rowIndex][tempKey]}`);
+
+    
+
+    if(tempKey === 'unitPrice'){
+      let temp = parseFloat(updatedData[rowIndex][tempKey]) * 100;
+      temp = (temp * parseInt(quantity)) / 100;
+
+      updatedData[rowIndex].beforeVat = temp;
+    }
+
+    setFullData(updatedData);
+    console.log(fullData);
+    
   }
 
   return (
@@ -208,15 +193,28 @@ function AddDisp() {
             </thead>
             <tbody>
 
-                <tr>
-                    <td>1</td>
-                    <td><input type="text" /></td>
-                    <td><input type="text" /></td>
-                    <td><input type="number" /></td>
-                    <td><input type="text" /></td>
-                    <td><input type="text" /></td>
-                    <td><input type="number" /></td>
-                </tr>
+
+
+            {fullData.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {Object.keys(row).map((cell, colIndex) => (
+                  colIndex === 0 ? (
+                    <td key={colIndex}>{rowIndex}</td>
+                  ) : colIndex === 1 || colIndex === 2 || colIndex === 3 || colIndex === 10 ? (
+                    ''
+                  ) : (
+                    <td key={colIndex}>
+                      <input 
+                        type="text" 
+                        value={row[dataKeys[colIndex]]}
+                        onChange={(e) => handleCellChange(rowIndex, colIndex, e.target.value)}
+                      />
+                    </td>
+                  )
+                ))}
+              </tr>
+            ))}
+                
             
             </tbody>
           </table>
@@ -229,17 +227,7 @@ function AddDisp() {
         <InputField label="Bill To" type="text" value={billTo} onChange={(e) => setBillTo(e.target.value)} />
       </div>
 
-      <div className="add-item">
-        <InputField label="Size" type="text" value={size} onChange={(e) => setSize(e.target.value)} />
-        <InputField label="Description" type="text" value={description} onChange={(e) => setDescription(e.target.value)} />
-        <InputField label="Quantity" type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
-        <InputField label="Colour" type="text" value={colour} onChange={(e) => setColour(e.target.value)} />
-        <InputField label="Packing" type="text" value={packing} onChange={(e) => setPacking(e.target.value)} />
-        <InputField label="Unit Price" type="number" value={unitPrice} onChange={(e) => setUnitPrice(e.target.value)} />
-      </div>
-
-      <button onClick={(e)=> handleAddTable(e)}>Add Input</button> <br /> <br /> <br />
-
+    
       <button className="submit-button" onClick={(e) => addSingleItem(e)}>Add Item</button> 
 
       <button className="submit-button" onClick={(e) => handleClick(e)}>Add Data</button>
