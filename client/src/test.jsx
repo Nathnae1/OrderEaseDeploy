@@ -1,68 +1,38 @@
-import React, { useState } from 'react';
+import React from 'react';
+import Autocomplete from '@mui/material/Autocomplete';
+import TextField from '@mui/material/TextField';
+import { useCableData } from './useCableData'; // Adjust the path as needed
 
-const EditableTable = ({ initialData }) => {
-  const [data, setData] = useState(initialData);
+const Suggest = ({ onValueChange }) => {
+  const { itemsDetail, loading, error } = useCableData();
+  const [inputValue, setInputValue] = React.useState('');
+  const [value, setValue] = React.useState(null);
 
-  const handleCellChange = (rowIndex, colIndex, value) => {
-    const updatedData = [...data];
-    updatedData[rowIndex][colIndex] = value;
-    setData(updatedData);
-  };
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
 
   return (
-    <table>
-      <thead>
-        <tr>
-          {data[0].map((_, colIndex) => (
-            <th key={colIndex}>Column {colIndex + 1}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((row, rowIndex) => (
-          <tr key={rowIndex}>
-            {row.map((cell, colIndex) => (
-              <td key={colIndex}>
-                <input
-                  type="text"
-                  value={cell}
-                  onChange={(e) => handleCellChange(rowIndex, colIndex, e.target.value)}
-                />
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div className="suggest-size">
+      <Autocomplete
+        options={itemsDetail}
+        getOptionLabel={(item) => item.size || ''}
+        value={value}
+        onChange={(event, newValue) => {
+          setValue(newValue);
+          setInputValue(newValue ? (typeof newValue === 'string' ? newValue : newValue.size) : '');
+          if (onValueChange) {
+            onValueChange(newValue);
+          }
+        }}
+        inputValue={inputValue}
+        onInputChange={(event, newInputValue) => {
+          setInputValue(newInputValue);
+        }}
+        renderInput={(params) => <TextField {...params} variant="outlined" />}
+        freeSolo
+      />
+    </div>
   );
 };
 
-export default EditableTable;
-
-
-const handleKeyDown = (e, rowIndex, colIndex) => {
-  switch (e.key) {
-    case 'ArrowDown':
-      if (rowIndex < data.length - 1) {
-        document.querySelector(`input[data-row="${rowIndex + 1}"][data-col="${colIndex}"]`).focus();
-      }
-      break;
-    case 'ArrowUp':
-      if (rowIndex > 0) {
-        document.querySelector(`input[data-row="${rowIndex - 1}"][data-col="${colIndex}"]`).focus();
-      }
-      break;
-    case 'ArrowRight':
-      if (colIndex < data[0].length - 1) {
-        document.querySelector(`input[data-row="${rowIndex}"][data-col="${colIndex + 1}"]`).focus();
-      }
-      break;
-    case 'ArrowLeft':
-      if (colIndex > 0) {
-        document.querySelector(`input[data-row="${rowIndex}"][data-col="${colIndex - 1}"]`).focus();
-      }
-      break;
-    default:
-      break;
-  }
-};
+export default Suggest;

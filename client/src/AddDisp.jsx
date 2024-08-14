@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import Suggest from './Suggest';
 
 // InputField component for rendering input fields
 function InputField({ label, type = 'text', value, onChange }) {
@@ -19,13 +20,8 @@ function AddDisp() {
   const [name, setName] = useState('');
   const [date, setDate] = useState('');
   const [billTo, setBillTo] = useState('');
-  const [size, setSize] = useState('');
-  const [description, setDescription] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [colour, setColour] = useState('');
-  const [packing, setPacking] = useState('');
-  const [unitPrice, setUnitPrice] = useState('');
-  const [beforeVat, setBeforeVat] = useState(0);
+
+  const [itemData, setItemData] = useState('');
 
   //Full line Data
   const [fullData, setFullData] = useState([{ ref: '', name: '', date: '', billTo: '', size: '', description: '', quantity: '', colour: '', packing: '', unitPrice: '', beforeVat: '' }]);
@@ -46,8 +42,8 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
     console.log(fullData);
 
     try {
-      // use the slice method to exclude the first index
-      const dataToSend = fullData.slice(1);
+      // Check the data before sending to server
+      const dataToSend = fullData;
       // Use Axios to send a POST request
       const response = await axios.post('http://localhost:5000/add', dataToSend);
 
@@ -73,15 +69,6 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
       console.error('Error:', error);
     }
   };
-
-  useEffect(() => {
-
-    let temp = parseFloat(unitPrice) * 100;
-    temp = (temp * parseInt(quantity)) / 100;
-
-    setBeforeVat(temp);
-
-  },[fullData])
   
 
   const addSingleItem = (e) => {
@@ -104,122 +91,61 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
 
     console.log(`See me ${ updatedData[rowIndex][tempKey]}`);
 
-    
-
-    if(tempKey === 'unitPrice'){
-      let temp = parseFloat(updatedData[rowIndex][tempKey]) * 100;
-      temp = (temp * parseInt(quantity)) / 100;
+    if(tempKey == 'unitPrice' || tempKey == 'quantity'){
+      let temp = parseFloat(updatedData[rowIndex].unitPrice) * 100;
+      temp = (temp * parseInt(updatedData[rowIndex].quantity)) / 100;
 
       updatedData[rowIndex].beforeVat = temp;
     }
 
     setFullData(updatedData);
     console.log(fullData);
-    
+
   }
+
+  // Get the data from size input
+  const handleSizeChange = (newValue, currentRowIndex)=> {
+      setItemData(newValue);
+      console.log('Parent the value is :',newValue);
+      console.log('Current index', currentRowIndex);
+      console.log('Parent the value is :',itemData);
+
+      if (newValue) {
+        if (newValue.size && newValue.desc && newValue.price) {
+          let refKey = dataKeys[0];
+          let nameKey = dataKeys[1];
+          let dateKey = dataKeys[2];
+          let billToKey = dataKeys[3];
+          let descKey = dataKeys[5];
+          let priceKey = dataKeys[9];
+          
+          setFullData((data) => {
+
+              data[currentRowIndex][descKey] = newValue.desc;
+              data[currentRowIndex][priceKey] = newValue.price;
+
+              data[currentRowIndex][refKey] = ref;
+              data[currentRowIndex][nameKey] = name;
+              data[currentRowIndex][dateKey] = date;
+              data[currentRowIndex][billToKey] = billTo;
+              
+              return data; 
+            });
+        }
+      }
+
+      console.log('The values are', ref, name, date, billTo);
+
+  };
+
+
 
   return (
     <>
-      
-
-      
-
-      {printPreview && <div className="print-preview">
-        <div className="top-section">
-          {isSubmitted && <div className="success-message"> Data submitted successfully! </div>}
-        </div>
-
-        <div className="get-top-section">
-          <p>Ref No: {fullData.length > 1 ? fullData[1].ref : ''}</p>
-          <p>Date: {fullData.length > 1 ? fullData[1].date.split('T')[0] : ''}</p>
-          <p>Name: {fullData.length > 1 ? fullData[1].name : ''}</p>
-        </div>
-
-        <div className="get-bill-to">
-          <p>Bill To: {fullData.length > 1 ? fullData[1].billTo : ''}</p>
-        </div>
-
-        <div>
-        {fullData.length > 0 ? (
-          <table>
-            <thead>
-              <tr>
-                <th>No.</th>
-                <th>Bill To</th>
-                <th>Size</th>
-                <th>Description</th>
-                <th>QTY</th>
-                <th>Colour</th>
-                <th>Packing</th>
-                <th>Unit Price</th>
-                <th>Before VAT</th>
-              </tr>
-            </thead>
-            <tbody>
-              {fullData.map((quotation, index) => (
-                <tr key={index}>
-                    <td>{index > 0 ? index:''}</td>
-                    <td>{quotation.billTo}</td>
-                    <td>{quotation.size}</td>
-                    <td>{quotation.description}</td>
-                    <td>{quotation.quantity}</td>
-                    <td>{quotation.colour}</td>
-                    <td>{quotation.packing}</td>
-                    <td>{quotation.unitPrice}</td>
-                    <td>{quotation.beforeVat}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>No data available. Please add </p>
-        )}
-        </div>
-      </div> }
-
-      <div className="table-input">
-      <table>
-            <thead>
-              <tr>
-                <th>No.</th>
-                <th>Size</th>
-                <th>Description</th>
-                <th>QTY</th>
-                <th>Colour</th>
-                <th>Packing</th>
-                <th>Unit Price</th>
-                <th>Before VAT</th>
-              </tr>
-            </thead>
-            <tbody>
-
-
-
-            {fullData.map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {Object.keys(row).map((cell, colIndex) => (
-                  colIndex === 0 ? (
-                    <td key={colIndex}>{rowIndex}</td>
-                  ) : colIndex === 1 || colIndex === 2 || colIndex === 3 || colIndex === 10 ? (
-                    ''
-                  ) : (
-                    <td key={colIndex}>
-                      <input 
-                        type="text" 
-                        value={row[dataKeys[colIndex]]}
-                        onChange={(e) => handleCellChange(rowIndex, colIndex, e.target.value)}
-                      />
-                    </td>
-                  )
-                ))}
-              </tr>
-            ))}
-                
-            
-            </tbody>
-          </table>
+      <div className="top-section">
+        {isSubmitted && <div className="success-message"> Data submitted successfully! </div>}
       </div>
-
+      
       <div className="add-identity">
         <InputField label="Ref" type="text" value={ref} onChange={(e) => setRef(e.target.value)} />
         <InputField label="Name" type="text" value={name} onChange={(e) => setName(e.target.value)} /> 
@@ -227,10 +153,58 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
         <InputField label="Bill To" type="text" value={billTo} onChange={(e) => setBillTo(e.target.value)} />
       </div>
 
-    
-      <button className="submit-button" onClick={(e) => addSingleItem(e)}>Add Item</button> 
+      <div className="table-input">
+        <table>
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th>Size</th>
+                <th>Description</th>
+                <th>QTY</th>
+                <th>Colour</th>
+                <th>Packing</th>
+                <th>Unit Price</th>
+                <th>Before VAT</th>
+              </tr>
+            </thead>
+            <tbody>
 
-      <button className="submit-button" onClick={(e) => handleClick(e)}>Add Data</button>
+              {fullData.map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  {Object.keys(row).map((cell, colIndex) => (
+                    colIndex === 0 ? (
+                      <td key={colIndex}>{rowIndex}</td>
+                    ) : colIndex === 4 ? (
+                      <td key={colIndex}>
+                          <Suggest currentRowIndex = {rowIndex} onValueChange={handleSizeChange}/>
+                      </td>
+                    ) : colIndex === 1 || colIndex === 2 || colIndex === 3  ? (
+                      ''
+                    ) : colIndex === 10 ? (
+                      <td key={colIndex}>{row[dataKeys[colIndex]]}</td>
+                    ) : (
+                      <td key={colIndex}>
+                        <input 
+                          type="text" 
+                          value={row[dataKeys[colIndex]]}
+                          onChange={(e) => handleCellChange(rowIndex, colIndex, e.target.value)}
+                        />
+                      </td>
+                    )
+                  ))}
+                </tr>
+              ))}     
+            
+            </tbody>
+        </table>
+      </div>
+    
+      <div className="add-btn-container">
+        <button className="submit-button" onClick={(e) => addSingleItem(e)}>Add Item</button> 
+
+        <button className="submit-button" onClick={(e) => handleClick(e)}>Add Data</button>
+      </div>
+
     </>
   );
 }

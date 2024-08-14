@@ -57,6 +57,21 @@ app.get("/get_quotation/:id", (req, res) => {
 
 })
 
+// Items size, desc and price route
+app.get("/suggestions/items", (req,res) => {
+
+  const q = "SELECT * FROM items";
+  pool.query(q, (err, data) => {
+    if(err) {
+      console.error('Query error:', err);
+      return res.status(500).json({error: 'Query error' });
+    }
+    return res.json(data);
+  })
+
+})
+
+
 // app.post("/add", (req, res) => {                                                                                    
 //   const q = "INSERT INTO quotation (`refNum`,`Name`,`date`,`BillTo`,`Size`,`Desc`,`Qty`,`colour`,`Packing`,`UnitPrice`,`BeforeVAT`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 

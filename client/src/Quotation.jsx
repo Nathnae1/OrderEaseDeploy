@@ -39,7 +39,7 @@ function Quotation(){
         <p>Bill To: {data.length > 0 ? data[0].BillTo : ''}</p>
       </div>
 
-      <div>
+      <div className="quotation-table">
       {data.length > 0 ? (
         <table>
           <thead>
