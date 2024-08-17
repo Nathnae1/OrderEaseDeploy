@@ -11,6 +11,7 @@ import {
   Routes,
   Route
 } from 'react-router-dom'
+import LoginCard from './LoginCard'
 
 function App() {
 
@@ -19,7 +20,7 @@ function App() {
       <div>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<LoginCard />} />
             <Route path="/get_quotation" element={<Quotation />} />
             <Route path="/add" element={<AddDisp />} />
             <Route path="/auto" element={<Suggest />} />

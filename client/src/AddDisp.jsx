@@ -20,6 +20,7 @@ function AddDisp() {
   const [name, setName] = useState('');
   const [date, setDate] = useState('');
   const [billTo, setBillTo] = useState('');
+  let itemIndex = 0;
 
   const [itemData, setItemData] = useState('');
 
@@ -61,6 +62,7 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
         // setDate('');
         setBillTo('');
         setFullData([{ ref: '', name: '', date: '', billTo: '', size: '', description: '', quantity: '', colour: '', packing: '', unitPrice: '', beforeVat: '' }]);
+        itemIndex = 0;
 
       } else {
         console.error('Error submitting data to the database');
@@ -69,6 +71,27 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
       console.error('Error:', error);
     }
   };
+
+  // Get the last reference number of the quotation
+  useEffect(() => {
+    fetch('http://localhost:5000/get_ref')
+      .then(response => response.json())
+      .then(refData => {
+        setRef(++refData[0].refNum);
+        console.log(refData[0].refNum); });
+
+        // Function to format the date as YYYY-MM-DD
+        const formatDate = (date) => {
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+          const day = String(date.getDate()).padStart(2, '0');
+          return `${year}-${month}-${day}`;
+        };
+
+        // Set the current date
+        const today = new Date();
+        setDate(formatDate(today));
+  }, []);
   
 
   const addSingleItem = (e) => {
@@ -138,10 +161,16 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
 
   };
 
+  // Handle the deletion of a single row
+  const handleDeleteRow = (rowIndex) => {
+    const newData = fullData.filter((row, index) => index !== rowIndex);
+    setFullData(newData);
+  }
+
 
 
   return (
-    <>
+    <div className="add-item-container">
       <div className="top-section">
         {isSubmitted && <div className="success-message"> Data submitted successfully! </div>}
       </div>
@@ -165,6 +194,7 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
                 <th>Packing</th>
                 <th>Unit Price</th>
                 <th>Before VAT</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -173,7 +203,7 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
                 <tr key={rowIndex}>
                   {Object.keys(row).map((cell, colIndex) => (
                     colIndex === 0 ? (
-                      <td key={colIndex}>{rowIndex}</td>
+                      <td key={colIndex}>{++itemIndex}</td>
                     ) : colIndex === 4 ? (
                       <td key={colIndex}>
                           <Suggest currentRowIndex = {rowIndex} onValueChange={handleSizeChange}/>
@@ -191,7 +221,13 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
                         />
                       </td>
                     )
+                    
                   ))}
+                  <td key={Object.keys(row).length}>
+                    <button onClick={() => handleDeleteRow(rowIndex)}>
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))}     
             
@@ -205,7 +241,7 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
         <button className="submit-button" onClick={(e) => handleClick(e)}>Add Data</button>
       </div>
 
-    </>
+    </div>
   );
 }
 

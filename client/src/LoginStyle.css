@@ -1,0 +1,65 @@
+.login-card {
+  /* postion the element relative to the nearest ancestor 
+    <body>
+  */
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  padding: 30px 30px 50px 30px;
+  margin: 0;
+  border-radius: 10px;
+  box-shadow: 0 0px 8px rgba(0, 0, 0, 0.8); /* Darker gray */
+  background-color: #fff;
+  text-align: center;
+}
+.arc-bg {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  top: -20%;
+  left: -10%;
+  width: 94vw;
+  height: 100vh;
+  background-color: hsl(200, 95%, 95%);
+  border-radius:0 40vh 100vh 0;
+  overflow: hidden;
+}
+
+.login-card h2 {
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  text-align: start;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.login-card button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background-color: #288af3;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.login-card button:hover {
+  background-color: #0056b3;
+}

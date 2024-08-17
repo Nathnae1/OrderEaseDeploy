@@ -57,6 +57,20 @@ app.get("/get_quotation/:id", (req, res) => {
 
 })
 
+// Route for last qoutaion reference number 
+app.get("/get_ref", (req, res) => {
+  const q = "SELECT refNum FROM quotation ORDER BY refNum DESC LIMIT 1";
+
+  pool.query(q, (err, data) => {
+    if(err) {
+      console.error('Query error:', err);
+      return res.status(500).json({error: 'Query error' });
+    }
+    return res.json(data);
+  })
+
+})
+
 // Items size, desc and price route
 app.get("/suggestions/items", (req,res) => {
 
@@ -70,6 +84,8 @@ app.get("/suggestions/items", (req,res) => {
   })
 
 })
+
+
 
 
 // app.post("/add", (req, res) => {                                                                                    
