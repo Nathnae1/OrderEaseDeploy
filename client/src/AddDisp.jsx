@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Suggest from './Suggest';
+import BillToSuggestions from './BillToSuggestions';
 
 // InputField component for rendering input fields
 function InputField({ label, type = 'text', value, onChange }) {
   return (
     <div className="input-field">
       <label>{label}</label>
-      <input type={type} value={value} onChange={onChange} />
+      <input className="identity-input" type={type} value={value} onChange={onChange} />
     </div>
   );
 }
@@ -20,6 +21,7 @@ function AddDisp() {
   const [name, setName] = useState('');
   const [date, setDate] = useState('');
   const [billTo, setBillTo] = useState('');
+  const [size, setSize] = useState('');
   let itemIndex = 0;
 
   const [itemData, setItemData] = useState('');
@@ -57,11 +59,13 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
         }, 2000);
 
         // reset the form fields
+        let tempRef = ref;
         setRef('');
-        setName('');
+        setRef(++tempRef);
+        // setName('');
         // setDate('');
-        setBillTo('');
-        setFullData([{ ref: '', name: '', date: '', billTo: '', size: '', description: '', quantity: '', colour: '', packing: '', unitPrice: '', beforeVat: '' }]);
+        // setBillTo('');
+        setFullData([{ ref: ref, name: '', date: '', billTo: '', size: size, description: '', quantity: '', colour: '', packing: '', unitPrice: '', beforeVat: '' }]);
         itemIndex = 0;
 
       } else {
@@ -139,11 +143,13 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
           let nameKey = dataKeys[1];
           let dateKey = dataKeys[2];
           let billToKey = dataKeys[3];
+          let sizeKey = dataKeys[4];
           let descKey = dataKeys[5];
           let priceKey = dataKeys[9];
           
           setFullData((data) => {
 
+              data[currentRowIndex][sizeKey] = newValue.size;
               data[currentRowIndex][descKey] = newValue.desc;
               data[currentRowIndex][priceKey] = newValue.price;
 
@@ -157,8 +163,17 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
         }
       }
 
+      if(currentRowIndex === 0) {
+        setSize(newValue.size);
+      }
+
       console.log('The values are', ref, name, date, billTo);
 
+  };
+
+  // Get the data form billTo Input
+  const handleBillToChange = (newValue) => {
+    setBillTo(newValue.company_name);
   };
 
   // Handle the deletion of a single row
@@ -176,11 +191,18 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
       </div>
       
       <div className="add-identity">
-        <InputField label="Ref" type="text" value={ref} onChange={(e) => setRef(e.target.value)} />
-        <InputField label="Name" type="text" value={name} onChange={(e) => setName(e.target.value)} /> 
-        <InputField label="Date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-        <InputField label="Bill To" type="text" value={billTo} onChange={(e) => setBillTo(e.target.value)} />
+        <div>
+          <InputField label="Ref" type="text" value={ref} onChange={(e) => setRef(e.target.value)} />
+          <InputField label="Name" type="text" value={name} onChange={(e) => setName(e.target.value)} /> 
+          <InputField label="Date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+        </div>
+
+        <div className="add-bill-to">
+          <BillToSuggestions onBillToChange={handleBillToChange}/>
+        </div>
       </div>
+
+      
 
       <div className="table-input">
         <table>
@@ -193,7 +215,7 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
                 <th>Colour</th>
                 <th>Packing</th>
                 <th>Unit Price</th>
-                <th>Before VAT</th>
+                <th className="before-vat">Before VAT</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -224,7 +246,7 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
                     
                   ))}
                   <td key={Object.keys(row).length}>
-                    <button onClick={() => handleDeleteRow(rowIndex)}>
+                    <button className="item-delete" onClick={() => handleDeleteRow(rowIndex)}>
                       Delete
                     </button>
                   </td>

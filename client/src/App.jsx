@@ -1,8 +1,6 @@
 
 import './App.css'
 import Quotation from './Quotation'
-import Add from './Add'
-import Home from './Home'
 import AddDisp from './AddDisp'
 import Suggest from './Suggest'
 

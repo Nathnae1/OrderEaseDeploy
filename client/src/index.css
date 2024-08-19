@@ -4,6 +4,9 @@
   align-items: center;
 }
 .add-identity {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
   margin: 20px 50px;
   border: 2px none;
   padding: 20px 50px;
@@ -15,7 +18,7 @@
   display: inline-block;
 }
 
-.add-identity input {
+.identity-input {
   margin: 10px 20px 10px 5px;
   padding: 5px 15px;
   border-radius: 10px;
@@ -37,7 +40,7 @@
 }
 
 table {
-  /* width: 100%; */
+  width: 100%;
   border-collapse: collapse;
 }
 
@@ -49,25 +52,73 @@ th, td {
 
 th {
   background-color: #f2f2f2;
-  text-align: left;
+  text-align: center;
+}
+
+.table-input .before-vat {
+  padding: 0 20px;
+}
+
+.table-input .item-delete {
+  background-color: red;
+  border-style: none;
+  padding: 4px 10px;
 }
 
 .suggest-size {
   width: 160px; /* adjust the width as needed */
 }
 
-.css-ka7ti6-MuiAutocomplete-root .MuiOutlinedInput-root {
+.suggest-size .css-ka7ti6-MuiAutocomplete-root .MuiOutlinedInput-root {
   padding: 9px;
   height: 25px;
   width: 100%;
 }
-.MuiAutocomplete-option:hover {
+.suggest-size .MuiAutocomplete-option:hover {
   background-color: #f0f0f0;
 }
 
-.MuiAutocomplete-option-selected {
+.suggest-size .MuiAutocomplete-option-selected {
   background-color: #e0e0e0;
   font-weight: bold;
+}
+
+.add-bill-to {
+  display: block;
+  margin: 8px 0 0 0;
+  border: 2px none;
+  padding: 0;
+  border-radius: 10px;
+  background-color: aliceblue;
+  align-items: start;
+}
+
+.suggest-billTo {
+  width: 100%; /* adjust the width as needed */
+}
+
+.suggest-billTo .css-ka7ti6-MuiAutocomplete-root .MuiOutlinedInput-root .MuiAutocomplete-input {
+  padding: 10px 10px;
+  height: 25px;
+  width: 100%;
+}
+
+.suggest-billTo .css-ka7ti6-MuiAutocomplete-root .MuiOutlinedInput-root {
+  padding: 0;
+}
+
+.suggest-billTo .MuiAutocomplete-option:hover {
+  background-color: #f0f0f0;
+}
+
+.suggest-billTo .MuiAutocomplete-option-selected {
+  background-color: #e0e0e0;
+  font-weight: bold;
+}
+
+.suggest-billTo .MuiInputLabel-shrink {
+  font-size: 1.2em;
+  left: -3px;
 }
 
 .table-input input {

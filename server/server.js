@@ -85,32 +85,20 @@ app.get("/suggestions/items", (req,res) => {
 
 })
 
+// Get companies and it's info
+app.get("/suggestions/billto",(req, res) => {
+  const q = "SELECT * FROM companies";
+  pool.query(q, (err, data) => {
+    if(err) {
+      console.error('Query error:', err);
+      return res.status(500).json({error: 'Query error' });
+    }
+    return res.json(data);
+  })
+})
 
 
-
-// app.post("/add", (req, res) => {                                                                                    
-//   const q = "INSERT INTO quotation (`refNum`,`Name`,`date`,`BillTo`,`Size`,`Desc`,`Qty`,`colour`,`Packing`,`UnitPrice`,`BeforeVAT`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-//   const values = [
-//       req.body.ref,
-//       req.body.name,
-//       new Date(req.body.date),
-//       req.body.billTo,
-//       req.body.size,
-//       req.body.description,
-//       req.body.quantity,
-//       req.body.colour,
-//       req.body.packing,
-//       req.body.unitPrice,
-//       req.body.beforeVat
-//   ];
-
-//   pool.query(q, values, (err, data) => {
-//     if (err) return res.json(err);
-//     return res.json("Proforma has been added");
-//   });
-// });
-
+// Add items to to quotation table
 app.post("/add", async (req, res) => {
   const objectsArray = req.body; // Ensure this is an array of objects
 
