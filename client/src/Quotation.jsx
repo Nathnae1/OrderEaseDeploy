@@ -59,7 +59,7 @@ function Quotation(){
               <tr key={quotation.id}>
                 <td>{++index}</td>
                 <td>{quotation.Size}</td>
-                <td>{quotation.Desc}</td>
+                <td>{quotation.Description}</td>
                 <td>{quotation.QTY}</td>
                 <td>{quotation.Colour}</td>
                 <td>{quotation.Packing}</td>

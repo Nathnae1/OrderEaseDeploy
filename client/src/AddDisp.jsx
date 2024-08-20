@@ -22,15 +22,17 @@ function AddDisp() {
   const [date, setDate] = useState('');
   const [billTo, setBillTo] = useState('');
   const [size, setSize] = useState('');
+  const [salesId, setSalesId] = useState('');
+
   let itemIndex = 0;
 
   const [itemData, setItemData] = useState('');
 
   //Full line Data
-  const [fullData, setFullData] = useState([{ ref: '', name: '', date: '', billTo: '', size: '', description: '', quantity: '', colour: '', packing: '', unitPrice: '', beforeVat: '' }]);
+  const [fullData, setFullData] = useState([{ ref: '',salesRepId: '', name: '', date: '', billTo: '', size: '', description: '', quantity: '', colour: '', packing: '', unitPrice: '', beforeVat: '' }]);
 
   // data keys
-const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity','colour','packing', 'unitPrice','beforeVat'];
+const dataKeys = ['ref','salesRepId','name', 'date','billTo','size', 'description', 'quantity','colour','packing', 'unitPrice','beforeVat'];
 
   // Checking data submisssion is succefull
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -65,7 +67,7 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
         // setName('');
         // setDate('');
         // setBillTo('');
-        setFullData([{ ref: ref, name: '', date: '', billTo: '', size: size, description: '', quantity: '', colour: '', packing: '', unitPrice: '', beforeVat: '' }]);
+        setFullData([{ ref: ref, salesRepId: '', name: '', date: '', billTo: '', size: size, description: '', quantity: '', colour: '', packing: '', unitPrice: '', beforeVat: '' }]);
         itemIndex = 0;
 
       } else {
@@ -81,8 +83,14 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
     fetch('http://localhost:5000/get_ref')
       .then(response => response.json())
       .then(refData => {
-        setRef(++refData[0].refNum);
-        console.log(refData[0].refNum); });
+        if (refData && refData[0]) {
+          setRef(++refData[0].refNum);
+          console.log(refData[0].refNum);
+        } else {
+          setRef(1);
+          console.log('Setting refNum to 1');
+        }
+         });
 
         // Function to format the date as YYYY-MM-DD
         const formatDate = (date) => {
@@ -101,7 +109,7 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
   const addSingleItem = (e) => {
 
     // Create new empty data
-    const newSingleData = [{ ref: '', name: '', date: '', billTo: '', size: '', description: '', quantity: '', colour: '', packing: '', unitPrice: '', beforeVat: '' }];
+    const newSingleData = [{ ref: '', salesRepId: '', name: '', date: '', billTo: '', size: '', description: '', quantity: '', colour: '', packing: '', unitPrice: '', beforeVat: '' }];
 
     setFullData((prevItems) => [...prevItems, ...newSingleData]);
     console.log(fullData);
@@ -140,12 +148,13 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
       if (newValue) {
         if (newValue.size && newValue.desc && newValue.price) {
           let refKey = dataKeys[0];
-          let nameKey = dataKeys[1];
-          let dateKey = dataKeys[2];
-          let billToKey = dataKeys[3];
-          let sizeKey = dataKeys[4];
-          let descKey = dataKeys[5];
-          let priceKey = dataKeys[9];
+          let salesIdKey = dataKeys[1];
+          let nameKey = dataKeys[2];
+          let dateKey = dataKeys[3];
+          let billToKey = dataKeys[4];
+          let sizeKey = dataKeys[5];
+          let descKey = dataKeys[6];
+          let priceKey = dataKeys[10];
           
           setFullData((data) => {
 
@@ -154,6 +163,7 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
               data[currentRowIndex][priceKey] = newValue.price;
 
               data[currentRowIndex][refKey] = ref;
+              data[currentRowIndex][salesIdKey] = salesId;
               data[currentRowIndex][nameKey] = name;
               data[currentRowIndex][dateKey] = date;
               data[currentRowIndex][billToKey] = billTo;
@@ -194,6 +204,7 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
         <div>
           <InputField label="Ref" type="text" value={ref} onChange={(e) => setRef(e.target.value)} />
           <InputField label="Name" type="text" value={name} onChange={(e) => setName(e.target.value)} /> 
+          <InputField label="Sales Id" type="number" value={salesId} onChange={(e) => setSalesId(e.target.value)} /> 
           <InputField label="Date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
         </div>
 
@@ -226,13 +237,13 @@ const dataKeys = ['ref','name', 'date','billTo','size', 'description', 'quantity
                   {Object.keys(row).map((cell, colIndex) => (
                     colIndex === 0 ? (
                       <td key={colIndex}>{++itemIndex}</td>
-                    ) : colIndex === 4 ? (
+                    ) : colIndex === 5 ? (
                       <td key={colIndex}>
                           <Suggest currentRowIndex = {rowIndex} onValueChange={handleSizeChange}/>
                       </td>
-                    ) : colIndex === 1 || colIndex === 2 || colIndex === 3  ? (
+                    ) : colIndex === 1 || colIndex === 2 || colIndex === 3 || colIndex === 4  ? (
                       ''
-                    ) : colIndex === 10 ? (
+                    ) : colIndex === 11 ? (
                       <td key={colIndex}>{row[dataKeys[colIndex]]}</td>
                     ) : (
                       <td key={colIndex}>

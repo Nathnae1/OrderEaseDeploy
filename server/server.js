@@ -105,10 +105,11 @@ app.post("/add", async (req, res) => {
   try {
     // Map each object to a promise of the database insertion
     const insertionPromises = objectsArray.map(object => {
-      const q = "INSERT INTO quotation (`refNum`,`Name`,`date`,`BillTo`,`Size`,`Desc`,`Qty`,`colour`,`Packing`,`UnitPrice`,`BeforeVAT`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      const q = "INSERT INTO quotation (`refNum`,`sales_rep_id`,`Name`,`Date`,`BillTo`,`Size`,`Description`,`Qty`,`colour`,`Packing`,`UnitPrice`,`BeforeVAT`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
       
       const values = [
         object.ref,
+        object.salesRepId,
         object.name,
         new Date(object.date), // Convert date to ISO format if needed
         object.billTo,
