@@ -1,0 +1,85 @@
+.get-top-section p{
+  font-size: 1.2em;
+}
+
+.get-bill-to {
+  background-color: antiquewhite;
+  text-align: center;
+  padding: 1px;
+}
+
+/* Container for the table to manage overflow and scrolling */
+.table-container {
+  overflow-x: auto; /* Allows horizontal scrolling if needed */
+  max-width: 100%; /* Ensures the table does not exceed container width */
+}
+
+/* Style for the table */
+.quotation-table table {
+  width: 100%; /* Makes the table take full width of the container */
+  border-collapse: collapse; /* Collapses borders between cells */
+  /* table-layout: fixed; Fixes the layout of the table columns */
+}
+
+/* Header cells */
+.quotation-table th {
+  text-align: center; /* Aligns text to the left */
+  padding: 6px; /* Adds padding */
+  border: 1px solid #ddd; /* Adds a border */
+}
+
+/* Data cells */
+.quotation-table td {
+  padding: 8px; /* Adds padding */
+  border: 1px solid #ddd; /* Adds a border */
+  overflow: hidden; /* Hides overflowed content */
+  text-overflow: ellipsis; /* Adds ellipsis for overflowed text */
+}
+
+.quotation-table input {
+  margin: 0;
+  padding: 5px;
+  /* max-width: 100px; */
+}
+
+/* Specific column width styles */
+.quotation-table .no {
+  width: 1%; /* Adjust width percentage */
+}
+
+.quotation-table .colour,
+.quotation-table .packing {
+  width: 5%;
+}
+
+.quotation-table .size{
+  width: 7%;
+}
+.quotation-table .description {
+  width: 10%; /* Adjust width percentage */
+}
+
+.quotation-table .qty {
+  width: 6%;
+}
+.quotation-table .unit-price{
+  width: 6%;
+}
+.quotation-table .before-vat {
+  width: 10%; /* Adjust width percentage */
+}
+
+.quotation-table .actions {
+  width: 8%; /* Adjust width percentage */
+}
+
+.quotation-table .actions button{
+  padding: 4px 10px;
+  margin: 3px 5px;
+}
+
+.quotation-table .actions .item-delete {
+  background-color: red;
+  border-color: red;
+  padding: 4px 10px;
+}
