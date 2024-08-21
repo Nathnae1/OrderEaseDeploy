@@ -43,10 +43,27 @@ app.get("/", (req, res) =>{
   res.json("hello this is the backend");
 })
 
+function generateTableName(year, month) {
+  return `quotation_${year}_${month}`;
+}
+
 // Quotation route
 app.get("/get_quotation/:id", (req, res) => {
   const id = req.params.id;
-  const q = "SELECT * FROM quotation WHERE `refNum`= ?";
+  const year = req.query.year;
+  const month = req.query.month;
+
+  // Validate input
+  if (!id || !year || !month) {
+    return res.status(400).json({ error: 'Missing required parameters' });
+  }
+
+  const tableName = generateTableName(year, month);
+
+  // Escape table name for safety
+  const escapedTableName = mysql.escapeId(tableName);
+
+  const q = `SELECT * FROM ${escapedTableName} WHERE refNum= ?`;
   pool.query(q,[id], (err, data) => {
     if(err) {
       console.error('Query error:', err);
@@ -59,7 +76,7 @@ app.get("/get_quotation/:id", (req, res) => {
 
 // Route for last qoutaion reference number 
 app.get("/get_ref", (req, res) => {
-  const q = "SELECT refNum FROM quotation ORDER BY refNum DESC LIMIT 1";
+  const q = "SELECT refNum FROM quotation_2024_08 ORDER BY refNum DESC LIMIT 1";
 
   pool.query(q, (err, data) => {
     if(err) {
@@ -105,7 +122,7 @@ app.post("/add", async (req, res) => {
   try {
     // Map each object to a promise of the database insertion
     const insertionPromises = objectsArray.map(object => {
-      const q = "INSERT INTO quotation (`refNum`,`sales_rep_id`,`Name`,`Date`,`BillTo`,`Size`,`Description`,`Qty`,`colour`,`Packing`,`UnitPrice`,`BeforeVAT`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      const q = "INSERT INTO quotation_2024_08 (`refNum`,`sales_rep_id`,`Name`,`Date`,`BillTo`,`Size`,`Description`,`Qty`,`colour`,`Packing`,`UnitPrice`,`BeforeVAT`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
       
       const values = [
         object.ref,

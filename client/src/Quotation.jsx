@@ -3,16 +3,42 @@ import { useState, useEffect } from "react";
 
 function Quotation(){
   const [id, setId] = useState('');
+  const [qoDate, setSelectedqoDate] = useState('');
   const [data, setData] = useState({});
   const [total, setTotal] = useState(0);
 
+  const [isFailedReq, setIsFailedReq] = useState(false);
+
+
+  useEffect(() => {
+        // Function to format the date as YYYY-MM-DD
+        const formatDate = (date) => {
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+          const day = String(date.getDate()).padStart(2, '0');
+          return `${year}-${month}-${day}`;
+        };
+
+        // Set the current date
+        const today = new Date();
+        setSelectedqoDate(formatDate(today));
+  }, []);
+
   const handleFetch = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/get_quotation/${id}`);
+      //converting from string to date object
+      const selectedDate = new Date(qoDate);
+
+      const year = selectedDate.getFullYear();
+      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+
+      const response = await axios.get(`http://localhost:5000/get_quotation/${id}?year=${year}&month=${month}`);
+
       setData(response.data);
-      console.log(data);
+      setIsFailedReq(false);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      setIsFailedReq(true);
+      console.error('Error fetching data:', error.message);
     }
   };
 
@@ -28,8 +54,12 @@ function Quotation(){
   }, [data]);
 
   return (
-    <div>
-
+    <>
+      <div>
+        {isFailedReq && <div>Error fetching data: Request failed with status code 404</div>}
+      </div>
+    {!isFailedReq && <div>
+      
       <div className="get-top-section">
         <p>Ref No: {data.length > 0 ? data[0].refNum : ''}</p>
         <p>Date: {data.length > 0 ? data[0].Date.split('T')[0] : ''}</p>
@@ -73,15 +103,21 @@ function Quotation(){
         <p>No data available</p>
       )}
       </div>
+
       <div>
         <p>Total Before VAT: {total}</p>
-        <p>VAT: {total * 0.15}</p>
-        <p>Total including VAT: {total * 1.15}</p>
+        <p>VAT: {(total * 0.15).toFixed(2)}</p>
+        <p>Total including VAT: {(total * 1.15).toFixed(2)}</p>
       </div>
-       <label>Input Pro number</label>
+      
+      <label>Select Date</label>
+      <input type="date" value={qoDate} onChange={(e) => setSelectedqoDate(e.target.value)}  />
+
+      <label>Input Pro number</label>
       <input type="text" value={id} placeholder="Enter no" onChange={(e) => setId(e.target.value)}/>
       <button onClick={handleFetch}>Fetch</button>
-    </div>
+    </div>}
+    </>
   );
 }
 
