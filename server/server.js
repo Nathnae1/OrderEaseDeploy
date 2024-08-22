@@ -47,7 +47,7 @@ function generateTableName(year, month) {
   return `quotation_${year}_${month}`;
 }
 
-// Quotation route
+// Quotation route to fetch data
 app.get("/get_quotation/:id", (req, res) => {
   const id = req.params.id;
   const year = req.query.year;
@@ -73,6 +73,30 @@ app.get("/get_quotation/:id", (req, res) => {
   })
 
 })
+
+// Delete quotatio item route
+app.delete("/delete_quotation/:id", (req, res) => {
+  const id = req.params.id;
+  const year = req.query.year;
+  const month = req.query.month;
+
+  const tableName = generateTableName(year, month);
+
+  // Escape table name for safety
+  const escapedTableName = mysql.escapeId(tableName);
+
+  const q = `DELETE FROM ${escapedTableName} WHERE id= ?`;
+  pool.query(q,[id], (err, data) => {
+    if(err) {
+      console.error('Deleting error:', err);
+      return res.status(500).json({error: 'Error deleting data' });
+    } else{
+      res.send({message: 'Data deleted successfully'})
+    }
+    
+  })
+
+});
 
 // Route for last qoutaion reference number 
 app.get("/get_ref", (req, res) => {

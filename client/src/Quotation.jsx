@@ -73,9 +73,13 @@ function Quotation() {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, rowIndex) => {
+    const itemDate = new Date(data[rowIndex].Date);
+    const year = itemDate.getFullYear();
+    const month = String(itemDate.getMonth() + 1).padStart(2, '0');
+    
     try {
-      await axios.delete(`http://localhost:5000/delete_quotation/${id}`);
+      await axios.delete(`http://localhost:5000/delete_quotation/${id}?year=${year}&month=${month}`);
       setData(data.filter(item => item.id !== id));
     } catch (error) {
       console.error('Error deleting data:', error.message);
@@ -205,7 +209,7 @@ function Quotation() {
                           ) : (
                             <>
                               <button onClick={() => setEditingIndex(index)}>Edit</button>
-                              <button className="item-delete" onClick={() => handleDelete(quotation.id)}>Delete</button>
+                              <button className="item-delete" onClick={() => handleDelete(quotation.id, index)}>Delete</button>
                             </>
                           )}
                         </td>

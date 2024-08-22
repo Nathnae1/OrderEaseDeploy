@@ -55,6 +55,11 @@ th {
   text-align: center;
 }
 
+.table-input {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
 .table-input .before-vat {
   padding: 0 20px;
 }
