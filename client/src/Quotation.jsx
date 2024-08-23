@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
+import EditAddItem from './EditAddItem'
 import './QuotationStyle.css'
 
 function Quotation() {
@@ -9,6 +10,8 @@ function Quotation() {
   const [total, setTotal] = useState(0);
   const [isFailedReq, setIsFailedReq] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null); // Track which row is being edited
+
+  const [addItem, setAddItem] = useState(false);
 
   useEffect(() => {
     // Function to format the date as YYYY-MM-DD
@@ -92,6 +95,11 @@ function Quotation() {
       console.error('Error deleting data:', error.message);
     }
   };
+
+  const handleAddItem = () => {
+    console.log('Entering add itme');
+    setAddItem(true);
+  }
 
   return (
     <>
@@ -230,6 +238,10 @@ function Quotation() {
             </div>
           </div>
           
+          {addItem && <div>
+            <div>This Adding</div>
+            <EditAddItem />
+          </div>}
 
           <div>
             <p>Total Before VAT: {total}</p>
@@ -243,6 +255,10 @@ function Quotation() {
           <label>Input Pro number</label>
           <input type="text" value={id} placeholder="Enter no" onChange={(e) => setId(e.target.value)}/>
           <button onClick={handleFetch}>Fetch</button>
+          <div>
+            <button onClick={handleAddItem}>Add Item</button>
+          </div>
+          
         </div>
       )}
     </>

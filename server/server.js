@@ -109,14 +109,7 @@ app.put("/update_quotation/:id", (req, res) => {
 
   const data = req.body;
 
-  //  // Check if all required fields are present
-  //  const requiredFields = ['refNum', 'sales_rep_id', 'Name', 'Date', 'BillTo', 'Size', 'Description', 'Qty', 'colour', 'Packing', 'UnitPrice', 'BeforeVAT'];
-  //  for (const field of requiredFields) {
-  //    if (!data.field) {
-  //      return res.status(400).json({ error: `${field} is required` });
-  //    }
-  //  }
-
+  // checking for empty values
   Object.values(data).forEach((item) => {
     if (!item) {
            return res.status(400).json({ error: `${field} is required` });
