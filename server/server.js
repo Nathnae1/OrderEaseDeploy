@@ -2,7 +2,7 @@ const express = require('express');
 const mysql = require('mysql2')
 const cors = require('cors')
 const path = require('path');
-const { error } = require('console');
+const { error, log } = require('console');
 
 const app = express();
 
@@ -93,9 +93,77 @@ app.delete("/delete_quotation/:id", (req, res) => {
     } else{
       res.send({message: 'Data deleted successfully'})
     }
-    
+  })
+});
+
+// Updadte quotation item route
+app.put("/update_quotation/:id", (req, res) => {
+  const id = req.params.id;
+  const year = req.query.year;
+  const month = req.query.month;
+
+  const tableName = generateTableName(year, month);
+
+  // Escape table name for safety
+  const escapedTableName = mysql.escapeId(tableName);
+
+  const data = req.body;
+
+  //  // Check if all required fields are present
+  //  const requiredFields = ['refNum', 'sales_rep_id', 'Name', 'Date', 'BillTo', 'Size', 'Description', 'Qty', 'colour', 'Packing', 'UnitPrice', 'BeforeVAT'];
+  //  for (const field of requiredFields) {
+  //    if (!data.field) {
+  //      return res.status(400).json({ error: `${field} is required` });
+  //    }
+  //  }
+
+  Object.values(data).forEach((item) => {
+    if (!item) {
+           return res.status(400).json({ error: `${field} is required` });
+         }
   })
 
+
+
+  const q = `UPDATE ${escapedTableName} 
+            SET refNum = ?, 
+                sales_rep_id = ?, 
+                Name = ?, 
+                Date = ?, 
+                BillTo = ?, 
+                Size = ?, 
+                Description = ?, 
+                Qty = ?, 
+                colour = ?, 
+                Packing = ?, 
+                UnitPrice = ?, 
+                BeforeVAT = ? 
+            WHERE id = ?`;
+
+  const values = [
+    data.refNum,
+    data.sales_rep_id,
+    data.Name,
+    data.Date.split('T')[0], // Convert to date
+    data.BillTo,
+    data.Size,
+    data.Description,
+    data.QTY,
+    data.Colour,
+    data.Packing,
+    data.UnitPrice,
+    data.BeforeVAT,
+    id
+  ];
+
+  pool.query(q,values, (err, data) => {
+    if(err) {
+      console.error('Updating error:', err);
+      return res.status(500).json({error: 'Error Updating data' });
+    } else{
+      res.send({message: 'Data updated successfully'})
+    }
+  })
 });
 
 // Route for last qoutaion reference number 

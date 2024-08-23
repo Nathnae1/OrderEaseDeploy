@@ -63,10 +63,17 @@ function Quotation() {
     setData(updatedData);
   };
 
-  const handleSave = async (index) => {
-    const updatedRow = data[index];
+  const handleSave = async (id, rowIndex) => {
+    const itemDate = new Date(data[rowIndex].Date);
+    const year = itemDate.getFullYear();
+    const month = String(itemDate.getMonth() + 1).padStart(2, '0');
+    
+    const updatedRow = data[rowIndex];
+    
+    
+    console.log(updatedRow);
     try {
-      await axios.put(`http://localhost:5000/update_quotation/${updatedRow.id}`, updatedRow);
+      await axios.put(`http://localhost:5000/update_quotation/${id}?year=${year}&month=${month}`, updatedRow);
       setEditingIndex(null);
     } catch (error) {
       console.error('Error saving data:', error.message);
@@ -203,7 +210,7 @@ function Quotation() {
                         <td className="actions">
                           {editingIndex === index ? (
                             <>
-                              <button onClick={() => handleSave(index)}>Save</button>
+                              <button onClick={() => handleSave(quotation.id, index)}>Save</button>
                               <button onClick={() => setEditingIndex(null)}>Cancel</button>
                             </>
                           ) : (
