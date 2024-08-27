@@ -12,6 +12,11 @@ function Quotation() {
   const [editingIndex, setEditingIndex] = useState(null); // Track which row is being edited
 
   const [addItem, setAddItem] = useState(false);
+  const [isFetched, setIsFetched] = useState(false);
+  const [noOfAddItems, setNoOfAddItems] = useState(0);
+
+  // set Identity 
+  const [identityEdit, setIdentityEdit] = useState({});
 
   useEffect(() => {
     // Function to format the date as YYYY-MM-DD
@@ -36,11 +41,28 @@ function Quotation() {
       const response = await axios.get(`http://localhost:5000/get_quotation/${id}?year=${year}&month=${month}`);
       setData(response.data);
       setIsFailedReq(false);
+      setIsFetched(true);
+      setAddItem(false);
+      setNoOfAddItems(0);
     } catch (error) {
       setIsFailedReq(true);
       console.error('Error fetching data:', error.message);
     }
   };
+
+  useEffect(() => {
+    setIdentityEdit({});
+    if (data.length > 0) {
+        setIdentityEdit(
+          {
+          ref: data[0].refNum,
+          name: data[0].Name,
+          date: data[0].Date.split('T')[0],
+          billTo: data[0].BillTo,
+          salesId: data[0].sales_rep_id
+          })
+    }
+  }, [data]);
 
   useEffect(() => {
     const calculateTotal = () => {
@@ -99,6 +121,7 @@ function Quotation() {
   const handleAddItem = () => {
     console.log('Entering add itme');
     setAddItem(true);
+    setNoOfAddItems(noOfAddItems + 1);
   }
 
   return (
@@ -239,8 +262,7 @@ function Quotation() {
           </div>
           
           {addItem && <div>
-            <div>This Adding</div>
-            <EditAddItem />
+            <EditAddItem noOfItems={noOfAddItems} identityData = {identityEdit}/>
           </div>}
 
           <div>
@@ -255,9 +277,10 @@ function Quotation() {
           <label>Input Pro number</label>
           <input type="text" value={id} placeholder="Enter no" onChange={(e) => setId(e.target.value)}/>
           <button onClick={handleFetch}>Fetch</button>
-          <div>
+          
+          {isFetched && data.length > 0 && <div>
             <button onClick={handleAddItem}>Add Item</button>
-          </div>
+          </div>}
           
         </div>
       )}

@@ -211,9 +211,7 @@ const dataKeys = ['ref','salesRepId','name', 'date','billTo','size', 'descriptio
         <div className="add-bill-to">
           <BillToSuggestions onBillToChange={handleBillToChange}/>
         </div>
-      </div>
-
-      
+      </div>    
 
       <div className="table-input">
         <table>
