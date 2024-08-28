@@ -159,6 +159,46 @@ app.put("/update_quotation/:id", (req, res) => {
   })
 });
 
+// Updadte quotation item Bill To
+app.put("/update_quotation/billto/:ref", (req, res) => {
+  const ref = req.params.ref;
+  const year = req.query.year;
+  const month = req.query.month;
+
+  const tableName = generateTableName(year, month);
+
+  // Escape table name for safety
+  const escapedTableName = mysql.escapeId(tableName);
+
+  const data = req.body;
+
+  // checking for empty values
+  Object.values(data).forEach((item) => {
+    if (!item) {
+           return res.status(400).json({ error: `${field} is required` });
+         }
+  })
+
+  const q = `UPDATE ${escapedTableName} 
+            SET BillTo = ? 
+            WHERE refNum = ?`;
+
+  console.log('Data is', data);
+  const values = [data.billToEdit, ref];
+
+
+
+  pool.query(q,values, (err, data) => {
+    if(err) {
+      console.error('Updating error:', err);
+      return res.status(500).json({error: 'Error Updating data' });
+    } else{
+      res.send({message: 'Data updated successfully'})
+    }
+  })
+});
+
+
 // Route for last qoutaion reference number 
 app.get("/get_ref", (req, res) => {
   const q = "SELECT refNum FROM quotation_2024_08 ORDER BY refNum DESC LIMIT 1";

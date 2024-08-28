@@ -9,11 +9,12 @@ function EditAddItem({noOfItems, identityData}) {
   const [date, setDate] = useState(identityData.date);
   const [billTo, setBillTo] = useState(identityData.billTo);
   const [size, setSize] = useState('');
-  const [salesId, setSalesId] = useState('');
+  const [salesId, setSalesId] = useState(identityData.salesId);
 
   const [itemData, setItemData] = useState('');
 
-  //Full line Data
+  let editIndex = 0;
+  // Add Data in qo
   const [AddData, setAddData] = useState([{ ref: '',salesRepId: '', name: '', date: '', billTo: '', size: '', description: '', quantity: '', colour: '', packing: '', unitPrice: '', beforeVat: '' }]);
 
   // data keys
@@ -89,7 +90,7 @@ function EditAddItem({noOfItems, identityData}) {
       setSize(newValue.size);
     }
 
-    console.log('The values are', ref, name, date, billTo);
+    console.log('The values are', ref, name, date, billTo, salesId);
 
   };
 
@@ -102,7 +103,7 @@ function EditAddItem({noOfItems, identityData}) {
   return (
     <>
       {AddData.length > 0 && <div>
-        <h1>Adding in Quo Section</h1>
+        <h2>Adding in Quo Section</h2>
       </div>}
 
       {AddData.length > 0 && <div className="table-input">
@@ -126,7 +127,7 @@ function EditAddItem({noOfItems, identityData}) {
                   <tr key={rowIndex}>
                     {Object.keys(row).map((cell, colIndex) => (
                       colIndex === 0 ? (
-                        <td key={colIndex}>{colIndex}</td>
+                        <td key={colIndex}>{++editIndex}</td>
                       ) : colIndex === 5 ? (
                         <td key={colIndex}>
                             <Suggest currentRowIndex = {rowIndex} onValueChange={handleSizeChange}/>

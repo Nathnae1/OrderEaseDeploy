@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import EditAddItem from './EditAddItem'
 import './QuotationStyle.css'
+import BillToSuggestions from "./BillToSuggestions";
 
 function Quotation() {
   const [id, setId] = useState('');
@@ -17,6 +18,8 @@ function Quotation() {
 
   // set Identity 
   const [identityEdit, setIdentityEdit] = useState({});
+  const [billToEdit, setBillToEdit] = useState('');
+  const [prevBillTo, setPrevBillTo] = useState('');
 
   useEffect(() => {
     // Function to format the date as YYYY-MM-DD
@@ -44,6 +47,7 @@ function Quotation() {
       setIsFetched(true);
       setAddItem(false);
       setNoOfAddItems(0);
+      setBillToEdit('');
     } catch (error) {
       setIsFailedReq(true);
       console.error('Error fetching data:', error.message);
@@ -124,6 +128,45 @@ function Quotation() {
     setNoOfAddItems(noOfAddItems + 1);
   }
 
+  const handleBillToEditChange = (newValue) => {
+    setPrevBillTo(data[0].BillTo);
+    if (newValue) {
+      setBillToEdit(newValue.company_name);
+    }
+
+  }
+
+  useEffect(() => {
+    console.log('This is prev', prevBillTo);
+    console.log('This is bill to edit', billToEdit);
+  }, [prevBillTo, billToEdit]);
+
+  const handleBillToEditCancel = () => {
+    setBillToEdit('');
+  }
+
+  const handleBillToEditSave = () => {
+    console.log('Saving Changes.....');
+    handleBillToSave(data[0].refNum, 0);
+    setBillToEdit('');
+  }
+
+  const handleBillToSave = async (ref, rowIndex) => {
+    const itemDate = new Date(data[rowIndex].Date);
+    const year = itemDate.getFullYear();
+    const month = String(itemDate.getMonth() + 1).padStart(2, '0');
+    
+    const updatedBillTo = {billToEdit};
+    
+    console.log('This handle bill to --- ', updatedBillTo);
+    try {
+      await axios.put(`http://localhost:5000/update_quotation/billto/${ref}?year=${year}&month=${month}`, updatedBillTo);
+      
+    } catch (error) {
+      console.error('Error saving data:', error.message);
+    }
+  };
+
   return (
     <>
       <div>
@@ -137,7 +180,18 @@ function Quotation() {
             <p>Name: {data.length > 0 ? data[0].Name : ''}</p>
           </div>
           <div className="get-bill-to">
-            <p>Bill To: {data.length > 0 ? data[0].BillTo : ''}</p>
+
+            {billToEdit ? <p>Bill To: {billToEdit}</p> : <p>Bill To: {data.length > 0 ? data[0].BillTo : ''}</p>}
+
+            {isFetched && data.length > 0 && <BillToSuggestions billToEditChange={handleBillToEditChange} />}
+
+            { (isFetched && data.length > 0 && billToEdit) &&  
+              <div>
+                <button onClick={handleBillToEditSave}>Save Change</button>
+                <button onClick={handleBillToEditCancel}>Cancel</button>
+              </div>
+            }
+            
           </div>
 
           <div className="table-container">
@@ -280,6 +334,7 @@ function Quotation() {
           
           {isFetched && data.length > 0 && <div>
             <button onClick={handleAddItem}>Add Item</button>
+            <button>Add Data</button>
           </div>}
           
         </div>

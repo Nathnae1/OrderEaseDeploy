@@ -3,7 +3,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import { useCompanyData } from './useCompanyData';
 
-function BillToSuggestions({onBillToChange}) {
+function BillToSuggestions({onBillToChange, billToEditChange}) {
   const {billToInfo, loading, error } = useCompanyData();
 
   const [inputValue, setInputValue] = useState(''); // Track input value
@@ -11,6 +11,8 @@ function BillToSuggestions({onBillToChange}) {
 
   if (loading) return console.log(loading);
   if (error) return console.log(error);
+
+  let textLable = billToEditChange ? "Bill To Change" : "Bill To";
 
   return (
     <div className="suggest-billTo">
@@ -44,6 +46,9 @@ function BillToSuggestions({onBillToChange}) {
           if (onBillToChange) {
             onBillToChange(newValue); // Call the callback function with the new value
           }
+          if (billToEditChange) {
+            billToEditChange(newValue);
+          }
         }}
 
         inputValue={inputValue}
@@ -52,8 +57,8 @@ function BillToSuggestions({onBillToChange}) {
           // Optionally, you can handle custom behavior here
           // For instance, setting value to a custom input if it doesn't match any suggestions
         }}
-
-        renderInput={(params) => <TextField {...params}  variant="outlined" label="Bill To" />}
+        
+        renderInput={(params) => <TextField {...params}  variant="outlined" label={textLable} />}
 
         freeSolo // Allows free text input
       />
