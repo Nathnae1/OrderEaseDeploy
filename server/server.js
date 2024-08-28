@@ -287,6 +287,54 @@ app.post("/add", async (req, res) => {
   }
 });
 
+// Add Additional items to quotation table
+app.post("/add/edit", async (req, res) => {
+  const objectsArray = req.body; // Ensure this is an array of objects
+
+  try {
+    // Map each object to a promise of the database insertion
+    const insertionPromises = objectsArray.map(object => {
+      const q = "INSERT INTO quotation_2024_08 (`refNum`,`sales_rep_id`,`Name`,`Date`,`BillTo`,`Size`,`Description`,`Qty`,`colour`,`Packing`,`UnitPrice`,`BeforeVAT`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      
+      const values = [
+        object.ref,
+        object.salesRepId,
+        object.name,
+        new Date(object.date), // Convert date to ISO format if needed
+        object.billTo,
+        object.size,
+        object.description,
+        object.quantity,
+        object.colour,
+        object.packing,
+        object.unitPrice,
+        object.beforeVat
+      ];
+
+      return new Promise((resolve, reject) => {
+        pool.query(q, values, (err, data) => {
+          if (err) {
+            reject(err); // Reject the promise if there is an error
+          } else {
+            resolve(data); // Resolve the promise if the query is successful
+          }
+        });
+      });
+    });
+
+    // Wait for all insertion promises to complete
+    await Promise.all(insertionPromises);
+
+    // Send response after all insertions
+    res.json("Proformas have been added");
+
+  } catch (err) {
+    // Handle any errors that occurred during insertion
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 app.post("/addtest", (req, res) => {
   const q = "INSERT INTO test (`id`,`name`) VALUES (?, ?)";
 

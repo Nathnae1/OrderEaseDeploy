@@ -21,6 +21,9 @@ function Quotation() {
   const [billToEdit, setBillToEdit] = useState('');
   const [prevBillTo, setPrevBillTo] = useState('');
 
+  // send edit data to DB notifier
+  const [sendEditdata, setSendEditData]  = useState(false)
+
   useEffect(() => {
     // Function to format the date as YYYY-MM-DD
     const formatDate = (date) => {
@@ -166,6 +169,43 @@ function Quotation() {
       console.error('Error saving data:', error.message);
     }
   };
+
+  // Function to refetch Data
+  const fetchData = async () => {
+    try {
+      const selectedDate = new Date(qoDate);
+      const year = selectedDate.getFullYear();
+      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+
+      const response = await axios.get(`http://localhost:5000/get_quotation/${id}?year=${year}&month=${month}`);
+      setData(response.data);
+      setIsFailedReq(false);
+      setIsFetched(true);
+      setAddItem(false);
+      setNoOfAddItems(0);
+      setBillToEdit('');
+    } catch (error) {
+      setIsFailedReq(true);
+      console.error('Error fetching data:', error.message);
+    }
+  };
+
+  // useEffect to refetch data when sendEditData changes
+  const [fetchTimestamp, setFetchTimestamp] = useState(Date.now()); // Add timestamp state
+  useEffect(() => {
+    if (sendEditdata) {
+      fetchData();
+      setFetchTimestamp(Date.now()); // Update timestamp to fetch new data
+      // Check how many times fetches 
+      console.log('Refetched');
+    }
+  }, [sendEditdata, fetchTimestamp]); // Dependency array includes sendEditData
+
+  // Notifying Edit Component to send data to DB
+  const handleEditAddData = () => {
+    setSendEditData(true);
+    console.log('Data Adding notified to edit component');
+  }
 
   return (
     <>
@@ -316,7 +356,7 @@ function Quotation() {
           </div>
           
           {addItem && <div>
-            <EditAddItem noOfItems={noOfAddItems} identityData = {identityEdit}/>
+            <EditAddItem noOfItems={noOfAddItems} identityData = {identityEdit} sendData={sendEditdata} setSendData={setSendEditData} />
           </div>}
 
           <div>
@@ -334,7 +374,7 @@ function Quotation() {
           
           {isFetched && data.length > 0 && <div>
             <button onClick={handleAddItem}>Add Item</button>
-            <button>Add Data</button>
+            <button onClick={handleEditAddData}>Add Data</button>
           </div>}
           
         </div>

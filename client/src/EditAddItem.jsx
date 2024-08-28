@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import Suggest from './Suggest';
-import BillToSuggestions from './BillToSuggestions';
+import axios from 'axios';
 
-function EditAddItem({noOfItems, identityData}) {
+function EditAddItem({noOfItems, identityData, sendData, setSendData}) {
   // State variables for each input field
   const [ref, setRef] = useState(identityData.ref);
   const [name, setName] = useState(identityData.name);
@@ -99,6 +99,37 @@ function EditAddItem({noOfItems, identityData}) {
     const newData = AddData.filter((row, index) => index !== rowIndex);
     setAddData(newData);
   }
+
+  // Sending Edit Data to mysql DB
+  useEffect(() => {
+    const submitData = async () => {
+      try {
+        // Check the data before sending to server
+        const dataToSend = AddData;
+        // Use Axios to send a POST request
+        const response = await axios.post('http://localhost:5000/add/edit', dataToSend);
+  
+        if (response.status === 200) {
+          console.log('Data submitted successfully!');
+          setAddData([]);
+          // setIsSubmitted(true);
+          // // Set a timeout to hide the success message after 10 seconds
+          // setTimeout(() => {
+          //   setIsSubmitted(false);
+          // }, 2000);
+  
+        } else {
+          console.error('Error submitting data to the database');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+    if (sendData) {
+      submitData();
+      setSendData(false);
+    }
+  }, [sendData]);
 
   return (
     <>
