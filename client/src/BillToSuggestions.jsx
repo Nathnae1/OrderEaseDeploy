@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
+import CircularProgress from '@mui/material/CircularProgress';
 import { useCompanyData } from './useCompanyData';
 
 function BillToSuggestions({onBillToChange, billToEditChange}) {
@@ -9,8 +10,11 @@ function BillToSuggestions({onBillToChange, billToEditChange}) {
   const [inputValue, setInputValue] = useState(''); // Track input value
   const [value, setValue] = useState(null); // Track selected value
 
-  if (loading) return console.log(loading);
-  if (error) return console.log(error);
+  // Handle loading state
+  if (loading) return <div><CircularProgress /> Loading...</div>;
+  
+  // Handle error state
+  if (error) return <div>Error: {error.message}</div>;
 
   let textLable = billToEditChange ? "Bill To Change" : "Bill To";
 

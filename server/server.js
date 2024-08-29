@@ -159,7 +159,7 @@ app.put("/update_quotation/:id", (req, res) => {
   })
 });
 
-// Updadte quotation item Bill To
+// Update quotation item Bill To
 app.put("/update_quotation/billto/:ref", (req, res) => {
   const ref = req.params.ref;
   const year = req.query.year;
@@ -230,6 +230,18 @@ app.get("/suggestions/items", (req,res) => {
 // Get companies and it's info
 app.get("/suggestions/billto",(req, res) => {
   const q = "SELECT * FROM companies";
+  pool.query(q, (err, data) => {
+    if(err) {
+      console.error('Query error:', err);
+      return res.status(500).json({error: 'Query error' });
+    }
+    return res.json(data);
+  })
+})
+
+// Get Sales info
+app.get("/suggestions/sales/person",(req, res) => {
+  const q = "SELECT sales_rep_id, first_name FROM sales_representative";
   pool.query(q, (err, data) => {
     if(err) {
       console.error('Query error:', err);

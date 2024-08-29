@@ -1,0 +1,25 @@
+
+.suggest-sales-person {
+  width: 160px; /* Adjust width as needed */
+  font-size: 0.875rem; /* Smaller font size */
+}
+.suggest-sales-person .css-ka7ti6-MuiAutocomplete-root .MuiOutlinedInput-root .MuiAutocomplete-input {
+  padding: 8px 8px;
+  height: 25px;
+  width: 100%;
+}
+
+.suggest-sales-person .css-ka7ti6-MuiAutocomplete-root .MuiOutlinedInput-root {
+  padding: 0;
+}
+
+.suggest-sales-person .MuiAutocomplete-option:hover {
+  background-color: #f0f0f0;
+}
+
+.suggest-sales-person .MuiAutocomplete-option-selected {
+  background-color: #e0e0e0;
+  font-weight: bold;
+}
+
+

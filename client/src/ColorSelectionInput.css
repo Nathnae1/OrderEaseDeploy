@@ -1,0 +1,17 @@
+
+.color-selection-input {
+  width: 160px; /* Adjust width as needed */
+  font-size: 0.875rem; /* Smaller font size */
+}
+.color-selection-input .MuiAutocomplete-hasPopupIcon.css-ka7ti6-MuiAutocomplete-root .MuiOutlinedInput-root, .MuiAutocomplete-hasClearIcon.css-ka7ti6-MuiAutocomplete-root .MuiOutlinedInput-root {
+  padding: 0px;
+}
+
+.color-selection-input .css-ka7ti6-MuiAutocomplete-root .MuiOutlinedInput-root .MuiAutocomplete-input {
+  padding: 2px;
+  padding-left: 9px;
+  width: 100%;
+}
+
+
+

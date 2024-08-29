@@ -88,6 +88,13 @@ th {
   font-weight: bold;
 }
 
+.add-serial {
+  display: flex;           
+  align-items: center;    /* Align items to the top of the container */
+  gap: 16px;                  /* Optional: Add space between items */
+  flex-wrap: wrap;            /* Optional: Allow items to wrap if there's not enough space */
+}
+
 .add-bill-to {
   display: block;
   margin: 8px 0 0 0;

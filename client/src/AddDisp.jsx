@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Suggest from './Suggest';
 import BillToSuggestions from './BillToSuggestions';
+import ColorSelectionInput from './ColorSelectionInput';
+import SalesInput from './SalesInput';
 
 // InputField component for rendering input fields
 function InputField({ label, type = 'text', value, onChange }) {
@@ -29,7 +31,7 @@ function AddDisp() {
   const [itemData, setItemData] = useState('');
 
   //Full line Data
-  const [fullData, setFullData] = useState([{ ref: '',salesRepId: '', name: '', date: '', billTo: '', size: '', description: '', quantity: '', colour: '', packing: '', unitPrice: '', beforeVat: '' }]);
+  const [fullData, setFullData] = useState([{ ref: '',salesRepId: '', name: '', date: '', billTo: '', size: '', description: '', quantity: '', colour: 'Black', packing: 'DRUM', unitPrice: '', beforeVat: '' }]);
 
   // data keys
 const dataKeys = ['ref','salesRepId','name', 'date','billTo','size', 'description', 'quantity','colour','packing', 'unitPrice','beforeVat'];
@@ -67,7 +69,7 @@ const dataKeys = ['ref','salesRepId','name', 'date','billTo','size', 'descriptio
         // setName('');
         // setDate('');
         // setBillTo('');
-        setFullData([{ ref: ref, salesRepId: '', name: '', date: '', billTo: '', size: size, description: '', quantity: '', colour: '', packing: '', unitPrice: '', beforeVat: '' }]);
+        setFullData([{ ref: ref, salesRepId: '', name: '', date: '', billTo: '', size: size, description: '', quantity: '', colour: 'Black', packing: 'DRUM', unitPrice: '', beforeVat: '' }]);
         itemIndex = 0;
 
       } else {
@@ -109,7 +111,7 @@ const dataKeys = ['ref','salesRepId','name', 'date','billTo','size', 'descriptio
   const addSingleItem = (e) => {
 
     // Create new empty data
-    const newSingleData = [{ ref: '', salesRepId: '', name: '', date: '', billTo: '', size: '', description: '', quantity: '', colour: '', packing: '', unitPrice: '', beforeVat: '' }];
+    const newSingleData = [{ ref: '', salesRepId: '', name: '', date: '', billTo: '', size: '', description: '', quantity: '', colour: 'Black', packing: 'DRUM', unitPrice: '', beforeVat: '' }];
 
     setFullData((prevItems) => [...prevItems, ...newSingleData]);
     console.log(fullData);
@@ -138,12 +140,30 @@ const dataKeys = ['ref','salesRepId','name', 'date','billTo','size', 'descriptio
 
   }
 
+  const handleColorChange = (currentRowIndex, colorValue) => {
+    
+    if (colorValue) {
+      const updatedData = [...fullData];
+      let tempKey = dataKeys[8];
+      updatedData[currentRowIndex][tempKey] = colorValue.colorName;
+
+      setFullData(updatedData);
+      console.log(fullData);
+    }
+    
+  }
+
+  const handleSalesInfo = (infoSales) => {
+    if (infoSales) {
+      setName(infoSales.first_name);
+      setSalesId(infoSales.sales_rep_id);
+      console.log('This from Add Disp', infoSales);
+    }
+  }
+
   // Get the data from size input
   const handleSizeChange = (newValue, currentRowIndex)=> {
       setItemData(newValue);
-      console.log('Parent the value is :',newValue);
-      console.log('Current index', currentRowIndex);
-      console.log('Parent the value is :',itemData);
 
       if (newValue) {
         if (newValue.size && newValue.desc && newValue.price) {
@@ -192,8 +212,6 @@ const dataKeys = ['ref','salesRepId','name', 'date','billTo','size', 'descriptio
     setFullData(newData);
   }
 
-
-
   return (
     <div className="add-item-container">
       <div className="top-section">
@@ -201,11 +219,10 @@ const dataKeys = ['ref','salesRepId','name', 'date','billTo','size', 'descriptio
       </div>
       
       <div className="add-identity">
-        <div>
+        <div className="add-serial">
           <InputField label="Ref" type="text" value={ref} onChange={(e) => setRef(e.target.value)} />
-          <InputField label="Name" type="text" value={name} onChange={(e) => setName(e.target.value)} /> 
-          <InputField label="Sales Id" type="number" value={salesId} onChange={(e) => setSalesId(e.target.value)} /> 
           <InputField label="Date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          <SalesInput onSalesInfo={handleSalesInfo}/>
         </div>
 
         <div className="add-bill-to">
@@ -241,6 +258,10 @@ const dataKeys = ['ref','salesRepId','name', 'date','billTo','size', 'descriptio
                       </td>
                     ) : colIndex === 1 || colIndex === 2 || colIndex === 3 || colIndex === 4  ? (
                       ''
+                    ) : colIndex === 8 ? (
+                      <td key={colIndex}>
+                         <ColorSelectionInput currentRowIndex = {rowIndex} onColorChange={handleColorChange} />
+                      </td>
                     ) : colIndex === 11 ? (
                       <td key={colIndex}>{row[dataKeys[colIndex]]}</td>
                     ) : (
