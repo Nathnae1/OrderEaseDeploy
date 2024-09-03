@@ -7,7 +7,9 @@ const cors = require('cors')
 const path = require('path');
 
 //JWT library for generating and verifing tokens
-const bcrypt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
+
+const bcrypt = require('bcryptjs')
 
 // for parsing JSON bodies
 const bodyParser = require('body-parser');
@@ -360,7 +362,7 @@ app.post("/add/edit", async (req, res) => {
 
 // Login code
 //Use an environment variable in production
-const JWT_SECRET = 'your_secret_key';
+const JWT_SECRET = 'your_secret_key_1234';
 
 // Middleware to verify token
 // authenticateToken middleware verifies the JWT token sent in the Authorization header
@@ -381,12 +383,16 @@ const authenticateToken = (req, res, next) => {
 /// Endpoint to handle login
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
+  console.log('this is from react', email, password);
 
   try {
     // Execute a query to retrieve the user by email
-    const [results] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+    const results = await pool.promise().query('SELECT * FROM users WHERE email = ?', [email]);
+    console.log('this is results', results);
 
-    const user = results[0];
+    const singleResult = results[0];
+    const user = singleResult[0];
+
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }

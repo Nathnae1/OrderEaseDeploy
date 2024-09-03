@@ -2,11 +2,11 @@ const bcrypt = require('bcryptjs');
 
 const passwords = [
   'password123', // Replace with desired passwords for each email
-  'password123',
-  'password123',
-  'password123',
-  'password123',
-  'password123'
+  'password345',
+  'password678',
+  'password901',
+  'password234',
+  'password567'
 ];
 
 passwords.forEach(async (password, index) => {

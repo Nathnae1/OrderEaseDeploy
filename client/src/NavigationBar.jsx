@@ -7,9 +7,9 @@ const NavigationBar = () => {
 
   return (
     <nav>
-      <Link to="/">Home</Link>
       {isAuthenticated ? (
         <>
+          <Link to="/home">Home</Link>
           <Link to="/dashboard">Dashboard</Link>
           <Link to="/get_quotation">Quotation</Link>
           <Link to="/add">Add Disposition</Link>

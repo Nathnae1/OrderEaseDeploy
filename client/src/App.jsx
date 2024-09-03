@@ -2,6 +2,7 @@
 import './App.css'
 import Quotation from './Quotation'
 import AddDisp from './AddDisp'
+import Home from './Home'
 
 import LoginCard from './LoginCard'
 
@@ -22,6 +23,7 @@ function App() {
           <NavigationBar />
           <Routes>
             <Route path="/login" element={<LoginCard />} />
+            <Route path="/home" element={<ProtectedRoute element={<Home />} />} />
             <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
 
             <Route path="/get_quotation" element={<ProtectedRoute element={<Quotation />} />} />
