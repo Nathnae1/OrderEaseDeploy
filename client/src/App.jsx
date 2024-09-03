@@ -2,30 +2,38 @@
 import './App.css'
 import Quotation from './Quotation'
 import AddDisp from './AddDisp'
-import Suggest from './Suggest'
 
-import {
-  BrowserRouter,
-  Routes,
-  Route
-} from 'react-router-dom'
 import LoginCard from './LoginCard'
 
-function App() {
+import React from 'react';
+import { BrowserRouter, Router, Route, Routes, Navigate } from 'react-router-dom';
+import { AuthProvider } from './AuthContext';
 
+import Dashboard from './Dashboard';
+import NavigationBar from './NavigationBar';
+import ProtectedRoute from './ProtectedRoute';
+
+function App() {
+  // Handle route protection within route
   return (
-    <>
-      <div>
+    
+      <AuthProvider>
         <BrowserRouter>
+          <NavigationBar />
           <Routes>
-            <Route path="/" element={<LoginCard />} />
-            <Route path="/get_quotation" element={<Quotation />} />
-            <Route path="/add" element={<AddDisp />} />
-            <Route path="/auto" element={<Suggest />} />
+            <Route path="/login" element={<LoginCard />} />
+            <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
+
+            <Route path="/get_quotation" element={<ProtectedRoute element={<Quotation />} />} />
+            <Route path="/add" element={<ProtectedRoute element={<AddDisp />} />} />
+            <Route path="/" element={<Navigate to="/login" />} />
+
           </Routes>
         </BrowserRouter>
-      </div>
-    </>
+      </AuthProvider>
+        
+      
+  
   )
 }
 

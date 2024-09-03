@@ -1,15 +1,34 @@
+
+import axios from 'axios';
+import { useAuth } from './AuthContext';
+import { useNavigate } from 'react-router-dom';
+
 import { useState } from "react";
 import './LoginStyle.css'
+
 
 
 function LoginCard() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(email, password);
-  }
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/login', { email, password });
+      const { token } = response.data;
+      localStorage.setItem('token', token);
+      login();
+      navigate('/dashboard'); // Redirect to a protected page
+    } catch (error) {
+      setError('Login failed');
+    }
+  };
+  
 
   return (
    <>
@@ -41,9 +60,10 @@ function LoginCard() {
           />
         </div> 
         <button type="submit">Login</button>      
-
+        {error && <p style={{ color: 'red' }}>{error}</p>}
       </form>
-    </div></>
+    </div>
+  </>
   );
 }
 

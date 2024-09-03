@@ -1,7 +1,16 @@
 const express = require('express');
+
+// for interacting with the mysql db
 const mysql = require('mysql2')
+//for enabling cross-origin requests
 const cors = require('cors')
 const path = require('path');
+
+//JWT library for generating and verifing tokens
+const bcrypt = require('jsonwebtoken');
+
+// for parsing JSON bodies
+const bodyParser = require('body-parser');
 const { error, log } = require('console');
 
 const app = express();
@@ -11,6 +20,8 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Enable CORS
 app.use(cors());
+
+app.use(bodyParser.json());
 
 // Parse JSON bodies
 app.use(express.json());
@@ -347,18 +358,58 @@ app.post("/add/edit", async (req, res) => {
 });
 
 
-app.post("/addtest", (req, res) => {
-  const q = "INSERT INTO test (`id`,`name`) VALUES (?, ?)";
+// Login code
+//Use an environment variable in production
+const JWT_SECRET = 'your_secret_key';
 
-  const values = [
-      req.body.id,
-      req.body.name
-  ];
+// Middleware to verify token
+// authenticateToken middleware verifies the JWT token sent in the Authorization header
 
-  pool.query(q, values, (err, data) => {
-    if (err) return res.json(err);
-    return res.json("Proforma has been added");
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  
+  if (token == null) return res.sendStatus(401);
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
   });
+};
+
+/// Endpoint to handle login
+app.post('/api/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    // Execute a query to retrieve the user by email
+    const [results] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+
+    const user = results[0];
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Compare provided password with hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
+
+    res.json({ token });
+  } catch (error) {
+    console.error('Error handling login:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Example protected route
+app.get('/api/protected', authenticateToken, (req, res) => {
+  res.json({ message: 'This is a protected route', user: req.user });
 });
 
 // Start the server
