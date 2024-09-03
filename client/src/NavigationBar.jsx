@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
+import './navigation-bar.css'
 
 const NavigationBar = () => {
   const { isAuthenticated, logout } = useAuth();
 
   return (
-    <nav>
+    <nav className={isAuthenticated ? 'is-authenticated' : 'hidden'}>
       {isAuthenticated ? (
         <>
           <Link to="/home">Home</Link>

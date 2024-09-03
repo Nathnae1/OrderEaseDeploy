@@ -1,23 +1,21 @@
+import React from 'react';
+import { BrowserRouter, Router, Route, Routes, Navigate } from 'react-router-dom';
 
-import './App.css'
+import { AuthProvider } from './AuthContext';
+import Dashboard from './Dashboard';
+import NavigationBar from './NavigationBar';
+import ProtectedRoute from './ProtectedRoute';
+
 import Quotation from './Quotation'
 import AddDisp from './AddDisp'
 import Home from './Home'
 
 import LoginCard from './LoginCard'
-
-import React from 'react';
-import { BrowserRouter, Router, Route, Routes, Navigate } from 'react-router-dom';
-import { AuthProvider } from './AuthContext';
-
-import Dashboard from './Dashboard';
-import NavigationBar from './NavigationBar';
-import ProtectedRoute from './ProtectedRoute';
+import './App.css'
 
 function App() {
   // Handle route protection within route
   return (
-    
       <AuthProvider>
         <BrowserRouter>
           <NavigationBar />
@@ -32,10 +30,7 @@ function App() {
 
           </Routes>
         </BrowserRouter>
-      </AuthProvider>
-        
-      
-  
+      </AuthProvider>      
   )
 }
 
