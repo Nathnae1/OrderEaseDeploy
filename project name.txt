@@ -1,0 +1,1 @@
+OrderEase: A name that suggests the project makes it easy to manage orders from pro forma to delivery.
