@@ -389,10 +389,19 @@ app.post("/add", async (req, res) => {
 app.post("/add/edit", async (req, res) => {
   const objectsArray = req.body; // Ensure this is an array of objects
 
+  const year = req.query.year;
+  const month = req.query.month;
+
+  const tableName = generateTableName(year, month);
+
+  // Escape table name for safety
+  const escapedTableName = mysql.escapeId(tableName);
+
   try {
     // Map each object to a promise of the database insertion
     const insertionPromises = objectsArray.map(object => {
-      const q = "INSERT INTO quotation_2024_08 (`refNum`,`sales_rep_id`,`Name`,`Date`,`BillTo`,`Size`,`Description`,`Qty`,`colour`,`Packing`,`UnitPrice`,`BeforeVAT`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      const q = `INSERT INTO ${escapedTableName} (\`refNum\`, \`sales_rep_id\`, \`Name\`, \`Date\`, \`BillTo\`, \`Size\`, \`Description\`, \`Qty\`, \`colour\`, \`Packing\`, \`UnitPrice\`, \`BeforeVAT\`) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
       
       const values = [
         object.ref,

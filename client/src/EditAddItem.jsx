@@ -104,10 +104,18 @@ function EditAddItem({noOfItems, identityData, sendData, setSendData}) {
   useEffect(() => {
     const submitData = async () => {
       try {
+        const dateObj = new Date(date);
+        const month = (dateObj.getMonth() + 1).toString().padStart(2, '0'); 
+        const year = dateObj.getFullYear();
+  
+        // Append the month and year as query parameters
+        const queryString = `?month=${month}&year=${year}`;
+        
+        // Use Axios to send a POST request with the query parameters in the URL
         // Check the data before sending to server
         const dataToSend = AddData;
         // Use Axios to send a POST request
-        const response = await axios.post('http://localhost:5000/add/edit', dataToSend);
+        const response = await axios.post(`http://localhost:5000/add/edit${queryString}`, dataToSend);
   
         if (response.status === 200) {
           console.log('Data submitted successfully!');

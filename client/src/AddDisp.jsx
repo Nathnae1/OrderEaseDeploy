@@ -7,10 +7,11 @@ import SalesInput from './SalesInput';
 
 // InputField component for rendering input fields
 function InputField({ label, type = 'text', value, onChange }) {
+  const isDateType = type === 'date';
   return (
     <div className="input-field">
       <label>{label}</label>
-      <input className="identity-input" type={type} value={value} onChange={onChange} />
+      <input className="identity-input" type={type} value={value} onChange={onChange} readOnly={isDateType}/>
     </div>
   );
 }
