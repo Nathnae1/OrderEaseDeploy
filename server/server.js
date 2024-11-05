@@ -212,19 +212,80 @@ app.put("/update_quotation/billto/:ref", (req, res) => {
 });
 
 
-// Route for last qoutaion reference number 
+// Route for last quotation reference number
 app.get("/get_ref", (req, res) => {
-  const q = "SELECT refNum FROM quotation_2024_08 ORDER BY refNum DESC LIMIT 1";
 
-  pool.query(q, (err, data) => {
-    if(err) {
-      console.error('Query error:', err);
-      return res.status(500).json({error: 'Query error' });
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // Format month as two digits
+
+  // Create table name dynamically based on the year and month
+  const tableName = `quotation_${year}_${month}`;
+
+  // Check if the table exists
+  const checkTableQuery = `SHOW TABLES LIKE '${tableName}'`;
+
+  pool.query(checkTableQuery, (err, result) => {
+    if (err) {
+      console.error('Error checking table existence:', err);
+      return res.status(500).json({ error: 'Error checking table existence' });
     }
-    return res.json(data);
-  })
 
-})
+    // If the table does not exist, create it
+    if (result.length === 0) {
+      const createTableQuery = `
+        CREATE TABLE ${tableName} (
+          id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+          refNum INT NOT NULL,
+          sales_rep_id INT NOT NULL,
+          Name VARCHAR(100) NOT NULL,
+          Date DATE NOT NULL,
+          BillTo VARCHAR(255) NOT NULL,
+          Size VARCHAR(50) NOT NULL,
+          Description VARCHAR(50) NOT NULL,
+          QTY INT NOT NULL,
+          Colour VARCHAR(50) NOT NULL,
+          Packing VARCHAR(50) NOT NULL,
+          UnitPrice DECIMAL(10, 2) NOT NULL,
+          BeforeVAT DECIMAL(10, 2) NOT NULL
+        );
+      `;
+
+      pool.query(createTableQuery, (err, result) => {
+        if (err) {
+          console.error('Error creating table:', err);
+          return res.status(500).json({ error: 'Error creating table' });
+        }
+
+        console.log(`Table ${tableName} created successfully`);
+
+        // After creating the table, insert the first reference number (refNum = 1)
+        const insertRefQuery = `INSERT INTO ${tableName} (refNum) VALUES (1)`;
+
+        pool.query(insertRefQuery, (err, result) => {
+          if (err) {
+            console.error('Error inserting reference number:', err);
+            return res.status(500).json({ error: 'Error inserting reference number' });
+          }
+          console.log('Reference number 1 inserted');
+          return res.json({ refNum: 1 });
+        });
+      });
+
+    } else {
+      // Table exists, get the last reference number
+      const selectRefQuery = `SELECT refNum FROM ${tableName} ORDER BY refNum DESC LIMIT 1`;
+
+      pool.query(selectRefQuery, (err, data) => {
+        if (err) {
+          console.error('Query error:', err);
+          return res.status(500).json({ error: 'Query error' });
+        }
+        return res.json(data);
+      });
+    }
+  });
+});
 
 // Items size, desc and price route
 app.get("/suggestions/items", (req,res) => {
@@ -270,9 +331,21 @@ app.post("/add", async (req, res) => {
   const objectsArray = req.body; // Ensure this is an array of objects
 
   try {
+    // Get the current year and month
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Format month as two digits
+
+    // Dynamically generate the table name
+    const tableName = generateTableName(year, month);
+   
+    // Escape table name for safety
+    const escapedTableName = mysql.escapeId(tableName);
+
     // Map each object to a promise of the database insertion
     const insertionPromises = objectsArray.map(object => {
-      const q = "INSERT INTO quotation_2024_08 (`refNum`,`sales_rep_id`,`Name`,`Date`,`BillTo`,`Size`,`Description`,`Qty`,`colour`,`Packing`,`UnitPrice`,`BeforeVAT`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      const q = `INSERT INTO ${escapedTableName} (\`refNum\`, \`sales_rep_id\`, \`Name\`, \`Date\`, \`BillTo\`, \`Size\`, \`Description\`, \`Qty\`, \`colour\`, \`Packing\`, \`UnitPrice\`, \`BeforeVAT\`) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
       
       const values = [
         object.ref,
