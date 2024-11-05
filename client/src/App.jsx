@@ -9,6 +9,7 @@ import ProtectedRoute from './ProtectedRoute';
 import Quotation from './Quotation'
 import AddDisp from './AddDisp'
 import Home from './Home'
+import SalesOrder from './SalesOrder';
 
 import LoginCard from './LoginCard'
 import './App.css'
@@ -26,6 +27,7 @@ function App() {
 
             <Route path="/get_quotation" element={<ProtectedRoute element={<Quotation />} />} />
             <Route path="/add" element={<ProtectedRoute element={<AddDisp />} />} />
+            <Route path="/create_so" element={<ProtectedRoute element={<SalesOrder />} />} />
             <Route path="/" element={<Navigate to="/login" />} />
 
           </Routes>

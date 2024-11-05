@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import EditAddItem from './EditAddItem'
 import './QuotationStyle.css'
 import BillToSuggestions from "./BillToSuggestions";
+import { useNavigate } from 'react-router-dom';
 
 function Quotation() {
   const [id, setId] = useState('');
@@ -22,7 +23,10 @@ function Quotation() {
   const [prevBillTo, setPrevBillTo] = useState('');
 
   // send edit data to DB notifier
-  const [sendEditdata, setSendEditData]  = useState(false)
+  const [sendEditdata, setSendEditData]  = useState(false);
+
+  // Define the navigate function
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Function to format the date as YYYY-MM-DD
@@ -207,6 +211,10 @@ function Quotation() {
     console.log('Data Adding notified to edit component');
   }
 
+  const handleCreateSO = (e) => {
+    navigate('/create_so');
+  }
+
   return (
     <>
       <div>
@@ -375,6 +383,7 @@ function Quotation() {
           {isFetched && data.length > 0 && <div>
             <button onClick={handleAddItem}>Add Item</button>
             <button onClick={handleEditAddData}>Add Data</button>
+            <button className="create-so-button" onClick={(e) => handleCreateSO(e)}>Create SO</button>
           </div>}
           
         </div>
