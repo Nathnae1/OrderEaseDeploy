@@ -212,7 +212,8 @@ function Quotation() {
   }
 
   const handleCreateSO = (e) => {
-    navigate('/create_so');
+    // React's navigate and the browser will automatically convert the qoDate Date object to a string when it's placed into the URL. 
+    navigate(`/create_so?qoToSo=${id}&selectedDate=${qoDate}`);
   }
 
   return (
