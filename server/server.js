@@ -87,6 +87,47 @@ app.get("/get_quotation/:id", (req, res) => {
 
 })
 
+// Quotation route to fetch data to make Sales Order
+app.get("/get_quotation_for_so/:qoToSoRef", (req, res) => {
+
+  const ref = req.params.qoToSoRef;
+  const year = req.query.year;
+  const month = req.query.month;
+  const idFilter = req.query.filterIds;
+
+  // Convert the ids string back to an array
+  const selectedIds = idFilter ? idFilter.split(',').map(id => parseInt(id)) : [];
+  
+  // Validate input
+  if (!ref || !year || !month) {
+    return res.status(400).json({ error: 'Missing required parameters' });
+  }
+
+  const tableName = generateTableName(year, month);
+
+  // Escape table name for safety
+  const escapedTableName = mysql.escapeId(tableName);
+
+  const q = `SELECT * FROM ${escapedTableName} WHERE refNum= ?`;
+  pool.query(q,[ref], (err, data) => {
+    if(err) {
+      console.error('Query error:', err);
+      return res.status(500).json({error: 'Query error' });
+    }
+
+    if(selectedIds) {
+      // Fetch and filter your data based on the selected IDs
+        const filteredData = data.filter((quotation) => selectedIds.includes(quotation.id));
+
+      // Return the filtered data
+      return res.json(filteredData);
+    }
+
+    return res.json(data);
+  })
+
+})
+
 // Delete quotatio item route
 app.delete("/delete_quotation/:id", (req, res) => {
   const id = req.params.id;

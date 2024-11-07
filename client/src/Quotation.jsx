@@ -22,6 +22,9 @@ function Quotation() {
   const [billToEdit, setBillToEdit] = useState('');
   const [prevBillTo, setPrevBillTo] = useState('');
 
+  //Collect the selected row table ids
+  const [selectedTableRowsID, setSelectedTableRowsID] = useState([]);
+
   // send edit data to DB notifier
   const [sendEditdata, setSendEditData]  = useState(false);
 
@@ -211,10 +214,26 @@ function Quotation() {
     console.log('Data Adding notified to edit component');
   }
 
+  //Table row selction
+  const handleTableRowClick = (rowId) => {
+    const newRowID = selectedTableRowsID.includes(rowId) ? selectedTableRowsID.filter((id) => id !== rowId) :
+    [...selectedTableRowsID, rowId];
+    setSelectedTableRowsID(newRowID);
+    console.log(selectedTableRowsID);
+  };
+
   const handleCreateSO = (e) => {
     // React's navigate and the browser will automatically convert the qoDate Date object to a string when it's placed into the URL. 
     navigate(`/create_so?qoToSo=${id}&selectedDate=${qoDate}`);
   }
+
+  const handleCreateSelectedSO = (e) => {
+    const selectedRowsParam = selectedTableRowsID.join(',');
+
+    navigate(`/create_so?qoToSo=${id}&selectedDate=${qoDate}&selectedRowsID=${selectedRowsParam}`);
+  }
+
+
 
   return (
     <>
@@ -262,7 +281,9 @@ function Quotation() {
                   </thead>
                   <tbody>
                     {data.map((quotation, index) => (
-                      <tr key={quotation.id}>
+                      <tr key={quotation.id} onClick={() => handleTableRowClick(quotation.id)} style={{
+                        backgroundColor: selectedTableRowsID.includes(quotation.id) ? 'red' : ''
+                      }}>
                         <td className="no">{index + 1}</td>
                         <td className="size">
                           {editingIndex === index ? (
@@ -385,6 +406,9 @@ function Quotation() {
             <button onClick={handleAddItem}>Add Item</button>
             <button onClick={handleEditAddData}>Add Data</button>
             <button className="create-so-button" onClick={(e) => handleCreateSO(e)}>Create SO</button>
+
+            <button className="create-so-button" onClick={(e) => handleCreateSelectedSO(e)}>Create Selected SO</button>
+
           </div>}
           
         </div>
