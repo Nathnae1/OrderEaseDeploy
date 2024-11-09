@@ -109,20 +109,22 @@ app.get("/get_quotation_for_so/:qoToSoRef", (req, res) => {
   const escapedTableName = mysql.escapeId(tableName);
 
   const q = `SELECT * FROM ${escapedTableName} WHERE refNum= ?`;
+  
   pool.query(q,[ref], (err, data) => {
+
     if(err) {
       console.error('Query error:', err);
       return res.status(500).json({error: 'Query error' });
     }
 
-    if(selectedIds) {
+    if(selectedIds && selectedIds.length > 0) {
       // Fetch and filter your data based on the selected IDs
         const filteredData = data.filter((quotation) => selectedIds.includes(quotation.id));
 
       // Return the filtered data
       return res.json(filteredData);
     }
-
+    
     return res.json(data);
   })
 

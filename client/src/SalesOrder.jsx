@@ -38,42 +38,29 @@ function SalesOrder() {
   }, [dateQo]);
 
   useEffect(() => {
-    // Fetch the latest Quotation Data when the relevant data changes
     const fetchQuotationData = async () => {
-
-      if (qoToSoRef && year && month && selectedRows) {
-        try {
-          setIsLoading(true); // Set loading to true before making the request
-          
-          // convert the selected rows to to query string
-          
-          console.log('this is',selectedRows);
-          
-
-          const response = await axios.get(`http://localhost:5000/get_quotation_for_so/${qoToSoRef}?year=${year}&month=${month}&filterIds=${selectedRows}`);
-          setQuotationData(response.data); // Store the fetched data
-          setIsLoading(false); // Set loading to false once the data is fetched
-        } catch (error) {
-          setError(error.message); // Capture the error message
-          setIsLoading(false); // Set loading to false in case of an error
-        }
+      if (!qoToSoRef || !year || !month) {
+        return;
       }
-
-      if (qoToSoRef && year && month && !selectedRows) {
-        try {
-          setIsLoading(true); // Set loading to true before making the request
-          const response = await axios.get(`http://localhost:5000/get_quotation_for_so/${qoToSoRef}?year=${year}&month=${month}`);
-          setQuotationData(response.data); // Store the fetched data
-          setIsLoading(false); // Set loading to false once the data is fetched
-        } catch (error) {
-          setError(error.message); // Capture the error message
-          setIsLoading(false); // Set loading to false in case of an error
+  
+      setIsLoading(true);
+  
+      try {
+        let url = `http://localhost:5000/get_quotation_for_so/${qoToSoRef}?year=${year}&month=${month}`;
+        if (selectedRows) {
+          url += `&filterIds=${selectedRows}`;
         }
+        const response = await axios.get(url);
+        setQuotationData(response.data);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setIsLoading(false);
       }
     };
-
+  
     fetchQuotationData();
-  }, [qoToSoRef, year, month]); // Fetch when qoToSoRef, year, or month changes
+  }, [qoToSoRef, year, month, selectedRows]);
 
   return (
     <div>
