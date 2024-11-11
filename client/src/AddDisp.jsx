@@ -167,7 +167,7 @@ const dataKeys = ['ref','salesRepId','name', 'date','billTo','size', 'descriptio
       setItemData(newValue);
 
       if (newValue) {
-        if (newValue.size && newValue.desc && newValue.price) {
+        if (newValue.size && newValue.itemDescription && newValue.price) {
           let refKey = dataKeys[0];
           let salesIdKey = dataKeys[1];
           let nameKey = dataKeys[2];
@@ -180,7 +180,7 @@ const dataKeys = ['ref','salesRepId','name', 'date','billTo','size', 'descriptio
           setFullData((data) => {
 
               data[currentRowIndex][sizeKey] = newValue.size;
-              data[currentRowIndex][descKey] = newValue.desc;
+              data[currentRowIndex][descKey] = newValue.itemDescription;
               data[currentRowIndex][priceKey] = newValue.price;
 
               data[currentRowIndex][refKey] = ref;

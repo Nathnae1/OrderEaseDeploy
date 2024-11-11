@@ -88,12 +88,12 @@ app.get("/get_quotation/:id", (req, res) => {
 })
 
 // Quotation route to fetch data to make Sales Order
-app.get("/get_quotation_for_so/:qoToSoRef", (req, res) => {
-
+app.get("/get_quotation_for_so/:qoToSoRef", async (req, res) => {
   const ref = req.params.qoToSoRef;
   const year = req.query.year;
   const month = req.query.month;
   const idFilter = req.query.filterIds;
+  let itemData, companyTIN;
 
   // Convert the ids string back to an array
   const selectedIds = idFilter ? idFilter.split(',').map(id => parseInt(id)) : [];
@@ -108,27 +108,63 @@ app.get("/get_quotation_for_so/:qoToSoRef", (req, res) => {
   // Escape table name for safety
   const escapedTableName = mysql.escapeId(tableName);
 
-  const q = `SELECT * FROM ${escapedTableName} WHERE refNum= ?`;
+  const q = `SELECT * FROM ${escapedTableName} WHERE refNum = ?;`;
+  const q2 = "SELECT * FROM items";
+  const q3 = `SELECT tin FROM companies WHERE company_name = ?;`;
+
+  try {
+    // Fetch items data for volt, itemDesc for so
+    const [dataItem] = await pool.promise().query(q2);
+
+    // Fetch quotation data
+    // await calls to ensure they are executed sequentially in a synchronous manner.
+    const [dataQuotation] = await pool.promise().query(q, [ref]);
+
+    // Set the company name
+    let companyName = dataQuotation[0].BillTo;
+
+    // Fetch the TIN number of the company
+    const [dataTIN] = await pool.promise().query(q3, [companyName]);
+
+    // If selectedIds is provided, filter the data
+    let filteredData = dataQuotation;
+    if (selectedIds.length > 0) {
+      filteredData = dataQuotation.filter((quotation) => selectedIds.includes(quotation.id));
+    }
+
+    // Return the filtered or full data
+    return res.json(dataForSo(filteredData, dataItem, dataTIN));
+
+  } catch (err) {
+    console.error('Query error:', err);
+    return res.status(500).json({ error: 'Query error' });
+  }
+});
+
+const dataForSo = (qoData, itemsData, companyTIN) => {
   
-  pool.query(q,[ref], (err, data) => {
-
-    if(err) {
-      console.error('Query error:', err);
-      return res.status(500).json({error: 'Query error' });
-    }
-
-    if(selectedIds && selectedIds.length > 0) {
-      // Fetch and filter your data based on the selected IDs
-        const filteredData = data.filter((quotation) => selectedIds.includes(quotation.id));
-
-      // Return the filtered data
-      return res.json(filteredData);
-    }
+  const soData = qoData.map(qoItem => {
+    // Find the corresponding item in itemsData based on the 'size' key
+    let item = itemsData.find(item => item.size === qoItem.Size );
+    console.log(item);
     
-    return res.json(data);
-  })
+    // If a matching item is found, add itemCode and voltage to the qoItem
+    if (item) {
+      return {
+        ...qoItem,  // Spread the qoItem data
+        itemCode: item.itemCode,  // Add itemCode from itemsData
+        voltage: item.voltage,     // Add voltage from itemsData
+        tin: companyTIN[0].tin,
+        amd: false
+      };
+    } else {
+      // If no matching item is found, return the qoItem as is (or handle it differently)
+      return qoItem;
+    }
+  });
 
-})
+  return soData;
+};
 
 // Delete quotatio item route
 app.delete("/delete_quotation/:id", (req, res) => {

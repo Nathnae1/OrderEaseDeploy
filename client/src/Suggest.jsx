@@ -28,7 +28,7 @@ const Suggest = ({onValueChange, currentRowIndex}) => {
             setValue({
               "iditems": "",
               "size": newValue,
-              "desc": "",
+              "itemDescription": "",
               "price": ""
                 });
           } else {

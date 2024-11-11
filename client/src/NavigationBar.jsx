@@ -12,9 +12,9 @@ const NavigationBar = () => {
         <>
           <Link to="/home">Home</Link>
           <Link to="/dashboard">Dashboard</Link>
-          <Link to="/get_quotation">Quotation</Link>
           <Link to="/add">Add Disposition</Link>
-          <Link to="/create_so">Create SO</Link>
+          <Link to="/get_quotation">Quotation</Link>
+          <Link to="/create_so">Sales Order</Link>
           <button onClick={() => {
             localStorage.removeItem('token');
             logout();
