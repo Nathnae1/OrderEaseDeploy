@@ -155,6 +155,7 @@ const dataForSo = (qoData, itemsData, companyTIN) => {
         itemCode: item.itemCode,  // Add itemCode from itemsData
         voltage: item.voltage,     // Add voltage from itemsData
         tin: companyTIN[0].tin,
+        soDate: new Date(),
         amd: false
       };
     } else {
@@ -326,7 +327,7 @@ app.get("/get_ref", (req, res) => {
           Colour VARCHAR(50) NOT NULL,
           Packing VARCHAR(50) NOT NULL,
           UnitPrice DECIMAL(10, 2) NOT NULL,
-          BeforeVAT DECIMAL(10, 2) NOT NULL
+          BeforeVAT DECIMAL(20, 2) NOT NULL
         );
       `;
 

@@ -19,6 +19,8 @@ function SalesOrder() {
   const [error, setError] = useState(null); // State to manage error state
   const [editingIndex, setEditingIndex] = useState(null); // Track which row is being edited
 
+  const [total, setTotal] = useState(0);
+
   useEffect(() => {
     if (dateQo) {
       // Parse the date string to a Date object
@@ -69,6 +71,16 @@ function SalesOrder() {
     return <div>Loading or no data available...</div>; // Display loading or no data message
   }
 
+  // hook to calculate the total
+  // useEffect(() => {
+  //   const calculateTotal = () => {
+  //     const totalBeforeVAT = quotationData.reduce((acc, row) => acc + (parseFloat(row.BeforeVAT) || 0), 0);
+  //     setTotal(totalBeforeVAT);
+  //   };
+
+  //   calculateTotal();
+  // }, [quotationData]);
+
   // Function to format the date DD-MM-YYYY
   const formatDate = (date) => {
     const year = date.getFullYear();
@@ -76,6 +88,8 @@ function SalesOrder() {
     const day = String(date.getDate()).padStart(2, '0');
     return `${day}-${month}-${year}`;
   };
+
+
 
   return (
     <div>
@@ -93,15 +107,15 @@ function SalesOrder() {
           </div>
         )}
       </div>
-      <div className="table-container">
-        
-        <div className="get-top-section">
+
+      <div className="get-top-section">
             <p>Ref No: {quotationData[0].refNum}</p>
             <p>Date: {formatDate(new Date())}</p>
             <p>Name: {quotationData[0].Name}</p>
             <p>TIN: {quotationData[0].tin}</p>
-        </div>
+     </div>
 
+      <div className="table-container">
         <div className="quotation-table">
             <table>
               <thead>
@@ -174,7 +188,7 @@ function SalesOrder() {
                       <td className="voltage">
                         {editingIndex === index ? (
                           <input
-                            type="number"
+                            type="text"
                             value={quotation.voltage}
                             onChange={(e) => handleChange(e, index, 'voltage')}
                           />
@@ -247,6 +261,12 @@ function SalesOrder() {
             </table>
 
         </div>
+      </div>
+
+      <div>
+            <p>Total Before VAT: {total}</p>
+            <p>VAT: {(total * 0.15).toFixed(2)}</p>
+            <p>Total including VAT: {(total * 1.15).toFixed(2)}</p>
       </div>
           
     </div>

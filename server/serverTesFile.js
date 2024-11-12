@@ -27,6 +27,7 @@ app.post("/create_so_from_qo", (req, res) => {
           sales_rep_id INT NOT NULL,
           Name VARCHAR(100) NOT NULL,
           Date DATE NOT NULL,
+          soDate DATE NOT NULL,
           BillTo VARCHAR(255) NOT NULL,
           Size VARCHAR(50) NOT NULL,
           itemDescription VARCHAR(50) NOT NULL,
@@ -36,7 +37,7 @@ app.post("/create_so_from_qo", (req, res) => {
           QTY INT NOT NULL,
           Packing VARCHAR(50) NOT NULL,
           UnitPrice DECIMAL(10, 2) NOT NULL,
-          BeforeVAT DECIMAL(10, 2) NOT NULL
+          BeforeVAT DECIMAL(20, 2) NOT NULL,
         );
       `;
 
@@ -75,3 +76,13 @@ app.post("/create_so_from_qo", (req, res) => {
     }
   });
 });
+
+/*
+SalesOrder_Delivery_Link Table:
+
+sales_order_id	delivery_instruction_id
+1	1
+2	1
+2	2
+
+*/

@@ -4,11 +4,13 @@
 }
 
 nav {
-  background-color: #333;
+  background-color: #8aaad4;
   padding: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-radius: 10px 10px 0px 0px;
+  margin-top: 0;
 }
 
 nav a {
@@ -21,8 +23,9 @@ nav a:hover {
   color: #ccc;
 }
 
+
 nav button {
-  background-color: #333;
+  background-color: #8aaad4;
   color: #fff;
   border: none;
   padding: 0.5rem 1rem;
@@ -31,11 +34,11 @@ nav button {
 }
 
 nav button:hover {
-  background-color: #444;
+  background-color:  #ccc;
 }
 
 nav button:active {
-  background-color: #555;
+  background-color: #ccc;
 }
 
 .is-authenticated {
