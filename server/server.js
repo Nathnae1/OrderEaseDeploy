@@ -93,7 +93,6 @@ app.get("/get_quotation_for_so/:qoToSoRef", async (req, res) => {
   const year = req.query.year;
   const month = req.query.month;
   const idFilter = req.query.filterIds;
-  let itemData, companyTIN;
 
   // Convert the ids string back to an array
   const selectedIds = idFilter ? idFilter.split(',').map(id => parseInt(id)) : [];
@@ -131,7 +130,7 @@ app.get("/get_quotation_for_so/:qoToSoRef", async (req, res) => {
     if (selectedIds.length > 0) {
       filteredData = dataQuotation.filter((quotation) => selectedIds.includes(quotation.id));
     }
-
+   
     // Return the filtered or full data
     return res.json(dataForSo(filteredData, dataItem, dataTIN));
 

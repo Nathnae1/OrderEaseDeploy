@@ -9,8 +9,6 @@ function SalesOrder() {
   const dateQo = queryParams.get('selectedDate'); // Get the reference number from the query params
   const selectedRows = queryParams.get('selectedRowsID'); // Get the reference number from the query params
 
-  console.log('This is from SO', qoToSoRef, 'and selected rows', selectedRows);
-
   // State to hold extracted year and month
   const [year, setYear] = useState(null);
   const [month, setMonth] = useState(null);

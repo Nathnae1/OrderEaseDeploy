@@ -230,7 +230,12 @@ function Quotation() {
   const handleCreateSelectedSO = (e) => {
     const selectedRowsParam = selectedTableRowsID.join(',');
 
-    navigate(`/create_so?qoToSo=${id}&selectedDate=${qoDate}&selectedRowsID=${selectedRowsParam}`);
+    if(selectedRowsParam){
+      navigate(`/create_so?qoToSo=${id}&selectedDate=${qoDate}&selectedRowsID=${selectedRowsParam}`);
+    } else {
+      console.log('Select ITems');
+    }
+    
   }
 
 
