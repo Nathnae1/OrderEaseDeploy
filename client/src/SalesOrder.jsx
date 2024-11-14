@@ -65,19 +65,19 @@ function SalesOrder() {
     fetchQuotationData();
   }, [qoToSoRef, year, month, selectedRows]);
 
+  // hook to calculate the total
+  useEffect(() => {
+    const calculateTotal = () => {
+      const totalBeforeVAT = quotationData.reduce((acc, row) => acc + (parseFloat(row.BeforeVAT) || 0), 0);
+      setTotal(totalBeforeVAT);
+    };
+
+    calculateTotal();
+  }, [quotationData]);
+
   if (quotationData.length === 0) {
     return <div>Loading or no data available...</div>; // Display loading or no data message
   }
-
-  // hook to calculate the total
-  // useEffect(() => {
-  //   const calculateTotal = () => {
-  //     const totalBeforeVAT = quotationData.reduce((acc, row) => acc + (parseFloat(row.BeforeVAT) || 0), 0);
-  //     setTotal(totalBeforeVAT);
-  //   };
-
-  //   calculateTotal();
-  // }, [quotationData]);
 
   // Function to format the date DD-MM-YYYY
   const formatDate = (date) => {
@@ -85,6 +85,15 @@ function SalesOrder() {
     const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
     const day = String(date.getDate()).padStart(2, '0');
     return `${day}-${month}-${year}`;
+  };
+
+  // Remove Item before sending to DB
+  const handleDelete = async (id, rowIndex) => {
+    const updatedItems = [...quotationData];
+    updatedItems.splice(rowIndex, 1); // Splice removes 1 element at the given index
+
+    setQuotationData(updatedItems); // Update the state with the new array
+
   };
 
 
