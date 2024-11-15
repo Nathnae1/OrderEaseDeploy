@@ -76,7 +76,7 @@ function SalesOrder() {
   }, [quotationData]);
 
   if (quotationData.length === 0) {
-    return <div>Loading or no data available...</div>; // Display loading or no data message
+    return <div>No data available...Insert Sales Order No</div>; // Display loading or no data message
   }
 
   // Function to format the date DD-MM-YYYY
@@ -96,6 +96,30 @@ function SalesOrder() {
 
   };
 
+  // Function to handle SO Data submission
+  const handleSoClick = async (e) => {
+
+    try {
+      // Check the data before sending to server
+      const dataToSend = quotationData;
+      // Use Axios to send a POST request
+      const response = await axios.post('http://localhost:5000/send_so_to_db', dataToSend);
+
+      if (response.status === 200) {
+        console.log('Data submitted successfully!');
+        // setIsSubmitted(true);
+        // // Set a timeout to hide the success message after 10 seconds
+        // setTimeout(() => {
+        //   setIsSubmitted(false);
+        // }, 2000);
+      } else {
+        console.error('Error submitting data to the database');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
 
 
   return (
@@ -107,12 +131,7 @@ function SalesOrder() {
 
         {isLoading && <p>Loading...</p>}
         {error && <p>Error fetching data: {error}</p>}
-        {quotationData && (
-          <div>
-            <h2>Quotation Data</h2>
-            <pre>{JSON.stringify(quotationData, null, 2)}</pre>
-          </div>
-        )}
+      
       </div>
 
       <div className="get-top-section">
@@ -133,10 +152,11 @@ function SalesOrder() {
                   <th>Item Code</th>
                   <th>Colour</th>
                   <th>Volt</th>
-                  <th>Qty(meter)</th>
+                  <th>Unit</th>
+                  <th>Qty</th>
                   <th>Packing</th>
                   <th>Unit Price</th>
-                  <th>Before VAT</th>
+                  <th>Total</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -201,6 +221,18 @@ function SalesOrder() {
                           />
                         ) : (
                           quotation.voltage
+                        )}
+                      </td>
+                      
+                      <td className="unit">
+                        {editingIndex === index ? (
+                          <input
+                            type="text"
+                            value={quotation.unit}
+                            onChange={(e) => handleChange(e, index, 'unit')}
+                          />
+                        ) : (
+                          quotation.unit
                         )}
                       </td>
 
@@ -270,11 +302,20 @@ function SalesOrder() {
         </div>
       </div>
 
+      
+
       <div>
             <p>Total Before VAT: {total}</p>
             <p>VAT: {(total * 0.15).toFixed(2)}</p>
             <p>Total including VAT: {(total * 1.15).toFixed(2)}</p>
       </div>
+
+      {quotationData && <div>
+          Click to Send
+          <button className="submit-button" onClick={(e) => handleSoClick(e)}>
+            Send Data to DB
+          </button>
+      </div>}
           
     </div>
   );

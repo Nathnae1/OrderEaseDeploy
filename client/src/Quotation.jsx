@@ -280,14 +280,14 @@ function Quotation() {
                       <th>Colour</th>
                       <th>Packing</th>
                       <th>Unit Price</th>
-                      <th>Before VAT</th>
+                      <th>Total</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.map((quotation, index) => (
                       <tr key={quotation.id} onClick={() => handleTableRowClick(quotation.id)} style={{
-                        backgroundColor: selectedTableRowsID.includes(quotation.id) ? 'red' : ''
+                        backgroundColor: selectedTableRowsID.includes(quotation.id) ? 'CornflowerBlue' : ''
                       }}>
                         <td className="no">{index + 1}</td>
                         <td className="size">
