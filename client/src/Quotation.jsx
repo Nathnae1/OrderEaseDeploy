@@ -224,14 +224,14 @@ function Quotation() {
 
   const handleCreateSO = (e) => {
     // React's navigate and the browser will automatically convert the qoDate Date object to a string when it's placed into the URL. 
-    navigate(`/create_so?qoToSo=${id}&selectedDate=${qoDate}`);
+    navigate(`/create_so?qoToSo=${id}&selectedDate=${qoDate}&originQo=${true}`);
   }
 
   const handleCreateSelectedSO = (e) => {
     const selectedRowsParam = selectedTableRowsID.join(',');
 
     if(selectedRowsParam){
-      navigate(`/create_so?qoToSo=${id}&selectedDate=${qoDate}&selectedRowsID=${selectedRowsParam}`);
+      navigate(`/create_so?qoToSo=${id}&selectedDate=${qoDate}&selectedRowsID=${selectedRowsParam}&originQo=${true}`);
     } else {
       console.log('Select ITems');
     }

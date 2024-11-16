@@ -60,6 +60,10 @@ function generateTableName(year, month) {
   return `quotation_${year}_${month}`;
 }
 
+function generateSoTableName(year) {
+  return `sales_order_${year}`;
+}
+
 // Quotation route to fetch data
 app.get("/get_quotation/:id", (req, res) => {
   const id = req.params.id;
@@ -166,6 +170,32 @@ const dataForSo = (qoData, itemsData, companyTIN) => {
 
   return soData;
 };
+
+// Sales Order route to fetch data
+app.get("/get_sales_order/:soId", (req, res) => {
+  const soId = req.params.soId;
+  const year = req.query.year;
+
+  // Validate input
+  if (!soId || !year) {
+    return res.status(400).json({ error: 'Missing required parameters' });
+  }
+
+  const tableName = generateSoTableName(year);
+
+  // Escape table name for safety
+  const escapedTableName = mysql.escapeId(tableName);
+
+  const q = `SELECT * FROM ${escapedTableName} WHERE qoRefNum= ?`;
+  pool.query(q,[soId], (err, data) => {
+    if(err) {
+      console.error('Query error:', err);
+      return res.status(500).json({error: 'Query error' });
+    }
+    return res.json(data);
+  })
+
+})
 
 // Delete quotatio item route
 app.delete("/delete_quotation/:id", (req, res) => {
@@ -559,6 +589,7 @@ app.post("/send_so_to_db", async (req, res) => {
       const createTableQuery = `
         CREATE TABLE ${tableName} (
           id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+          soId INT NOT NULL,
           qoId INT NOT NULL,
           qoRefNum INT NOT NULL,
           sales_rep_id INT NOT NULL,
@@ -582,17 +613,14 @@ app.post("/send_so_to_db", async (req, res) => {
       `;
       await queryPromise(createTableQuery);
 
-      // Insert the first reference number (id = 1)
-      // const insertRefQuery = `INSERT INTO ${tableName} (id) VALUES (1)`;
-      // await queryPromise(insertRefQuery);
       soRefNumber = 1;
 
     } else {
       // Table exists, get the last reference number (id)
-      const selectRefQuery = `SELECT id FROM ${tableName} ORDER BY id DESC LIMIT 1`;
+      const selectRefQuery = `SELECT soRefNum FROM ${tableName} ORDER BY id DESC LIMIT 1`;
       const result = await queryPromise(selectRefQuery);
       if(result) {
-        soRefNumber = result[0].id + 1; // Increment the id to get the next reference number
+        soRefNumber = result[0].soRefNum + 1; // Increment the id to get the next reference number
         console.log('This so no', soRefNumber);
       }
     }
@@ -600,10 +628,11 @@ app.post("/send_so_to_db", async (req, res) => {
     // Prepare the insertion query
     const escapedTableName = mysql.escapeId(tableName); // Escape table name for security
     const insertionPromises = objectsArray.map(object => {
-      const insertQuery = `INSERT INTO ${escapedTableName} (\`qoId\`, \`qoRefNum\`, \`sales_rep_id\`, \`Name\`, \`qoDate\`, \`soDate\`, \`BillTo\`, \`tin\`, \`Size\`, \`itemDescription\`, \`itemCode\`, \`Colour\`, \`Volt\`, \`Unit\`, \`QTY\`, \`Packing\`, \`UnitPrice\`, \`BeforeVAT\`, \`AMD\`) 
+      const insertQuery = `INSERT INTO ${escapedTableName} (\`qoId\`, \`soRefNum\` \`qoRefNum\`, \`sales_rep_id\`, \`Name\`, \`qoDate\`, \`soDate\`, \`BillTo\`, \`tin\`, \`Size\`, \`itemDescription\`, \`itemCode\`, \`Colour\`, \`Volt\`, \`Unit\`, \`QTY\`, \`Packing\`, \`UnitPrice\`, \`BeforeVAT\`, \`AMD\`) 
                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     const values = [
       object.id,
+      soRefNumber,
       object.refNum,
       object.sales_rep_id,
       object.Name,

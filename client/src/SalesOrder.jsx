@@ -8,6 +8,11 @@ function SalesOrder() {
   const qoToSoRef = queryParams.get('qoToSo'); // Get the reference number from the query params
   const dateQo = queryParams.get('selectedDate'); // Get the reference number from the query params
   const selectedRows = queryParams.get('selectedRowsID'); // Get the reference number from the query params
+  
+  const [originQo, setOrignQo] = useState(queryParams.get('originQo'));
+
+  const [soId, setSoId] = useState('');
+  const [soDate, setSelectedsoDate] = useState('');
 
   // State to hold extracted year and month
   const [year, setYear] = useState(null);
@@ -75,9 +80,6 @@ function SalesOrder() {
     calculateTotal();
   }, [quotationData]);
 
-  if (quotationData.length === 0) {
-    return <div>No data available...Insert Sales Order No</div>; // Display loading or no data message
-  }
 
   // Function to format the date DD-MM-YYYY
   const formatDate = (date) => {
@@ -95,6 +97,42 @@ function SalesOrder() {
     setQuotationData(updatedItems); // Update the state with the new array
 
   };
+
+  // Handle so edit item save before sendig to DB
+  const handleChange = (e, index, field) => {
+    const { value } = e.target;
+    const updatedData = [...quotationData];
+    updatedData[index] = { ...updatedData[index], [field]: value };
+
+    // Calculate BeforeVAT if UnitPrice or QTY changes
+    if (field === 'UnitPrice' || field === 'QTY') {
+      const unitPrice = parseFloat(updatedData[index].UnitPrice) || 0;
+      const qty = parseFloat(updatedData[index].QTY) || 0;
+      updatedData[index].BeforeVAT = unitPrice * qty;
+    }
+
+    setQuotationData(updatedData);
+  };
+
+  // function to save fetched data of SO to DB
+  const handleSave = (id, rowIndex) => {
+    setEditingIndex(null);
+  }
+
+  const handleSoFetch = async () => {
+    try {
+      const selectedDate = new Date(soDate);
+      const year = selectedDate.getFullYear();
+
+      const response = await axios.get(`http://localhost:5000/get_sales_order/${soId}?year=${year}`);
+      setQuotationData(response.data);
+      setOrignQo('true');
+      
+    } catch (error) {
+     
+      console.error('Error fetching data:', error.message);
+    }
+  }
 
   // Function to handle SO Data submission
   const handleSoClick = async (e) => {
@@ -120,28 +158,34 @@ function SalesOrder() {
     }
   };
 
-
+  // if (quotationData.length === 0) {
+  //   return <div>No data available...</div>; // Display loading or no data message
+  // }
 
   return (
     <div>
-      <div>
+      {!originQo && <div>
+        No data available...
+      </div>}
+
+      {originQo && <div>
         <h1>Sales Order to be Created</h1>
         <p>Qouotation Reference Number: {qoToSoRef}</p>
         <p>Selected Date: {dateQo}</p>
-
+        
         {isLoading && <p>Loading...</p>}
         {error && <p>Error fetching data: {error}</p>}
-      
-      </div>
+        {quotationData && <div>{JSON.stringify(quotationData, null, 2)}</div>}
+      </div> }
 
-      <div className="get-top-section">
+      {originQo && <div className="get-top-section">
             <p>Ref No: {quotationData[0].refNum}</p>
             <p>Date: {formatDate(new Date())}</p>
             <p>Name: {quotationData[0].Name}</p>
             <p>TIN: {quotationData[0].tin}</p>
-     </div>
+     </div>}
 
-      <div className="table-container">
+      {originQo && <div className="table-container">
         <div className="quotation-table">
             <table>
               <thead>
@@ -300,7 +344,7 @@ function SalesOrder() {
             </table>
 
         </div>
-      </div>
+      </div> }
 
       
 
@@ -309,8 +353,15 @@ function SalesOrder() {
             <p>VAT: {(total * 0.15).toFixed(2)}</p>
             <p>Total including VAT: {(total * 1.15).toFixed(2)}</p>
       </div>
+      
+      <label>Select Date</label>
+      <input type="date" value={soDate} onChange={(e) => setSelectedsoDate(e.target.value)}  />.
 
-      {quotationData && <div>
+      <label>Input Sales Order number</label>
+      <input type="text" value={soId} placeholder="Enter no" onChange={(e) => setSoId(e.target.value)}/>
+      <button onClick={handleSoFetch}>Fetch</button>
+
+      {(quotationData && originQo) && <div>
           Click to Send
           <button className="submit-button" onClick={(e) => handleSoClick(e)}>
             Send Data to DB
