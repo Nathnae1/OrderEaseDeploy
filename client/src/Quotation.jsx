@@ -238,8 +238,6 @@ function Quotation() {
     
   }
 
-
-
   return (
     <>
       <div>
