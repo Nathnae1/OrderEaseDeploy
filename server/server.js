@@ -630,8 +630,8 @@ app.post("/send_so_to_db", async (req, res) => {
     // Prepare the insertion query
     const escapedTableName = mysql.escapeId(tableName); // Escape table name for security
     const insertionPromises = objectsArray.map(object => {
-      const insertQuery = `INSERT INTO ${escapedTableName} (\`qoId\`, \`soRefNum\` \`qoRefNum\`, \`sales_rep_id\`, \`Name\`, \`qoDate\`, \`soDate\`, \`BillTo\`, \`tin\`, \`Size\`, \`itemDescription\`, \`itemCode\`, \`Colour\`, \`Volt\`, \`Unit\`, \`QTY\`, \`Packing\`, \`UnitPrice\`, \`BeforeVAT\`, \`AMD\`) 
-                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      const insertQuery = `INSERT INTO ${escapedTableName} (\`qoId\`, \`soRefNum\`, \`qoRefNum\`, \`sales_rep_id\`, \`Name\`, \`qoDate\`, \`soDate\`, \`BillTo\`, \`tin\`, \`Size\`, \`itemDescription\`, \`itemCode\`, \`Colour\`, \`Volt\`, \`Unit\`, \`QTY\`, \`Packing\`, \`UnitPrice\`, \`BeforeVAT\`, \`AMD\`) 
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     const values = [
       object.id,
       soRefNumber,

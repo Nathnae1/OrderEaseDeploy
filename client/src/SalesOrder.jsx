@@ -45,6 +45,7 @@ function SalesOrder() {
 
   useEffect(() => {
     const fetchQuotationData = async () => {
+      console.log('gettig data', qoToSoRef, year, month);
       if (!qoToSoRef || !year || !month) {
         return;
       }
@@ -158,9 +159,9 @@ function SalesOrder() {
     }
   };
 
-  // if (quotationData.length === 0) {
-  //   return <div>No data available...</div>; // Display loading or no data message
-  // }
+  if (quotationData.length === 0) {
+    return <div>No data available...</div>; // Display loading or no data message
+  }
 
   return (
     <div>
