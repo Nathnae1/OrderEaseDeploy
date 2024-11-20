@@ -21,6 +21,9 @@ function SalesOrderCreate() {
 
   const [total, setTotal] = useState(0);
 
+  const [soRefNumber, setSoRefNumber] = useState(null);
+  const [soIsSubmitted, setSoIsSubmitted] = useState(false); 
+
   useEffect(() => {
     if (dateQo) {
       // Parse the date string to a Date object
@@ -128,13 +131,10 @@ function SalesOrderCreate() {
       // Use Axios to send a POST request
       const response = await axios.post('http://localhost:5000/send_so_to_db', dataToSend);
 
-      if (response.status === 200) {
-        console.log('Data submitted successfully!');
-        // setIsSubmitted(true);
-        // // Set a timeout to hide the success message after 10 seconds
-        // setTimeout(() => {
-        //   setIsSubmitted(false);
-        // }, 2000);
+      if (response.status === 201) {
+        setSoRefNumber(response.data.soId)
+        setSoIsSubmitted(true);
+      
       } else {
         console.error('Error submitting data to the database');
       }
@@ -143,210 +143,218 @@ function SalesOrderCreate() {
     }
   };
 
+  const handlePrint = () => {
+    console.log('Pring option clicked');
+  }
+
+  const handleEdit = () => {
+    console.log('Eding Option pressed');
+  }
+
   if (quotationData.length === 0) {
     return <div>No data available...</div>; // Display loading or no data message
   }
 
   return (
     <div>
-      <div>
-        <h1>Sales Order to be Created</h1>
-        <p>Qouotation Reference Number: {qoToSoRef}</p>
-        <p>Selected Date: {dateQo}</p>
-        
-        {isLoading && <p>Loading...</p>}
-        {error && <p>Error fetching data: {error}</p>}
-
-        {quotationData && (
-        <div style={{ marginTop: '10px', border: '1px solid #ccc', padding: '10px' }}>
-          {JSON.stringify(quotationData, null, 2)}
-        </div>
-            )}
-      </div>
-
-      <div className="get-top-section">
-            <p>Ref No: {quotationData[0].refNum}</p>
-            <p>Date: {formatDate(new Date())}</p>
-            <p>Name: {quotationData[0].Name}</p>
-            <p>TIN: {quotationData[0].tin}</p>
-      </div>
-
-      <div className="table-container">
-        <div className="quotation-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>No</th>
-                  <th>Size</th>
-                  <th>Description</th>
-                  <th>Item Code</th>
-                  <th>Colour</th>
-                  <th>Volt</th>
-                  <th>Unit</th>
-                  <th>Qty</th>
-                  <th>Packing</th>
-                  <th>Unit Price</th>
-                  <th>Total</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {quotationData.map((quotation, index) => (
-                    <tr key={quotation.id}>
-                      <td className="no">{index + 1}</td>
-                      <td className="size">
-                        {editingIndex === index ? (
-                          <input
-                            type="text"
-                            value={quotation.Size}
-                            onChange={(e) => handleChange(e, index, 'Size')}
-                          />
-                        ) : (
-                          quotation.Size
-                        )}
-                      </td>
-                      
-                      <td className="description">
-                        {editingIndex === index ? (
-                          <input
-                            type="text"
-                            value={quotation.Description}
-                            onChange={(e) => handleChange(e, index, 'Description')}
-                          />
-                        ) : (
-                          quotation.Description
-                        )}
-                      </td>
-
-                      <td className="itemCode">
-                        {editingIndex === index ? (
-                          <input
-                            type="text"
-                            value={quotation.itemCode}
-                            onChange={(e) => handleChange(e, index, 'itemCode')}
-                          />
-                        ) : (
-                          quotation.itemCode
-                        )}
-                      </td>
-
-                      <td className="colour">
-                        {editingIndex === index ? (
-                          <input
-                            type="text"
-                            value={quotation.Colour}
-                            onChange={(e) => handleChange(e, index, 'Colour')}
-                          />
-                        ) : (
-                          quotation.Colour
-                        )}
-                      </td>
-
-                      <td className="voltage">
-                        {editingIndex === index ? (
-                          <input
-                            type="text"
-                            value={quotation.voltage}
-                            onChange={(e) => handleChange(e, index, 'voltage')}
-                          />
-                        ) : (
-                          quotation.voltage
-                        )}
-                      </td>
-                      
-                      <td className="unit">
-                        {editingIndex === index ? (
-                          <input
-                            type="text"
-                            value={quotation.unit}
-                            onChange={(e) => handleChange(e, index, 'unit')}
-                          />
-                        ) : (
-                          quotation.unit
-                        )}
-                      </td>
-
-                      <td className="qty">
-                        {editingIndex === index ? (
-                          <input
-                            type="number"
-                            value={quotation.QTY}
-                            onChange={(e) => handleChange(e, index, 'QTY')}
-                          />
-                        ) : (
-                          quotation.QTY
-                        )}
-                      </td>
-
-                      <td className="packing">
-                        {editingIndex === index ? (
-                          <input
-                            type="text"
-                            value={quotation.Packing}
-                            onChange={(e) => handleChange(e, index, 'Packing')}
-                          />
-                        ) : (
-                          quotation.Packing
-                        )}
-                      </td>
-                      <td className="unit-price">
-                        {editingIndex === index ? (
-                          <input
-                            type="number"
-                            value={quotation.UnitPrice}
-                            onChange={(e) => handleChange(e, index, 'UnitPrice')}
-                          />
-                        ) : (
-                          quotation.UnitPrice
-                        )}
-                      </td>
-                      <td className="before-vat">
-                        {editingIndex === index ? (
-                          <input
-                            type="number"
-                            value={quotation.BeforeVAT}
-                            readOnly
-                          />
-                        ) : (
-                          quotation.BeforeVAT
-                        )}
-                      </td>
-                      <td className="actions">
-                        {editingIndex === index ? (
-                          <>
-                            <button onClick={() => handleSave(quotation.id, index)}>Save</button>
-                            <button onClick={() => setEditingIndex(null)}>Cancel</button>
-                          </>
-                        ) : (
-                          <>
-                            <button onClick={() => setEditingIndex(index)}>Edit</button>
-                            <button className="item-delete" onClick={() => handleDelete(quotation.id, index)}>Delete</button>
-                          </>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-
-        </div>
-      </div>
-
-      
-
-      <div>
-            <p>Total Before VAT: {total}</p>
-            <p>VAT: {(total * 0.15).toFixed(2)}</p>
-            <p>Total including VAT: {(total * 1.15).toFixed(2)}</p>
-      </div>
-
-      {quotationData && <div>
-          Click to Send
-          <button className="submit-button" onClick={(e) => handleSoSubmitToDB(e)}>
-            Send Data to DB
-          </button>
-      </div>}
+      {!soIsSubmitted && <div className='so-on-creation'>
+        <div>
+          <h1>Sales Order to be Created</h1>
+          <p>Qouotation Reference Number: {qoToSoRef}</p>
+          <p>Selected Date: {dateQo}</p>
           
+          {isLoading && <p>Loading...</p>}
+          {error && <p>Error fetching data: {error}</p>}
+        </div>
+
+        <div className="get-top-section">
+              <p>Ref No: {quotationData[0].refNum}</p>
+              <p>Date: {formatDate(new Date())}</p>
+              <p>Name: {quotationData[0].Name}</p>
+              <p>TIN: {quotationData[0].tin}</p>
+        </div>
+
+        <div className="table-container">
+          <div className="quotation-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Size</th>
+                    <th>Description</th>
+                    <th>Item Code</th>
+                    <th>Colour</th>
+                    <th>Volt</th>
+                    <th>Unit</th>
+                    <th>Qty</th>
+                    <th>Packing</th>
+                    <th>Unit Price</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {quotationData.map((quotation, index) => (
+                      <tr key={quotation.id}>
+                        <td className="no">{index + 1}</td>
+                        <td className="size">
+                          {editingIndex === index ? (
+                            <input
+                              type="text"
+                              value={quotation.Size}
+                              onChange={(e) => handleChange(e, index, 'Size')}
+                            />
+                          ) : (
+                            quotation.Size
+                          )}
+                        </td>
+                        
+                        <td className="description">
+                          {editingIndex === index ? (
+                            <input
+                              type="text"
+                              value={quotation.Description}
+                              onChange={(e) => handleChange(e, index, 'Description')}
+                            />
+                          ) : (
+                            quotation.Description
+                          )}
+                        </td>
+
+                        <td className="itemCode">
+                          {editingIndex === index ? (
+                            <input
+                              type="text"
+                              value={quotation.itemCode}
+                              onChange={(e) => handleChange(e, index, 'itemCode')}
+                            />
+                          ) : (
+                            quotation.itemCode
+                          )}
+                        </td>
+
+                        <td className="colour">
+                          {editingIndex === index ? (
+                            <input
+                              type="text"
+                              value={quotation.Colour}
+                              onChange={(e) => handleChange(e, index, 'Colour')}
+                            />
+                          ) : (
+                            quotation.Colour
+                          )}
+                        </td>
+
+                        <td className="voltage">
+                          {editingIndex === index ? (
+                            <input
+                              type="text"
+                              value={quotation.voltage}
+                              onChange={(e) => handleChange(e, index, 'voltage')}
+                            />
+                          ) : (
+                            quotation.voltage
+                          )}
+                        </td>
+                        
+                        <td className="unit">
+                          {editingIndex === index ? (
+                            <input
+                              type="text"
+                              value={quotation.unit}
+                              onChange={(e) => handleChange(e, index, 'unit')}
+                            />
+                          ) : (
+                            quotation.unit
+                          )}
+                        </td>
+
+                        <td className="qty">
+                          {editingIndex === index ? (
+                            <input
+                              type="number"
+                              value={quotation.QTY}
+                              onChange={(e) => handleChange(e, index, 'QTY')}
+                            />
+                          ) : (
+                            quotation.QTY
+                          )}
+                        </td>
+
+                        <td className="packing">
+                          {editingIndex === index ? (
+                            <input
+                              type="text"
+                              value={quotation.Packing}
+                              onChange={(e) => handleChange(e, index, 'Packing')}
+                            />
+                          ) : (
+                            quotation.Packing
+                          )}
+                        </td>
+                        <td className="unit-price">
+                          {editingIndex === index ? (
+                            <input
+                              type="number"
+                              value={quotation.UnitPrice}
+                              onChange={(e) => handleChange(e, index, 'UnitPrice')}
+                            />
+                          ) : (
+                            quotation.UnitPrice
+                          )}
+                        </td>
+                        <td className="before-vat">
+                          {editingIndex === index ? (
+                            <input
+                              type="number"
+                              value={quotation.BeforeVAT}
+                              readOnly
+                            />
+                          ) : (
+                            quotation.BeforeVAT
+                          )}
+                        </td>
+                        <td className="actions">
+                          {editingIndex === index ? (
+                            <>
+                              <button onClick={() => handleSave(quotation.id, index)}>Save</button>
+                              <button onClick={() => setEditingIndex(null)}>Cancel</button>
+                            </>
+                          ) : (
+                            <>
+                              <button onClick={() => setEditingIndex(index)}>Edit</button>
+                              <button className="item-delete" onClick={() => handleDelete(quotation.id, index)}>Delete</button>
+                            </>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+
+          </div>
+        </div>
+
+        <div>
+              <p>Total Before VAT: {total}</p>
+              <p>VAT: {(total * 0.15).toFixed(2)}</p>
+              <p>Total including VAT: {(total * 1.15).toFixed(2)}</p>
+        </div>
+
+        <div>
+            Click to Send
+            <button className="submit-button" onClick={(e) => handleSoSubmitToDB(e)}>
+              Send Data to DB
+            </button>
+        </div>  
+      </div>}
+
+      {soIsSubmitted && <div className='so-after-creation'>
+        <h1>Item Created Successfully!</h1>
+        <p>Sales Order ID: {soRefNumber}</p>
+        <button onClick={handlePrint}>Print</button>
+        <button onClick={handleEdit}>Edit</button>
+      </div>}
     </div>
   );
 }

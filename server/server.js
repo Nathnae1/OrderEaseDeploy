@@ -621,7 +621,6 @@ app.post("/send_so_to_db", async (req, res) => {
       const result = await queryPromise(selectRefQuery);
       if(result) {
         soRefNumber = result[0].soRefNum + 1; // Increment the id to get the next reference number
-        console.log('This so no', soRefNumber);
       }
     }
 
@@ -659,8 +658,8 @@ app.post("/send_so_to_db", async (req, res) => {
     // Wait for all insertions to complete
     await Promise.all(insertionPromises);
 
-    // Send a success response after all insertions
-    res.json("Sales Order have been added");
+    // Send the ID of the newly created item back
+    res.status(201).json({ soId: soRefNumber});
 
   } catch (err) {
     // Handle any errors that occurred during the process
