@@ -93,13 +93,11 @@ app.get("/get_quotation/:id", (req, res) => {
 
 // Quotation route to fetch data to make Sales Order
 app.get("/get_quotation_for_so/:qoToSoRef", async (req, res) => {
-  console.log('entering get_quotation');
   const ref = req.params.qoToSoRef;
   const year = req.query.year;
   const month = req.query.month;
   const idFilter = req.query.filterIds;
-  console.log('this is me', ref, year, month, idFilter);
-
+ 
   // Convert the ids string back to an array
   const selectedIds = idFilter ? idFilter.split(',').map(id => parseInt(id)) : [];
   

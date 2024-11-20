@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 
-function SalesOrder() {
+function SalesOrderCreate() {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const qoToSoRef = queryParams.get('qoToSo'); // Get the reference number from the query params
@@ -10,9 +10,6 @@ function SalesOrder() {
   const selectedRows = queryParams.get('selectedRowsID'); // Get the reference number from the query params
   
   const [originQo, setOrignQo] = useState(queryParams.get('originQo'));
-
-  const [soId, setSoId] = useState('');
-  const [soDate, setSelectedsoDate] = useState('');
 
   // State to hold extracted year and month
   const [year, setYear] = useState(null);
@@ -120,20 +117,7 @@ function SalesOrder() {
     setEditingIndex(null);
   }
 
-  const handleSoFetch = async () => {
-    try {
-      const selectedDate = new Date(soDate);
-      const year = selectedDate.getFullYear();
-
-      const response = await axios.get(`http://localhost:5000/get_sales_order/${soId}?year=${year}`);
-      setQuotationData(response.data);
-      setOrignQo('true');
-      
-    } catch (error) {
-     
-      console.error('Error fetching data:', error.message);
-    }
-  }
+  
 
   // Function to handle SO Data submission
   const handleSoClick = async (e) => {
@@ -165,28 +149,29 @@ function SalesOrder() {
 
   return (
     <div>
-      {!originQo && <div>
-        No data available...
-      </div>}
-
-      {originQo && <div>
+      <div>
         <h1>Sales Order to be Created</h1>
         <p>Qouotation Reference Number: {qoToSoRef}</p>
         <p>Selected Date: {dateQo}</p>
         
         {isLoading && <p>Loading...</p>}
         {error && <p>Error fetching data: {error}</p>}
-        {quotationData && <div>{JSON.stringify(quotationData, null, 2)}</div>}
-      </div> }
 
-      {originQo && <div className="get-top-section">
+        {quotationData && (
+        <div style={{ marginTop: '10px', border: '1px solid #ccc', padding: '10px' }}>
+          {JSON.stringify(quotationData, null, 2)}
+        </div>
+            )}
+      </div>
+
+      <div className="get-top-section">
             <p>Ref No: {quotationData[0].refNum}</p>
             <p>Date: {formatDate(new Date())}</p>
             <p>Name: {quotationData[0].Name}</p>
             <p>TIN: {quotationData[0].tin}</p>
-     </div>}
+      </div>
 
-      {originQo && <div className="table-container">
+      <div className="table-container">
         <div className="quotation-table">
             <table>
               <thead>
@@ -345,7 +330,7 @@ function SalesOrder() {
             </table>
 
         </div>
-      </div> }
+      </div>
 
       
 
@@ -354,15 +339,8 @@ function SalesOrder() {
             <p>VAT: {(total * 0.15).toFixed(2)}</p>
             <p>Total including VAT: {(total * 1.15).toFixed(2)}</p>
       </div>
-      
-      <label>Select Date</label>
-      <input type="date" value={soDate} onChange={(e) => setSelectedsoDate(e.target.value)}  />.
 
-      <label>Input Sales Order number</label>
-      <input type="text" value={soId} placeholder="Enter no" onChange={(e) => setSoId(e.target.value)}/>
-      <button onClick={handleSoFetch}>Fetch</button>
-
-      {(quotationData && originQo) && <div>
+      {quotationData && <div>
           Click to Send
           <button className="submit-button" onClick={(e) => handleSoClick(e)}>
             Send Data to DB
@@ -373,4 +351,4 @@ function SalesOrder() {
   );
 }
 
-export default SalesOrder;
+export default SalesOrderCreate;
