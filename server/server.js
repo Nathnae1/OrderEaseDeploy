@@ -186,7 +186,7 @@ app.get("/get_sales_order/:soId", (req, res) => {
   // Escape table name for safety
   const escapedTableName = mysql.escapeId(tableName);
 
-  const q = `SELECT * FROM ${escapedTableName} WHERE qoRefNum= ?`;
+  const q = `SELECT * FROM ${escapedTableName} WHERE soRefNum= ?`;
   pool.query(q,[soId], (err, data) => {
     if(err) {
       console.error('Query error:', err);

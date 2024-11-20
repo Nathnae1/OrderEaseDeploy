@@ -25,7 +25,6 @@ function App() {
             <Route path="/login" element={<LoginCard />} />
             <Route path="/home" element={<ProtectedRoute element={<Home />} />} />
             <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
-
             <Route path="/get_quotation" element={<ProtectedRoute element={<Quotation />} />} />
             <Route path="/add" element={<ProtectedRoute element={<AddDisp />} />} />
             <Route path="/create_so" element={<ProtectedRoute element={<SalesOrderCreate />} />} />
