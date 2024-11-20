@@ -120,7 +120,7 @@ function SalesOrderCreate() {
   
 
   // Function to handle SO Data submission
-  const handleSoClick = async (e) => {
+  const handleSoSubmitToDB = async (e) => {
 
     try {
       // Check the data before sending to server
@@ -342,7 +342,7 @@ function SalesOrderCreate() {
 
       {quotationData && <div>
           Click to Send
-          <button className="submit-button" onClick={(e) => handleSoClick(e)}>
+          <button className="submit-button" onClick={(e) => handleSoSubmitToDB(e)}>
             Send Data to DB
           </button>
       </div>}

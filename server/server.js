@@ -589,8 +589,8 @@ app.post("/send_so_to_db", async (req, res) => {
       const createTableQuery = `
         CREATE TABLE ${tableName} (
           id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-          soId INT NOT NULL,
           qoId INT NOT NULL,
+          soRefNum INT NOT NULL,
           qoRefNum INT NOT NULL,
           sales_rep_id INT NOT NULL,
           Name VARCHAR(100) NOT NULL,
