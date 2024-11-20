@@ -24,6 +24,11 @@ function SalesOrderCreate() {
   const [soRefNumber, setSoRefNumber] = useState(null);
   const [soIsSubmitted, setSoIsSubmitted] = useState(false); 
 
+  // Clear the flag after the user enters the /create_so page:
+  useEffect(() => {
+    localStorage.removeItem('fromQuotation'); // Clear the programmatic access flag
+  }, []);
+
   useEffect(() => {
     if (dateQo) {
       // Parse the date string to a Date object

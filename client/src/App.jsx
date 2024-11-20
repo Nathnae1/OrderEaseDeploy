@@ -27,7 +27,7 @@ function App() {
             <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
             <Route path="/get_quotation" element={<ProtectedRoute element={<Quotation />} />} />
             <Route path="/add" element={<ProtectedRoute element={<AddDisp />} />} />
-            <Route path="/create_so" element={<ProtectedRoute element={<SalesOrderCreate />} />} />
+            <Route path="/create_so" element={<ProtectedRoute element={<SalesOrderCreate />} programmaticAccess={true} />} />
             <Route path="/fetch_so" element={<ProtectedRoute element={<SalesOrderFetch />} />} />
             <Route path="/" element={<Navigate to="/login" />} />
 

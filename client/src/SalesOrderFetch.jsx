@@ -217,6 +217,12 @@ function SalesOrderFetch() {
           </div>  
       </div> }
 
+      {soData.length === 0 && 
+        <div>
+          <p>No data available</p>
+        </div>
+      }
+
       <div className='so-fetching-container'>
         <label>Select Date</label>
         <input type="date" value={soDate} onChange={(e) => setSelectedsoDate(e.target.value)}  />.

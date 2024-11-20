@@ -223,11 +223,13 @@ function Quotation() {
   };
 
   const handleCreateSO = (e) => {
+    localStorage.setItem('fromQuotation', 'true'); // Set the programmatic access flag
     // React's navigate and the browser will automatically convert the qoDate Date object to a string when it's placed into the URL. 
     navigate(`/create_so?qoToSo=${id}&selectedDate=${qoDate}`);
   }
 
   const handleCreateSelectedSO = (e) => {
+    localStorage.setItem('fromQuotation', 'true'); // Set the programmatic access flag
     const selectedRowsParam = selectedTableRowsID.join(',');
 
     if(selectedRowsParam){
