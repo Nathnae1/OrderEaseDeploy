@@ -240,6 +240,15 @@ function Quotation() {
     
   }
 
+  const handlePrint = () => {
+    localStorage.setItem('Print', 'true');
+    const selectedDate = new Date(qoDate);
+    const year = selectedDate.getFullYear();
+    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+
+    navigate(`/quotation/print/${id}?year=${year}&month=${month}`)
+  }
+
   return (
     <>
       <div>
@@ -408,6 +417,8 @@ function Quotation() {
           <button onClick={handleFetch}>Fetch</button>
           
           {isFetched && data.length > 0 && <div>
+            <button onClick={handlePrint}>Print</button>
+
             <button onClick={handleAddItem}>Add Item</button>
             <button onClick={handleEditAddData}>Add Data</button>
             <button className="create-so-button" onClick={(e) => handleCreateSO(e)}>Create SO</button>

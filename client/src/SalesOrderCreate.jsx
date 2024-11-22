@@ -347,9 +347,9 @@ function SalesOrderCreate() {
         </div>
 
         <div>
-            Click to Send
+            Click to Send to DB
             <button className="submit-button" onClick={(e) => handleSoSubmitToDB(e)}>
-              Send Data to DB
+              Send Data
             </button>
         </div>  
       </div>}

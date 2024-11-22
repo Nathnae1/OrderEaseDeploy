@@ -25,6 +25,21 @@ function SalesOrderFetch() {
 
     calculateTotal();
   }, [soData]);
+
+  useEffect(() => {
+    // Function to format the date as YYYY-MM-DD
+    const formatDate = (date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}`;
+    };
+
+    // Set the current date
+    const today = new Date();
+    setSelectedsoDate(formatDate(today));
+  }, []);
+
  
   const handleSoFetch = async () => {
     try {
@@ -38,6 +53,22 @@ function SalesOrderFetch() {
       console.error('Error fetching data:', error.message);
     }
   }
+
+  // Function to handle eding of table row
+  const handleChange = (e, index, field) => {
+    const { value } = e.target;
+    const updatedData = [...soData];
+    updatedData[index] = { ...updatedData[index], [field]: value };
+
+    // Calculate BeforeVAT if UnitPrice or QTY changes
+    if (field === 'UnitPrice' || field === 'QTY') {
+      const unitPrice = parseFloat(updatedData[index].UnitPrice) || 0;
+      const qty = parseFloat(updatedData[index].QTY) || 0;
+      updatedData[index].BeforeVAT = unitPrice * qty;
+    }
+
+    setSoData(updatedData);
+  };
 
   return (
     <div>
@@ -88,8 +119,8 @@ function SalesOrderFetch() {
                             {editingIndex === index ? (
                               <input
                                 type="text"
-                                value={soItem.Description}
-                                onChange={(e) => handleChange(e, index, 'Description')}
+                                value={soItem.itemDescription}
+                                onChange={(e) => handleChange(e, index, 'itemDescription')}
                               />
                             ) : (
                               soItem.itemDescription
@@ -124,8 +155,8 @@ function SalesOrderFetch() {
                             {editingIndex === index ? (
                               <input
                                 type="text"
-                                value={soItem.voltage}
-                                onChange={(e) => handleChange(e, index, 'voltage')}
+                                value={soItem.Volt}
+                                onChange={(e) => handleChange(e, index, 'Volt')}
                               />
                             ) : (
                               soItem.Volt
@@ -136,8 +167,8 @@ function SalesOrderFetch() {
                             {editingIndex === index ? (
                               <input
                                 type="text"
-                                value={soItem.unit}
-                                onChange={(e) => handleChange(e, index, 'unit')}
+                                value={soItem.Unit}
+                                onChange={(e) => handleChange(e, index, 'Unit')}
                               />
                             ) : (
                               soItem.Unit
@@ -224,8 +255,8 @@ function SalesOrderFetch() {
       }
 
       <div className='so-fetching-container'>
-        <label>Select Date</label>
-        <input type="date" value={soDate} onChange={(e) => setSelectedsoDate(e.target.value)}  />.
+        <label>Select Date </label>
+        <input type="month" value={soDate} onChange={(e) => setSelectedsoDate(e.target.value)}  />
 
         <label>Input Sales Order number</label>
         <input type="text" value={soId} placeholder="Enter no" onChange={(e) => setSoId(e.target.value)}/>
