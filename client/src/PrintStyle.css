@@ -5,6 +5,11 @@
     padding: 0;
     font-family: Arial, sans-serif;
   }
+
+  nav {
+    display: none !important;
+  }
+
   .print-container {
     width: 100%;
     margin: 0 auto;
@@ -23,8 +28,39 @@
   }
 }
 
-@media print {
-  nav {
-    display: none !important;
-  }
+.bottom-section {
+  display: flex; /* Use flexbox for layout */
+  justify-content: space-between; /* Add space between columns */
+  gap: 20px; /* Adjust gap between columns */
+  margin: 20px 0; /* Add spacing around the section */
 }
+
+.tolerance-note {
+  flex: 1; /* Allow the column to take equal space */
+  padding: 10px; /* Add padding inside the column */
+  border: 1px solid #ddd; /* Add a subtle border */
+  border-radius: 8px; /* Rounded corners */
+  background-color: #f9f9f9; /* Light background color */
+  text-align: left; /* Ensure left alignment for all text in this section */
+}
+
+.tolerance-note p {
+  margin: 5px 0; /* Adjust spacing between paragraphs */
+  font-size: 14px; /* Adjust font size for readability */
+  line-height: 1.5; /* Improve line spacing */
+  text-align: left; /* Explicitly align text to the left */
+}
+
+.total-prices {
+  flex: 1; /* Allow the column to take equal space */
+  padding: 10px; /* Add padding inside the column */
+  border: 1px solid #ddd; /* Add a subtle border */
+  border-radius: 8px; /* Rounded corners */
+  background-color: #f9f9f9; /* Light background color */
+  text-align: right; /* Align text in this column to the right */
+}
+
+
+
+
+

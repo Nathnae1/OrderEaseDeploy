@@ -63,10 +63,19 @@ function QuotationPrint() {
   return (
     <div>
       {data.length > 0 && <div className="print-container">
-        <p>Ref No: {data[0].refNum}</p>
-        <p>Date: {data[0].Date}</p>
-        <p>Name: {data[0].Name}</p>
-        <p>Bill To: {data[0].BillTo}</p>
+        <div>
+          
+        </div>
+
+        <div className='top-right-info'>
+          <p>Ref No: {data[0].refNum}</p>
+          <p>Date: {data[0].Date.split('T')[0]}</p>
+          <p>Name: {data[0].Name}</p>
+        </div>
+        <div className='bill-to'>
+          <p>Bill To: {data[0].BillTo}</p>
+        </div>
+        
         <table>
           <thead>
             <tr>
@@ -91,10 +100,18 @@ function QuotationPrint() {
             ))}
           </tbody>
         </table>
-        <div>
-            <p>Total Before VAT: {total}</p>
-            <p>VAT: {(total * 0.15).toFixed(2)}</p>
-            <p>Total including VAT: {(total * 1.15).toFixed(2)}</p>
+        <div className='bottom-section'>
+          <div className='tolerance-note'>
+            <p>The supplier keep his right to change the price in case of non collection within 1 week from the readiness notification</p>
+            <p>Delivered items are subjected to +/-5% manufacturing tolerance</p>
+            <p>NOTE: The price is valid for the package</p>
+          </div>
+
+          <div className='total-prices'>
+              <p>Total Before VAT: {total}</p>
+              <p>VAT: {(total * 0.15).toFixed(2)}</p>
+              <p>Total including VAT: {(total * 1.15).toFixed(2)}</p>
+          </div>
         </div>
       </div>}
     </div>
