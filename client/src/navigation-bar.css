@@ -3,8 +3,14 @@
   display: none;
 }
 
+.active-link {
+  font-weight: bold;
+  text-decoration: underline;
+  color: #ffd700; /* Gold color for active link */
+}
+
 nav {
-  background-color: #8aaad4;
+  background-color: hsl(214, 46%, 40%);
   padding: 1rem;
   display: flex;
   justify-content: space-between;
@@ -25,7 +31,7 @@ nav a:hover {
 
 
 nav button {
-  background-color: #8aaad4;
+  background-color: hsl(214, 46%, 40%);
   color: #fff;
   border: none;
   padding: 0.5rem 1rem;

@@ -83,7 +83,7 @@ function SalesOrderFetch() {
 
   const handleCreateSelectedDI = (e) => {
     localStorage.setItem('fromSO', 'true');
-    navigate(`/create_di`);
+    navigate(`/create_di?soToDI=${soId}`);
   }
 
   return (
