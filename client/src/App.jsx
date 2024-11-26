@@ -37,7 +37,7 @@ function App() {
             <Route path="/create_so" element={<ProtectedRoute element={<SalesOrderCreate />} programmaticAccess={true} />} />
             <Route path="/fetch_so" element={<ProtectedRoute element={<SalesOrderFetch />} />} />
 
-            <Route path="/create_di" element={<ProtectedRoute element={<DeliveryInstructionCreate />} programmaticAccess={true} />} />
+            <Route path="/create_di" element={<ProtectedRoute element={<DeliveryInstructionCreate />} programmaticDIAccess={true} />} />
             
             <Route path="/fetch_di" element={<ProtectedRoute element={<DeliveryInstructionFetch />} />} />
 

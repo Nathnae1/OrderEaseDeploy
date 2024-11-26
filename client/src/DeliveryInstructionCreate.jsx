@@ -14,7 +14,7 @@ function DeliveryInstructionCreate() {
 
   return (
     <div>
-      <h1>This is Create Delivery Instruction</h1>
+      <h1>This is Create Delivery Instruction for so {soToDi}</h1>
     </div>
   );
 }

@@ -77,6 +77,7 @@ function SalesOrderFetch() {
 
   const handleCreateDI = (e) => {
     // Set the programmatic access flag
+    console.log('clicked the create btn');
     localStorage.setItem('fromSO', 'true');
     navigate(`/create_di?soToDI=${soId}`);
   }

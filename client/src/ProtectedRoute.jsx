@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 
-const ProtectedRoute = ({ element: Component, programmaticAccess = false, printProgrammaticAccess= false}) => {
+const ProtectedRoute = ({ element: Component, programmaticAccess = false, printProgrammaticAccess= false, programmaticDIAccess= false}) => {
   const { isAuthenticated } = useAuth();
 
   // Check for programmatic access flag
@@ -18,7 +18,7 @@ const ProtectedRoute = ({ element: Component, programmaticAccess = false, printP
     return <Navigate to="/get_quotation" />;
   }
 
-  if (programmaticAccess && fromSO === 'false') {
+  if (programmaticDIAccess && fromSO !== 'true') {
     return <Navigate to="/fetch_so" />;
   }
   
