@@ -241,7 +241,7 @@ function Quotation() {
   }
 
   const handlePrint = () => {
-    localStorage.setItem('Print', 'true');
+    localStorage.setItem('QuotationPrint', 'true');
     const selectedDate = new Date(qoDate);
     const year = selectedDate.getFullYear();
     const month = String(selectedDate.getMonth() + 1).padStart(2, '0');

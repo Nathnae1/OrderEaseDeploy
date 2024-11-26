@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 
-import './PrintStyle.css'; // Add custom styles for printing
+import './QuotationPrintStyle.css'; // Add custom styles for printing
 
 function QuotationPrint() {
   const location = useLocation();
@@ -14,14 +14,12 @@ function QuotationPrint() {
   const { id } = useParams();
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
   const [total, setTotal] = useState(0);
-
   const [hasPrinted, setHasPrinted] = useState(false); // Add a flag to track printing
 
   // Clear the flag after the user enters the /print page:
   useEffect(() => {
-    localStorage.removeItem('Print'); // Clear the programmatic access flag
+    localStorage.removeItem('QuotationPrint'); // Clear the programmatic access flag
   }, []);
 
   useEffect(() => {
@@ -29,7 +27,7 @@ function QuotationPrint() {
       try {
         const response = await axios.get(`http://localhost:5000/get_quotation/${id}?year=${year}&month=${month}`);
         setData(response.data);
-        console.log('this from print ',response.data);
+        console.log('This from print ', response.data);
       } catch (error) {
         console.error('Error fetching quotation:', error.message);
       } finally {
@@ -39,22 +37,24 @@ function QuotationPrint() {
     fetchQuotation();
   }, [id]);
 
-   // Trigger print dialog when component is rendered
-   useEffect(() => {
-    if (!isLoading && data.length > 0 && !hasPrinted) {
-      window.print();
-      setHasPrinted(true); // Ensure print is triggered only once
-    }
-  }, [isLoading, data, hasPrinted]);
-
   useEffect(() => {
     const calculateTotal = () => {
       const totalBeforeVAT = data.reduce((acc, row) => acc + (parseFloat(row.BeforeVAT) || 0), 0);
       setTotal(totalBeforeVAT);
     };
 
-    calculateTotal();
+    if (data.length > 0) {
+      calculateTotal();
+    }
   }, [data]);
+
+  // Trigger print dialog only after total is calculated
+  useEffect(() => {
+    if (!isLoading && data.length > 0 && total > 0 && !hasPrinted) {
+      window.print();
+      setHasPrinted(true); // Ensure print is triggered only once
+    }
+  }, [isLoading, data, total, hasPrinted]);
 
   if (isLoading) {
     return <p>Loading...</p>;
@@ -63,19 +63,16 @@ function QuotationPrint() {
   return (
     <div>
       {data.length > 0 && <div className="print-container">
-        <div>
-          
-        </div>
-
-        <div className='top-right-info'>
+        <div></div>
+        <div className="top-right-info">
           <p>Ref No: {data[0].refNum}</p>
           <p>Date: {data[0].Date.split('T')[0]}</p>
           <p>Name: {data[0].Name}</p>
         </div>
-        <div className='bill-to'>
+        <div className="bill-to">
           <p>Bill To: {data[0].BillTo}</p>
         </div>
-        
+
         <table>
           <thead>
             <tr>
@@ -100,17 +97,17 @@ function QuotationPrint() {
             ))}
           </tbody>
         </table>
-        <div className='bottom-section'>
-          <div className='tolerance-note'>
-            <p>The supplier keep his right to change the price in case of non collection within 1 week from the readiness notification</p>
-            <p>Delivered items are subjected to +/-5% manufacturing tolerance</p>
+        <div className="bottom-section">
+          <div className="tolerance-note">
+            <p>The supplier keeps his right to change the price in case of non-collection within 1 week from the readiness notification</p>
+            <p>Delivered items are subject to +/-5% manufacturing tolerance</p>
             <p>NOTE: The price is valid for the package</p>
           </div>
 
-          <div className='total-prices'>
-              <p>Total Before VAT: {total}</p>
-              <p>VAT: {(total * 0.15).toFixed(2)}</p>
-              <p>Total including VAT: {(total * 1.15).toFixed(2)}</p>
+          <div className="total-prices">
+            <p>Total Before VAT: {total}</p>
+            <p>VAT: {(total * 0.15).toFixed(2)}</p>
+            <p>Total including VAT: {(total * 1.15).toFixed(2)}</p>
           </div>
         </div>
       </div>}

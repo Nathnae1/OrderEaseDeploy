@@ -16,6 +16,8 @@ const NavigationBar = () => {
           <Link to="/get_quotation">Quotation</Link>
           
           <Link to="/fetch_so">Fetch Sales Order</Link>
+          <Link to="/fetch_di">Fetch Delivery</Link>
+
           <button onClick={() => {
             localStorage.removeItem('token');
             logout();

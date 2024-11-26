@@ -8,8 +8,6 @@ function SalesOrderCreate() {
   const qoToSoRef = queryParams.get('qoToSo'); // Get the reference number from the query params
   const dateQo = queryParams.get('selectedDate'); // Get the reference number from the query params
   const selectedRows = queryParams.get('selectedRowsID'); // Get the reference number from the query params
-  
-  const [originQo, setOrignQo] = useState(queryParams.get('originQo'));
 
   // State to hold extracted year and month
   const [year, setYear] = useState(null);

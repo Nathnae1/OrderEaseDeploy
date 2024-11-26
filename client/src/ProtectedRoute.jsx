@@ -7,7 +7,8 @@ const ProtectedRoute = ({ element: Component, programmaticAccess = false, printP
 
   // Check for programmatic access flag
   const fromQuotation = localStorage.getItem('fromQuotation');
-  const Print = localStorage.getItem('Print');
+  const fromSO = localStorage.getItem('fromSO');
+  const Print = localStorage.getItem('QuotationPrint');
 
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
@@ -17,8 +18,13 @@ const ProtectedRoute = ({ element: Component, programmaticAccess = false, printP
     return <Navigate to="/get_quotation" />;
   }
 
+  if (programmaticAccess && fromSO === 'false') {
+    return <Navigate to="/fetch_so" />;
+  }
+  
+
   if (printProgrammaticAccess && Print !== 'true') {
-    return <Navigate to="/quotation/print/:id" />;
+    return <Navigate to="/get_quotation" />;
   }
 
   return Component;

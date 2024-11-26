@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
 
 function SalesOrderFetch() {  
 
   const [soId, setSoId] = useState('');
-  const [soDate, setSelectedsoDate] = useState();
+  const [soDate, setSelectedsoDate] = useState('');
 
   const [soData, setSoData] = useState([]); // State to hold the fetched data
 
@@ -14,6 +16,9 @@ function SalesOrderFetch() {
   const [editingIndex, setEditingIndex] = useState(null); // Track which row is being edited
 
   const [total, setTotal] = useState(0);
+
+  // Define the navigate function
+  const navigate = useNavigate();
 
   
   // hook to calculate the total
@@ -69,6 +74,17 @@ function SalesOrderFetch() {
 
     setSoData(updatedData);
   };
+
+  const handleCreateDI = (e) => {
+    // Set the programmatic access flag
+    localStorage.setItem('fromSO', 'true');
+    navigate(`/create_di?soToDI=${soId}`);
+  }
+
+  const handleCreateSelectedDI = (e) => {
+    localStorage.setItem('fromSO', 'true');
+    navigate(`/create_di`);
+  }
 
   return (
     <div>
@@ -262,6 +278,14 @@ function SalesOrderFetch() {
         <input type="text" value={soId} placeholder="Enter no" onChange={(e) => setSoId(e.target.value)}/>
         <button onClick={handleSoFetch}>Fetch</button>
       </div>
+      
+      {soData.length > 0 &&
+        <div>
+          <button className='create-di-button' onClick={(e) => handleCreateDI(e)}>Create DI</button>
+
+          <button className='create-di-button' onClick={(e) => handleCreateSelectedDI(e)}>Create Selected DI</button>
+        </div>
+      }
 
     </div>
   );

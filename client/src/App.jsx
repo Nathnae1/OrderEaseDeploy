@@ -13,6 +13,9 @@ import SalesOrderCreate from './SalesOrderCreate';
 import SalesOrderFetch from './SalesOrderFetch';
 import QuotationPrint from './QuotationPrint';
 
+import DeliveryInstructionCreate from './DeliveryInstructionCreate';
+import DeliveryInstructionFetch from './DeliveryInstructionFetch';
+
 import LoginCard from './LoginCard'
 import './App.css'
 
@@ -30,8 +33,14 @@ function App() {
             <Route path="/quotation/print/:id" element={<ProtectedRoute element={<QuotationPrint />} printProgrammaticAccess={true} />} />
 
             <Route path="/add" element={<ProtectedRoute element={<AddDisp />} />} />
+
             <Route path="/create_so" element={<ProtectedRoute element={<SalesOrderCreate />} programmaticAccess={true} />} />
             <Route path="/fetch_so" element={<ProtectedRoute element={<SalesOrderFetch />} />} />
+
+            <Route path="/create_di" element={<ProtectedRoute element={<DeliveryInstructionCreate />} programmaticAccess={true} />} />
+            
+            <Route path="/fetch_di" element={<ProtectedRoute element={<DeliveryInstructionFetch />} />} />
+
             <Route path="/" element={<Navigate to="/login" />} />
 
           </Routes>
