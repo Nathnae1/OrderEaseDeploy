@@ -149,7 +149,6 @@ const dataForSo = (qoData, itemsData, companyTIN) => {
   const soData = qoData.map(qoItem => {
     // Find the corresponding item in itemsData based on the 'size' key
     let item = itemsData.find(item => item.size === qoItem.Size );
-    console.log(item);
     
     // If a matching item is found, add itemCode and voltage to the qoItem
     if (item) {
@@ -192,10 +191,65 @@ app.get("/get_sales_order/:soId", (req, res) => {
       console.error('Query error:', err);
       return res.status(500).json({error: 'Query error' });
     }
+    
     return res.json(data);
   })
 
 })
+
+// Sales Order route to fetch data for di
+app.get("/get_so_for_di/:soToDi", (req, res) => {
+  const soId = req.params.soToDi;
+  const year = req.query.year;
+  const idFilter = req.query.filterIds;
+ 
+  // Convert the ids string back to an array
+  const selectedIds = idFilter ? idFilter.split(',').map(id => parseInt(id)) : [];
+
+  // Validate input
+  if (!soId || !year) {
+    return res.status(400).json({ error: 'Missing required parameters' });
+  }
+
+  const tableName = generateSoTableName(year);
+
+  // Escape table name for safety
+  const escapedTableName = mysql.escapeId(tableName);
+
+  const q = `SELECT * FROM ${escapedTableName} WHERE soRefNum= ?`;
+  pool.query(q,[soId], (err, data) => {
+    if(err) {
+      console.error('Query error:', err);
+      return res.status(500).json({error: 'Query error' });
+    }
+    // If selectedIds is provided, filter the data
+    let filteredData = data;
+    if (selectedIds.length > 0) {
+      filteredData = data.filter((item) => selectedIds.includes(item.id));
+    }
+    return res.json(dataForDi(filteredData));
+  })
+
+})
+
+const dataForDi = (filteredData) => {
+  
+  const diData = filteredData.map(soItem => {
+
+    const { BeforeVAT, AMD, tin, ...remainingFields } = soItem;
+    // Tolerance is a factor that affects the delivery and fulfillment of the order, not the initial agreement.
+    return {
+      ...remainingFields,
+      diDate: new Date(), // Add diDate
+      "tolerancePercentage": 5,
+      "finalDeliveredQty": soItem.QTY,
+      amd: 0, // Add amd with a fallback value
+    };
+  });
+
+  return diData;
+};
+
 
 // Delete quotatio item route
 app.delete("/delete_quotation/:id", (req, res) => {

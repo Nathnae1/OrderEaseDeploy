@@ -7,6 +7,7 @@ function SalesOrderFetch() {
 
   const [soId, setSoId] = useState('');
   const [soDate, setSelectedsoDate] = useState('');
+  const [soYear, setSoYear] = useState('');
 
   const [soData, setSoData] = useState([]); // State to hold the fetched data
 
@@ -16,6 +17,9 @@ function SalesOrderFetch() {
   const [editingIndex, setEditingIndex] = useState(null); // Track which row is being edited
 
   const [total, setTotal] = useState(0);
+
+  //Collect the selected row table ids
+  const [selectedTableRowsID, setSelectedTableRowsID] = useState([]);
 
   // Define the navigate function
   const navigate = useNavigate();
@@ -50,6 +54,8 @@ function SalesOrderFetch() {
     try {
       const selectedDate = new Date(soDate);
       const year = selectedDate.getFullYear();
+      //Setting soYear for delivery Creation
+      setSoYear(year);
 
       const response = await axios.get(`http://localhost:5000/get_sales_order/${soId}?year=${year}`);
       setSoData(response.data)
@@ -75,16 +81,28 @@ function SalesOrderFetch() {
     setSoData(updatedData);
   };
 
+  //Table row selction
+  const handleTableRowClick = (rowId) => {
+    const newRowID = selectedTableRowsID.includes(rowId) ? selectedTableRowsID.filter((id) => id !== rowId) :
+    [...selectedTableRowsID, rowId];
+    setSelectedTableRowsID(newRowID);
+  };
+
   const handleCreateDI = (e) => {
     // Set the programmatic access flag
-    console.log('clicked the create btn');
     localStorage.setItem('fromSO', 'true');
-    navigate(`/create_di?soToDI=${soId}`);
+    navigate(`/create_di?soToDI=${soId}&year=${soYear}`);
   }
 
   const handleCreateSelectedDI = (e) => {
     localStorage.setItem('fromSO', 'true');
-    navigate(`/create_di?soToDI=${soId}`);
+    const selectedRowsParam = selectedTableRowsID.join(',');
+    console.log(selectedRowsParam);
+    if(selectedRowsParam){
+      navigate(`/create_di?soToDI=${soId}&year=${soYear}&selectedRowsID=${selectedRowsParam}`); 
+    } else {
+      console.log('Select ITems');
+    }
   }
 
   return (
@@ -118,7 +136,10 @@ function SalesOrderFetch() {
                   </thead>
                   <tbody>
                     {soData.map((soItem, index) => (
-                        <tr key={soItem.id}>
+                        <tr key={soItem.id}
+                          onClick={() => handleTableRowClick(soItem.id)} style={{
+                            backgroundColor: selectedTableRowsID.includes(soItem.id) ? 'CornflowerBlue' : ''
+                          }}>
                           <td className="no">{index + 1}</td>
                           <td className="size">
                             {editingIndex === index ? (

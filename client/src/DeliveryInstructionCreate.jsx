@@ -6,16 +6,243 @@ function DeliveryInstructionCreate() {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const soToDi = queryParams.get('soToDI'); // Get the reference number from the query params
+  const year = queryParams.get('year');
+
+  // State to manage error state
+  const [error, setError] = useState(null); 
+
+   // State to manage loading state
+  const [isLoading, setIsLoading] = useState(true);
+  // state to hold fetched so data for delivery
+  const [soData, setSoData] = useState([]);
+  // Get the selected rows ID if selected
+  const selectedRows = queryParams.get('selectedRowsID');
+
+  const [editingIndex, setEditingIndex] = useState(null); // Track which row is being edited
 
   // Clear the flag after the user enters the /create_so page:
   useEffect(() => {
     localStorage.removeItem('fromSO'); // Clear the programmatic access flag
   }, []);
 
+  // Fetch SO data for delivery
+
+  useEffect(() => {
+    const fetchSalesOrderData = async () => {
+     
+      if (!year || !soToDi) {
+        return;
+      }
+  
+      setIsLoading(true);
+  
+      try {
+        let url = `http://localhost:5000/get_so_for_di/${soToDi}?year=${year}`;
+        if (selectedRows) {
+          url += `&filterIds=${selectedRows}`;
+        }
+        const response = await axios.get(url);
+        setSoData(response.data);
+       
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+  
+    fetchSalesOrderData();
+  }, [year, soToDi]);
+
+  // Handle so edit item save before sendig to DB
+  const handleChange = (e, index, field) => {
+    const { value } = e.target;
+    const updatedData = [...soData];
+    updatedData[index] = { ...updatedData[index], [field]: value };
+
+    // Calculate BeforeVAT if UnitPrice or QTY changes
+    
+
+    setSoData(updatedData);
+  };
+
+
   return (
     <div>
-      <h1>This is Create Delivery Instruction for so {soToDi}</h1>
+      <div>
+        <h1>This is Create Delivery Instruction for SO {soToDi} and year {year}</h1>
+        
+        {isLoading && <p>Loading...</p>}
+        
+        {error && <p>Error: {error}</p>}
+        
+        {!isLoading && !error && (
+          <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+            {JSON.stringify(soData, null, 2)}
+          </pre>
+        )}
+      </div>
+
+      <div className='table-container'>
+          <div className='sales-order-table'>
+            <table>
+            <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Size</th>
+                    <th>Description</th>
+                    <th>Item Code</th>
+                    <th>Colour</th>
+                    <th>Volt</th>
+                    <th>Unit</th>
+                    <th>Qty</th>
+                    <th>Packing</th>
+                    <th>Total Length</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                {soData.map((item, index) => (
+                      <tr key={item.id}>
+                        <td className="no">{index + 1}</td>
+                        <td className="size">
+                          {editingIndex === index ? (
+                            <input
+                              type="text"
+                              value={item.Size}
+                              onChange={(e) => handleChange(e, index, 'Size')}
+                            />
+                          ) : (
+                            item.Size
+                          )}
+                        </td>
+                        
+                        <td className="description">
+                          {editingIndex === index ? (
+                            <input
+                              type="text"
+                              value={item.itemDescription}
+                              onChange={(e) => handleChange(e, index, 'itemDescription')}
+                            />
+                          ) : (
+                            item.itemDescription
+                          )}
+                        </td>
+
+                        <td className="itemCode">
+                          {editingIndex === index ? (
+                            <input
+                              type="text"
+                              value={item.itemCode}
+                              onChange={(e) => handleChange(e, index, 'itemCode')}
+                            />
+                          ) : (
+                            item.itemCode
+                          )}
+                        </td>
+
+                        <td className="colour">
+                          {editingIndex === index ? (
+                            <input
+                              type="text"
+                              value={item.Colour}
+                              onChange={(e) => handleChange(e, index, 'Colour')}
+                            />
+                          ) : (
+                            item.Colour
+                          )}
+                        </td>
+
+                        <td className="voltage">
+                          {editingIndex === index ? (
+                            <input
+                              type="text"
+                              value={item.Volt}
+                              onChange={(e) => handleChange(e, index, 'Volt')}
+                            />
+                          ) : (
+                            item.Volt
+                          )}
+                        </td>
+                        
+                        <td className="unit">
+                          {editingIndex === index ? (
+                            <input
+                              type="text"
+                              value={item.unit}
+                              onChange={(e) => handleChange(e, index, 'unit')}
+                            />
+                          ) : (
+                            item.unit
+                          )}
+                        </td>
+
+                        <td className="qty">
+                          {editingIndex === index ? (
+                            <input
+                              type="number"
+                              value={item.QTY}
+                              onChange={(e) => handleChange(e, index, 'QTY')}
+                            />
+                          ) : (
+                            item.QTY
+                          )}
+                        </td>
+
+                        <td className="packing">
+                          {editingIndex === index ? (
+                            <input
+                              type="text"
+                              value={item.Packing}
+                              onChange={(e) => handleChange(e, index, 'Packing')}
+                            />
+                          ) : (
+                            item.Packing
+                          )}
+                        </td>
+                        <td className="qty-packing">
+                          {editingIndex === index ? (
+                            <input
+                              type="number"
+                              value={item.UnitPrice}
+                              onChange={(e) => handleChange(e, index, 'UnitPrice')}
+                            />
+                          ) : (
+                            item.UnitPrice
+                          )}
+                        </td>
+                        <td className="total-length">
+                          {editingIndex === index ? (
+                            <input
+                              type="number"
+                              value={item.UnitPrice}
+                              readOnly
+                            />
+                          ) : (
+                            item.UnitPrice
+                          )}
+                        </td>
+                        <td className="actions">
+                          {/* {editingIndex === index ? (
+                            <>
+                              <button onClick={() => handleSave(item.id, index)}>Save</button>
+                              <button onClick={() => setEditingIndex(null)}>Cancel</button>
+                            </>
+                          ) : (
+                            <>
+                              <button onClick={() => setEditingIndex(index)}>Edit</button>
+                              <button className="item-delete" onClick={() => handleDelete(item.id, index)}>Delete</button>
+                            </>
+                          )} */}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+            </table>
+          </div>
+      </div>
     </div>
+    
   );
 }
 
