@@ -19,6 +19,11 @@ function DeliveryInstructionCreate() {
   const selectedRows = queryParams.get('selectedRowsID');
 
   const [editingIndex, setEditingIndex] = useState(null); // Track which row is being edited
+  const [total, setTotal] = useState(0);
+
+  const [diRefNumber, setSoRefNumber] = useState(null);
+  const [soIsSubmitted, setSoIsSubmitted] = useState(false); 
+
 
   // Clear the flag after the user enters the /create_so page:
   useEffect(() => {
@@ -66,181 +71,224 @@ function DeliveryInstructionCreate() {
     setSoData(updatedData);
   };
 
+  // hook to calculate the total
+  useEffect(() => {
+    const calculateTotal = () => {
+      const totalBeforeVAT = soData.reduce((acc, row) => acc + (parseFloat(row.BeforeVAT) || 0), 0);
+      setTotal(totalBeforeVAT);
+    };
+
+    calculateTotal();
+  }, [soData]);
+
+  const handleSave = () => {
+    console.log('save button');
+  }
+  const handleDelete = () => {
+    console.log('Handle Delete');
+  }
+
+
+   // Function to handle SO Data submission
+   const handleDIsubmitToDB = async (e) => {
+
+    try {
+      // Check the data before sending to server
+      const dataToSend = soData;
+      // Use Axios to send a POST request
+      const response = await axios.post('http://localhost:5000/send_di_to_db', dataToSend);
+
+      if (response.status === 201) {
+        setSoRefNumber(response.data.soId)
+        setSoIsSubmitted(true);
+      
+      } else {
+        console.error('Error submitting data to the database');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
 
   return (
     <div>
-      <div>
-        <h1>This is Create Delivery Instruction for SO {soToDi} and year {year}</h1>
-        
-        {isLoading && <p>Loading...</p>}
-        
-        {error && <p>Error: {error}</p>}
-        
-        {!isLoading && !error && (
-          <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
-            {JSON.stringify(soData, null, 2)}
-          </pre>
-        )}
-      </div>
+      {!soIsSubmitted && <div className='so-on-creation'>
+        <div>
+          <h1>This is Create Delivery Instruction for SO {soToDi} and year {year}</h1>
+          
+          {isLoading && <p>Loading...</p>}
+          
+          {error && <p>Error: {error}</p>}
+          
+          {!isLoading && !error && (
+            <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+              {JSON.stringify(soData, null, 2)}
+            </pre>
+          )}
+        </div>
 
-      <div className='table-container'>
-          <div className='sales-order-table'>
-            <table>
-            <thead>
-                  <tr>
-                    <th>No</th>
-                    <th>Size</th>
-                    <th>Description</th>
-                    <th>Item Code</th>
-                    <th>Colour</th>
-                    <th>Volt</th>
-                    <th>Unit</th>
-                    <th>Qty</th>
-                    <th>Packing</th>
-                    <th>Total Length</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                {soData.map((item, index) => (
-                      <tr key={item.id}>
-                        <td className="no">{index + 1}</td>
-                        <td className="size">
-                          {editingIndex === index ? (
-                            <input
-                              type="text"
-                              value={item.Size}
-                              onChange={(e) => handleChange(e, index, 'Size')}
-                            />
-                          ) : (
-                            item.Size
-                          )}
-                        </td>
-                        
-                        <td className="description">
-                          {editingIndex === index ? (
-                            <input
-                              type="text"
-                              value={item.itemDescription}
-                              onChange={(e) => handleChange(e, index, 'itemDescription')}
-                            />
-                          ) : (
-                            item.itemDescription
-                          )}
-                        </td>
+        <div className='table-container'>
+            <div className='sales-order-table'>
+              <table>
+              <thead>
+                    <tr>
+                      <th>No</th>
+                      <th>Size</th>
+                      <th>Description</th>
+                      <th>Item Code</th>
+                      <th>Colour</th>
+                      <th>Volt</th>
+                      <th>Unit</th>
+                      <th>Ordered Qty</th>
+                      <th>Packing</th>
+                      <th>Actual Length</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {soData.map((item, index) => (
+                        <tr key={item.id}>
+                          <td className="no">{index + 1}</td>
+                          <td className="size">
+                            {editingIndex === index ? (
+                              <input
+                                type="text"
+                                value={item.Size}
+                                onChange={(e) => handleChange(e, index, 'Size')}
+                              />
+                            ) : (
+                              item.Size
+                            )}
+                          </td>
+                          
+                          <td className="description">
+                            {editingIndex === index ? (
+                              <input
+                                type="text"
+                                value={item.itemDescription}
+                                onChange={(e) => handleChange(e, index, 'itemDescription')}
+                              />
+                            ) : (
+                              item.itemDescription
+                            )}
+                          </td>
 
-                        <td className="itemCode">
-                          {editingIndex === index ? (
-                            <input
-                              type="text"
-                              value={item.itemCode}
-                              onChange={(e) => handleChange(e, index, 'itemCode')}
-                            />
-                          ) : (
-                            item.itemCode
-                          )}
-                        </td>
+                          <td className="itemCode">
+                            {editingIndex === index ? (
+                              <input
+                                type="text"
+                                value={item.itemCode}
+                                onChange={(e) => handleChange(e, index, 'itemCode')}
+                              />
+                            ) : (
+                              item.itemCode
+                            )}
+                          </td>
 
-                        <td className="colour">
-                          {editingIndex === index ? (
-                            <input
-                              type="text"
-                              value={item.Colour}
-                              onChange={(e) => handleChange(e, index, 'Colour')}
-                            />
-                          ) : (
-                            item.Colour
-                          )}
-                        </td>
+                          <td className="colour">
+                            {editingIndex === index ? (
+                              <input
+                                type="text"
+                                value={item.Colour}
+                                onChange={(e) => handleChange(e, index, 'Colour')}
+                              />
+                            ) : (
+                              item.Colour
+                            )}
+                          </td>
 
-                        <td className="voltage">
-                          {editingIndex === index ? (
-                            <input
-                              type="text"
-                              value={item.Volt}
-                              onChange={(e) => handleChange(e, index, 'Volt')}
-                            />
-                          ) : (
-                            item.Volt
-                          )}
-                        </td>
-                        
-                        <td className="unit">
-                          {editingIndex === index ? (
-                            <input
-                              type="text"
-                              value={item.unit}
-                              onChange={(e) => handleChange(e, index, 'unit')}
-                            />
-                          ) : (
-                            item.unit
-                          )}
-                        </td>
+                          <td className="voltage">
+                            {editingIndex === index ? (
+                              <input
+                                type="text"
+                                value={item.Volt}
+                                onChange={(e) => handleChange(e, index, 'Volt')}
+                              />
+                            ) : (
+                              item.Volt
+                            )}
+                          </td>
+                          
+                          <td className="unit">
+                            {editingIndex === index ? (
+                              <input
+                                type="text"
+                                value={item.Unit}
+                                onChange={(e) => handleChange(e, index, 'Unit')}
+                              />
+                            ) : (
+                              item.Unit
+                            )}
+                          </td>
 
-                        <td className="qty">
-                          {editingIndex === index ? (
-                            <input
-                              type="number"
-                              value={item.QTY}
-                              onChange={(e) => handleChange(e, index, 'QTY')}
-                            />
-                          ) : (
-                            item.QTY
-                          )}
-                        </td>
+                          <td className="qty">
+                            {editingIndex === index ? (
+                              <input
+                                type="number"
+                                value={item.QTY}
+                                onChange={(e) => handleChange(e, index, 'QTY')}
+                              />
+                            ) : (
+                              item.QTY
+                            )}
+                          </td>
 
-                        <td className="packing">
-                          {editingIndex === index ? (
-                            <input
-                              type="text"
-                              value={item.Packing}
-                              onChange={(e) => handleChange(e, index, 'Packing')}
-                            />
-                          ) : (
-                            item.Packing
-                          )}
-                        </td>
-                        <td className="qty-packing">
-                          {editingIndex === index ? (
-                            <input
-                              type="number"
-                              value={item.UnitPrice}
-                              onChange={(e) => handleChange(e, index, 'UnitPrice')}
-                            />
-                          ) : (
-                            item.UnitPrice
-                          )}
-                        </td>
-                        <td className="total-length">
-                          {editingIndex === index ? (
-                            <input
-                              type="number"
-                              value={item.UnitPrice}
-                              readOnly
-                            />
-                          ) : (
-                            item.UnitPrice
-                          )}
-                        </td>
-                        <td className="actions">
-                          {/* {editingIndex === index ? (
-                            <>
-                              <button onClick={() => handleSave(item.id, index)}>Save</button>
-                              <button onClick={() => setEditingIndex(null)}>Cancel</button>
-                            </>
-                          ) : (
-                            <>
-                              <button onClick={() => setEditingIndex(index)}>Edit</button>
-                              <button className="item-delete" onClick={() => handleDelete(item.id, index)}>Delete</button>
-                            </>
-                          )} */}
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-            </table>
-          </div>
-      </div>
+                          <td className="packing">
+                            {editingIndex === index ? (
+                              <input
+                                type="text"
+                                value={item.Packing}
+                                onChange={(e) => handleChange(e, index, 'Packing')}
+                              />
+                            ) : (
+                              item.Packing
+                            )}
+                          </td>
+                          
+                          <td className="final-delivered-qty">
+                            {editingIndex === index ? (
+                              <input
+                                type="number"
+                                value={item.deliveredQty}
+                                readOnly
+                              />
+                            ) : (
+                              item.deliveredQty
+                            )}
+                          </td>
+                          <td className="actions">
+                            {editingIndex === index ? (
+                              <>
+                                <button onClick={() => handleSave(item.id, index)}>Save</button>
+                                <button onClick={() => setEditingIndex(null)}>Cancel</button>
+                              </>
+                            ) : (
+                              <>
+                                <button onClick={() => setEditingIndex(index)}>Edit</button>
+                                <button className="item-delete" onClick={() => handleDelete(item.id, index)}>Delete</button>
+                              </>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+              </table>
+            </div>
+        </div>
+
+        <div>
+            <p>Total Before VAT: {total}</p>
+            <p>VAT: {(total * 0.15).toFixed(2)}</p>
+            <p>Total including VAT: {(total * 1.15).toFixed(2)}</p>
+        </div>
+
+        <div>
+          Click to Send to DB
+          <button className="submit-button" onClick={(e) => handleDIsubmitToDB(e)}>
+            Send Data
+          </button>
+        </div>  
+      </div>}
     </div>
     
   );

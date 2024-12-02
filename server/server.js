@@ -242,7 +242,7 @@ const dataForDi = (filteredData) => {
       ...remainingFields,
       diDate: new Date(), // Add diDate
       "tolerancePercentage": 5,
-      "finalDeliveredQty": soItem.QTY,
+      "deliveredQty": soItem.QTY,
       amd: 0, // Add amd with a fallback value
     };
   });
@@ -605,7 +605,7 @@ app.post("/add/edit", async (req, res) => {
   }
 });
 
-// Route for last quotation reference number
+// Route to send so data to DB
 app.post("/send_so_to_db", async (req, res) => {
   const today = new Date();
   const year = today.getFullYear();
@@ -722,7 +722,126 @@ app.post("/send_so_to_db", async (req, res) => {
   }
 });
 
+// Route to send di data db
+app.post("/send_di_to_db", async (req, res) => {
+  const today = new Date();
+  const year = today.getFullYear();
+  let diRefNumber;
 
+  // Create table name dynamically based on the year
+  const tableName = `delivery_instruction_${year}`;
+
+  // Utility function to handle database queries with promises
+  const queryPromise = (query, values = []) => {
+    return new Promise((resolve, reject) => {
+      pool.query(query, values, (err, result) => {
+        if (err) return reject(err);
+        resolve(result);
+      });
+    });
+  };
+
+  try {
+    // Check if the table exists
+    const checkTableQuery = `SHOW TABLES LIKE '${tableName}'`;
+    const tableExists = await queryPromise(checkTableQuery);
+
+    // Process the incoming data (ensure it's an array of objects)
+    const objectsArray = req.body;
+
+    if (!Array.isArray(objectsArray)) {
+      return res.status(400).json({ error: 'Expected an array of objects' });
+    }
+
+
+    // If the table does not exist, create it
+    if (tableExists.length === 0) {
+      // Create table
+      const createTableQuery = `
+        CREATE TABLE ${tableName} (
+          id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+          qoId INT NOT NULL,
+          soId INT NOT NULL,
+          soRefNum INT NOT NULL,
+          qoRefNum INT NOT NULL,
+          sales_rep_id INT NOT NULL,
+          Name VARCHAR(100) NOT NULL,
+          qoDate DATE NOT NULL,
+          soDate DATE NOT NULL,
+          diDate DATE NOT NULL,
+          BillTo VARCHAR(255) NOT NULL,
+          Size VARCHAR(50) NOT NULL,
+          itemDescription VARCHAR(50) NOT NULL,
+          itemCode VARCHAR(50) NOT NULL,
+          Colour VARCHAR(50) NOT NULL,
+          Volt VARCHAR(50) NOT NULL,
+          Unit VARCHAR(50) NOT NULL,
+          orderedQty INT NOT NULL,
+          deliveredQty INT NOT NULL,
+          Packing VARCHAR(50) NOT NULL,
+          UnitPrice DECIMAL(10, 2) NOT NULL,
+          tolerance INT NOT NULL,
+          AMD INT NOT NULL
+        );
+      `;
+      await queryPromise(createTableQuery);
+
+      diRefNumber = 1;
+
+    } else {
+      // Table exists, get the last reference number (id)
+      const selectRefQuery = `SELECT soRefNum FROM ${tableName} ORDER BY id DESC LIMIT 1`;
+      const result = await queryPromise(selectRefQuery);
+      if(result) {
+        diRefNumber = result[0].diRefNum + 1; // Increment the id to get the next reference number
+      }
+    }
+
+    // Prepare the insertion query
+    const escapedTableName = mysql.escapeId(tableName); // Escape table name for security
+    const insertionPromises = objectsArray.map(object => {
+      const insertQuery = `INSERT INTO ${escapedTableName} (\`qoId\`, \`soId\`, \`soRefNum\`, \`qoRefNum\`, \`sales_rep_id\`, \`Name\`, \`qoDate\`, \`soDate\`, \`diDate\`,\`BillTo\`, \`Size\`, \`itemDescription\`, \`itemCode\`, \`Colour\`, \`Volt\`, \`Unit\`, \`orderedQty\`, \`deliveredQty\`, \`Packing\`, \`UnitPrice\`, \`tolerance\`, \`AMD\`) 
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    const values = [
+      object.qoId,
+      object.id,
+      object.soRefNum,
+      object.qoRefNum,
+      object.sales_rep_id,
+      object.Name,
+      new Date(object.qoDate), // Convert date to ISO format if needed
+      new Date(object.soDate),
+      new Date(),
+      object.BillTo,
+      object.Size,
+      object.itemDescription,
+      object.itemCode,
+      object.Colour,
+      object.Volt,
+      object.Unit,
+      object.QTY,
+      object.deliveredQty,
+      object.Packing,
+      object.UnitPrice,
+      object.tolerancePercentage,
+      object.amd
+      ];
+      // Return the promise for insertion
+      return queryPromise(insertQuery, values);
+    });
+
+    // Wait for all insertions to complete
+    await Promise.all(insertionPromises);
+
+    // Send the ID of the newly created item back
+    res.status(201).json({ diId: diRefNumber});
+
+  } catch (err) {
+    // Handle any errors that occurred during the process
+    console.error("Error occurred:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // Login code
 //Use an environment variable in production
