@@ -115,6 +115,10 @@ function SalesOrderFetch() {
                 <p>TIN: {soData[0].tin}</p>
         </div>
 
+        <div>
+          <h2>Bill To: {soData[0].BillTo}</h2>
+        </div>
+
         <div className="table-container">
             <div className="quotation-table">
                 <table>

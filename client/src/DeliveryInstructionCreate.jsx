@@ -22,7 +22,7 @@ function DeliveryInstructionCreate() {
   const [total, setTotal] = useState(0);
 
   const [diRefNumber, setSoRefNumber] = useState(null);
-  const [soIsSubmitted, setSoIsSubmitted] = useState(false); 
+  const [diSubmitted, setDiSubmitted] = useState(false); 
 
 
   // Clear the flag after the user enters the /create_so page:
@@ -99,8 +99,8 @@ function DeliveryInstructionCreate() {
       const response = await axios.post('http://localhost:5000/send_di_to_db', dataToSend);
 
       if (response.status === 201) {
-        setSoRefNumber(response.data.soId)
-        setSoIsSubmitted(true);
+        setSoRefNumber(response.data.diId)
+        setDiSubmitted(true);
       
       } else {
         console.error('Error submitting data to the database');
@@ -110,9 +110,18 @@ function DeliveryInstructionCreate() {
     }
   };
 
+  const handlePrint = () => {
+    console.log('Pring option clicked');
+  }
+
+  const handleEdit = () => {
+    console.log('Eding Option pressed');
+  }
+
+
   return (
     <div>
-      {!soIsSubmitted && <div className='so-on-creation'>
+      {!diSubmitted && <div className='di-on-creation'>
         <div>
           <h1>This is Create Delivery Instruction for SO {soToDi} and year {year}</h1>
           
@@ -128,7 +137,7 @@ function DeliveryInstructionCreate() {
         </div>
 
         <div className='table-container'>
-            <div className='sales-order-table'>
+            <div className='di-table'>
               <table>
               <thead>
                     <tr>
@@ -289,6 +298,14 @@ function DeliveryInstructionCreate() {
           </button>
         </div>  
       </div>}
+
+      {diSubmitted && <div className='di-after-creation'>
+        <h1>Item Created Successfully!</h1>
+        <p>Delivery Instruction ID: {diRefNumber}</p>
+        <button onClick={handlePrint}>Print</button>
+        <button onClick={handleEdit}>Edit</button>
+      </div>}
+
     </div>
     
   );

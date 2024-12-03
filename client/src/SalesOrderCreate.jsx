@@ -354,7 +354,7 @@ function SalesOrderCreate() {
 
       {soIsSubmitted && <div className='so-after-creation'>
         <h1>Item Created Successfully!</h1>
-        <p>Sales Order ID: {soRefNumber}</p>
+        <p>Delivery ID: {soRefNumber}</p>
         <button onClick={handlePrint}>Print</button>
         <button onClick={handleEdit}>Edit</button>
       </div>}

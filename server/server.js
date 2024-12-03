@@ -64,6 +64,10 @@ function generateSoTableName(year) {
   return `sales_order_${year}`;
 }
 
+function generateDiTableName(year) {
+  return `delivery_instruction_${year}`;
+}
+
 // Quotation route to fetch data
 app.get("/get_quotation/:id", (req, res) => {
   const id = req.params.id;
@@ -249,6 +253,34 @@ const dataForDi = (filteredData) => {
 
   return diData;
 };
+
+
+// Delivery Instruction route to fetch data
+app.get("/get_delivery_instruction/:diId", (req, res) => {
+  const diId = req.params.diId;
+  const year = req.query.year;
+
+  // Validate input
+  if (!diId || !year) {
+    return res.status(400).json({ error: 'Missing required parameters' });
+  }
+
+  const tableName = generateDiTableName(year);
+
+  // Escape table name for safety
+  const escapedTableName = mysql.escapeId(tableName);
+
+  const q = `SELECT * FROM ${escapedTableName} WHERE diRefNum= ?`;
+  pool.query(q,[diId], (err, data) => {
+    if(err) {
+      console.error('Query error:', err);
+      return res.status(500).json({error: 'Query error' });
+    }
+    
+    return res.json(data);
+  })
+
+})
 
 
 // Delete quotatio item route
@@ -762,6 +794,7 @@ app.post("/send_di_to_db", async (req, res) => {
           id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
           qoId INT NOT NULL,
           soId INT NOT NULL,
+          diRefNum INT NOT NULL,
           soRefNum INT NOT NULL,
           qoRefNum INT NOT NULL,
           sales_rep_id INT NOT NULL,
@@ -790,7 +823,7 @@ app.post("/send_di_to_db", async (req, res) => {
 
     } else {
       // Table exists, get the last reference number (id)
-      const selectRefQuery = `SELECT soRefNum FROM ${tableName} ORDER BY id DESC LIMIT 1`;
+      const selectRefQuery = `SELECT diRefNum FROM ${tableName} ORDER BY id DESC LIMIT 1`;
       const result = await queryPromise(selectRefQuery);
       if(result) {
         diRefNumber = result[0].diRefNum + 1; // Increment the id to get the next reference number
@@ -800,11 +833,12 @@ app.post("/send_di_to_db", async (req, res) => {
     // Prepare the insertion query
     const escapedTableName = mysql.escapeId(tableName); // Escape table name for security
     const insertionPromises = objectsArray.map(object => {
-      const insertQuery = `INSERT INTO ${escapedTableName} (\`qoId\`, \`soId\`, \`soRefNum\`, \`qoRefNum\`, \`sales_rep_id\`, \`Name\`, \`qoDate\`, \`soDate\`, \`diDate\`,\`BillTo\`, \`Size\`, \`itemDescription\`, \`itemCode\`, \`Colour\`, \`Volt\`, \`Unit\`, \`orderedQty\`, \`deliveredQty\`, \`Packing\`, \`UnitPrice\`, \`tolerance\`, \`AMD\`) 
-                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      const insertQuery = `INSERT INTO ${escapedTableName} (\`qoId\`, \`soId\`,\`diRefNum\`, \`soRefNum\`, \`qoRefNum\`, \`sales_rep_id\`, \`Name\`, \`qoDate\`, \`soDate\`, \`diDate\`,\`BillTo\`, \`Size\`, \`itemDescription\`, \`itemCode\`, \`Colour\`, \`Volt\`, \`Unit\`, \`orderedQty\`, \`deliveredQty\`, \`Packing\`, \`UnitPrice\`, \`tolerance\`, \`AMD\`) 
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     const values = [
       object.qoId,
       object.id,
+      diRefNumber,
       object.soRefNum,
       object.qoRefNum,
       object.sales_rep_id,
