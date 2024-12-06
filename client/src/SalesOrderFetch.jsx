@@ -88,12 +88,14 @@ function SalesOrderFetch() {
     setSelectedTableRowsID(newRowID);
   };
 
+  // create delivery for all items
   const handleCreateDI = (e) => {
     // Set the programmatic access flag
     localStorage.setItem('fromSO', 'true');
     navigate(`/create_di?soToDI=${soId}&year=${soYear}`);
   }
 
+  // create delivery for selected items
   const handleCreateSelectedDI = (e) => {
     localStorage.setItem('fromSO', 'true');
     const selectedRowsParam = selectedTableRowsID.join(',');
@@ -105,12 +107,25 @@ function SalesOrderFetch() {
     }
   }
 
+  const handleDelete = async (itemId, rowIndex) => {
+    const itemDate = new Date(soData[rowIndex].soDate);
+    const year = itemDate.getFullYear();
+    
+    try {
+      await axios.delete(`http://localhost:5000/delete_sales_order/${itemId}?year=${year}`);
+      setSoData(soData.filter(item => item.id !== itemId));
+    } catch (error) {
+      console.error('Error deleting data:', error.message);
+    }
+  };
+
+
   return (
     <div>
       {soData.length > 0 && <div className='fetched-so-container'>
         <div className="get-top-section">
                 <p>Ref No: {soData[0].soRefNum}</p>
-                {/* <p>Date: {formatDate(new Date())}</p> */}
+                <p>Date: {soData[0].soDate.split('T')[0]}</p>
                 <p>Name: {soData[0].Name}</p>
                 <p>TIN: {soData[0].tin}</p>
         </div>

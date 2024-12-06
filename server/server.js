@@ -283,7 +283,7 @@ app.get("/get_delivery_instruction/:diId", (req, res) => {
 })
 
 
-// Delete quotatio item route
+// Delete quotation item route
 app.delete("/delete_quotation/:id", (req, res) => {
   const id = req.params.id;
   const year = req.query.year;
@@ -294,6 +294,27 @@ app.delete("/delete_quotation/:id", (req, res) => {
   // Escape table name for safety
   const escapedTableName = mysql.escapeId(tableName);
 
+  const q = `DELETE FROM ${escapedTableName} WHERE id= ?`;
+  pool.query(q,[id], (err, data) => {
+    if(err) {
+      console.error('Deleting error:', err);
+      return res.status(500).json({error: 'Error deleting data' });
+    } else{
+      res.send({message: 'Data deleted successfully'})
+    }
+  })
+});
+
+// Delete sales order item route
+app.delete("/delete_sales_order/:itemId", (req, res) => {
+  const id = req.params.itemId;
+  const year = req.query.year;
+
+  const tableName = generateSoTableName(year);
+  
+  // Escape table name for safety
+  const escapedTableName = mysql.escapeId(tableName);
+  
   const q = `DELETE FROM ${escapedTableName} WHERE id= ?`;
   pool.query(q,[id], (err, data) => {
     if(err) {

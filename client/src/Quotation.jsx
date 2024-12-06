@@ -295,9 +295,17 @@ function Quotation() {
                   </thead>
                   <tbody>
                     {data.map((quotation, index) => (
-                      <tr key={quotation.id} onClick={() => handleTableRowClick(quotation.id)} style={{
-                        backgroundColor: selectedTableRowsID.includes(quotation.id) ? 'CornflowerBlue' : ''
-                      }}>
+                      <tr key={quotation.id} 
+                      onClick={() => {
+                        if (editingIndex === null) {
+                          handleTableRowClick(quotation.id);
+                        }
+                      }}
+                      style={{
+                        backgroundColor: selectedTableRowsID.includes(quotation.id) ? 'CornflowerBlue' : '',
+                        cursor: editingIndex === null ? 'pointer' : 'not-allowed', // Disable pointer for clarity
+                      }}
+                      >
                         <td className="no">{index + 1}</td>
                         <td className="size">
                           {editingIndex === index ? (
@@ -379,13 +387,35 @@ function Quotation() {
                         <td className="actions">
                           {editingIndex === index ? (
                             <>
-                              <button onClick={() => handleSave(quotation.id, index)}>Save</button>
-                              <button onClick={() => setEditingIndex(null)}>Cancel</button>
+                              <button
+                                onClick={(e) => {
+                                  // stops the click event from bubbling up to the row's onClick event, preventing row selection.
+                                  e.stopPropagation();
+                                  handleSave(quotation.id, index);
+                                }}> Save
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation(); // Prevent row selection
+                                  setEditingIndex(null);
+                                }}> Cancel
+                              </button>
                             </>
                           ) : (
                             <>
-                              <button onClick={() => setEditingIndex(index)}>Edit</button>
-                              <button className="item-delete" onClick={() => handleDelete(quotation.id, index)}>Delete</button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation(); // Prevent row selection
+                                  setEditingIndex(index);
+                                }}> Edit
+                              </button>
+                              <button
+                                className="item-delete"
+                                onClick={(e) => {
+                                  e.stopPropagation(); // Prevent row selection
+                                  handleDelete(quotation.id, index);
+                                }}> Delete
+                              </button>
                             </>
                           )}
                         </td>
