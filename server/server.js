@@ -428,6 +428,83 @@ app.put("/update_quotation/billto/:ref", (req, res) => {
   })
 });
 
+// Updadte sales order item route
+app.put("/update_sales_order/:itemId", (req, res) => {
+  const id = req.params.itemId;
+  const year = req.query.year;
+
+  const tableName = generateSoTableName(year);
+
+  console.log('This data from server', id, year);
+
+  // Escape table name for safety
+  const escapedTableName = mysql.escapeId(tableName);
+
+  const data = req.body;
+
+  // checking for empty values
+  // Object.values(data).forEach((item) => {
+  //   if (!item) {
+  //          return res.status(400).json({ error: ` is required` });
+  //        }
+  // })
+
+  const q = `UPDATE ${escapedTableName} 
+            SET qoId = ?,
+                soRefNum = ?,
+                qoRefNum = ?, 
+                sales_rep_id = ?, 
+                Name = ?, 
+                qoDate = ?,
+                soDate = ?, 
+                BillTo = ?, 
+                tin = ?,
+                Size = ?, 
+                itemDescription = ?,
+                itemCode = ?,
+                Colour = ?,
+                Volt = ?,
+                Unit = ?, 
+                QTY = ?,
+                Packing = ?, 
+                UnitPrice = ?, 
+                BeforeVAT = ?,
+                AMD = ? 
+            WHERE id = ?`;
+
+  const values = [
+    data.qoId,
+    data.soRefNum,
+    data.qoRefNum,
+    data.sales_rep_id,
+    data.Name,
+    data.qoDate.split('T')[0], // Convert to date
+    data.soDate.split('T')[0],
+    data.BillTo,
+    data.tin,
+    data.Size,
+    data.itemDescription,
+    data.itemCode,
+    data.Colour,
+    data.Volt,
+    data.Unit,
+    data.QTY,
+    data.Packing,
+    data.UnitPrice,
+    data.BeforeVAT,
+    data.AMD,
+    id
+  ];
+
+  pool.query(q,values, (err, data) => {
+    if(err) {
+      console.error('Updating error:', err);
+      return res.status(500).json({error: 'Error Updating data' });
+    } else{
+      res.send({message: 'Data updated successfully'})
+    }
+  })
+});
 
 // Route for last quotation reference number
 app.get("/get_ref", (req, res) => {

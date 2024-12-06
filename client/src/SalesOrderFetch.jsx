@@ -107,6 +107,7 @@ function SalesOrderFetch() {
     }
   }
 
+  // handle deletion of so items
   const handleDelete = async (itemId, rowIndex) => {
     const itemDate = new Date(soData[rowIndex].soDate);
     const year = itemDate.getFullYear();
@@ -118,7 +119,21 @@ function SalesOrderFetch() {
       console.error('Error deleting data:', error.message);
     }
   };
-
+  // handle update of so items
+  const handleSave = async (itemId, rowIndex) => {
+    const itemDate = new Date(soData[rowIndex].soDate);
+    const year = itemDate.getFullYear();
+    
+    const updatedRow = soData[rowIndex];
+    console.log('this is so from react', updatedRow);
+    
+    try {
+      await axios.put(`http://localhost:5000/update_sales_order/${itemId}?year=${year}`, updatedRow);
+      setEditingIndex(null);
+    } catch (error) {
+      console.error('Error saving data:', error.message);
+    }
+  };
 
   return (
     <div>
