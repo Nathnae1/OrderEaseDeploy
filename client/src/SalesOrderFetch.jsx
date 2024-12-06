@@ -110,7 +110,7 @@ function SalesOrderFetch() {
   const handleDelete = async (itemId, rowIndex) => {
     const itemDate = new Date(soData[rowIndex].soDate);
     const year = itemDate.getFullYear();
-    
+
     try {
       await axios.delete(`http://localhost:5000/delete_sales_order/${itemId}?year=${year}`);
       setSoData(soData.filter(item => item.id !== itemId));
@@ -156,9 +156,16 @@ function SalesOrderFetch() {
                   <tbody>
                     {soData.map((soItem, index) => (
                         <tr key={soItem.id}
-                          onClick={() => handleTableRowClick(soItem.id)} style={{
-                            backgroundColor: selectedTableRowsID.includes(soItem.id) ? 'CornflowerBlue' : ''
-                          }}>
+                          onClick={() => { 
+                            if (editingIndex === null) {
+                              handleTableRowClick(soItem.id)
+                            }        
+                          }} 
+                          style={{
+                            backgroundColor: selectedTableRowsID.includes(soItem.id) ? 'CornflowerBlue' : '',
+                            cursor: editingIndex === null ? 'pointer' : 'not-allowed'
+                          }}
+                          >
                           <td className="no">{index + 1}</td>
                           <td className="size">
                             {editingIndex === index ? (
@@ -280,13 +287,29 @@ function SalesOrderFetch() {
                           <td className="actions">
                             {editingIndex === index ? (
                               <>
-                                <button onClick={() => handleSave(soItem.id, index)}>Save</button>
-                                <button onClick={() => setEditingIndex(null)}>Cancel</button>
+                                <button onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSave(soItem.id, index)}}>
+                                    Save
+                                </button>
+                                <button onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditingIndex(null)}}>
+                                    Cancel
+                                </button>
                               </>
                             ) : (
                               <>
-                                <button onClick={() => setEditingIndex(index)}>Edit</button>
-                                <button className="item-delete" onClick={() => handleDelete(soItem.id, index)}>Delete</button>
+                                <button onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditingIndex(index)}}>
+                                  Edit
+                                </button>
+                                <button className="item-delete" onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDelete(soItem.id, index)}}>
+                                  Delete
+                                </button>
                               </>
                             )}
                           </td>
