@@ -2,9 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 
-
-
-
 function DeliveryInstructionFetch() {
 
   const [diId, setDiId] = useState('');
@@ -17,6 +14,19 @@ function DeliveryInstructionFetch() {
 
   const [editingIndex, setEditingIndex] = useState(null); // Track which row is being edited
 
+  useEffect(() => {
+    // Function to format the date as YYYY-MM-DD
+    const formatDate = (date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}`;
+    };
+
+    // Set the current date
+    const today = new Date();
+    setDiSelectedDate(formatDate(today));
+  }, []);
 
   const handleDiFetch = async () => {
     try {
@@ -70,19 +80,19 @@ function DeliveryInstructionFetch() {
                     </tr>
                   </thead>
                   <tbody>
-                    {diData.map((soItem, index) => (
-                        <tr key={soItem.id}
+                    {diData.map((diItem, index) => (
+                        <tr key={diItem.id}
                           >
                           <td className="no">{index + 1}</td>
                           <td className="size">
                             {editingIndex === index ? (
                               <input
                                 type="text"
-                                value={soItem.Size}
+                                value={diItem.Size}
                                 onChange={(e) => handleChange(e, index, 'Size')}
                               />
                             ) : (
-                              soItem.Size
+                              diItem.Size
                             )}
                           </td>
                           
@@ -90,11 +100,11 @@ function DeliveryInstructionFetch() {
                             {editingIndex === index ? (
                               <input
                                 type="text"
-                                value={soItem.itemDescription}
+                                value={diItem.itemDescription}
                                 onChange={(e) => handleChange(e, index, 'itemDescription')}
                               />
                             ) : (
-                              soItem.itemDescription
+                              diItem.itemDescription
                             )}
                           </td>
 
@@ -102,11 +112,11 @@ function DeliveryInstructionFetch() {
                             {editingIndex === index ? (
                               <input
                                 type="text"
-                                value={soItem.itemCode}
+                                value={diItem.itemCode}
                                 onChange={(e) => handleChange(e, index, 'itemCode')}
                               />
                             ) : (
-                              soItem.itemCode
+                              diItem.itemCode
                             )}
                           </td>
 
@@ -114,11 +124,11 @@ function DeliveryInstructionFetch() {
                             {editingIndex === index ? (
                               <input
                                 type="text"
-                                value={soItem.Colour}
+                                value={diItem.Colour}
                                 onChange={(e) => handleChange(e, index, 'Colour')}
                               />
                             ) : (
-                              soItem.Colour
+                              diItem.Colour
                             )}
                           </td>
 
@@ -126,11 +136,11 @@ function DeliveryInstructionFetch() {
                             {editingIndex === index ? (
                               <input
                                 type="text"
-                                value={soItem.Volt}
+                                value={diItem.Volt}
                                 onChange={(e) => handleChange(e, index, 'Volt')}
                               />
                             ) : (
-                              soItem.Volt
+                              diItem.Volt
                             )}
                           </td>
                           
@@ -138,11 +148,11 @@ function DeliveryInstructionFetch() {
                             {editingIndex === index ? (
                               <input
                                 type="text"
-                                value={soItem.Unit}
+                                value={diItem.Unit}
                                 onChange={(e) => handleChange(e, index, 'Unit')}
                               />
                             ) : (
-                              soItem.Unit
+                              diItem.Unit
                             )}
                           </td>
 
@@ -150,11 +160,11 @@ function DeliveryInstructionFetch() {
                             {editingIndex === index ? (
                               <input
                                 type="number"
-                                value={soItem.orderedQty}
+                                value={diItem.orderedQty}
                                 onChange={(e) => handleChange(e, index, 'orderedQty')}
                               />
                             ) : (
-                              soItem.orderedQty
+                              diItem.orderedQty
                             )}
                           </td>
 
@@ -162,11 +172,11 @@ function DeliveryInstructionFetch() {
                             {editingIndex === index ? (
                               <input
                                 type="text"
-                                value={soItem.Packing}
+                                value={diItem.Packing}
                                 onChange={(e) => handleChange(e, index, 'Packing')}
                               />
                             ) : (
-                              soItem.Packing
+                              diItem.Packing
                             )}
                           </td>
                           
@@ -174,24 +184,24 @@ function DeliveryInstructionFetch() {
                             {editingIndex === index ? (
                               <input
                                 type="number"
-                                value={soItem.deliveredQty}
+                                value={diItem.deliveredQty}
                                 onChange={(e) => handleChange(e, index, 'deliveredQty')}
                               />
                             ) : (
-                              soItem.orderedQty
+                              diItem.orderedQty
                             )}
                           </td>
                           
                           <td className="actions">
                             {editingIndex === index ? (
                               <>
-                                <button onClick={() => handleSave(soItem.id, index)}>Save</button>
+                                <button onClick={() => handleSave(diItem.id, index)}>Save</button>
                                 <button onClick={() => setEditingIndex(null)}>Cancel</button>
                               </>
                             ) : (
                               <>
                                 <button onClick={() => setEditingIndex(index)}>Edit</button>
-                                <button className="item-delete" onClick={() => handleDelete(soItem.id, index)}>Delete</button>
+                                <button className="item-delete" onClick={() => handleDelete(diItem.id, index)}>Delete</button>
                               </>
                             )}
                           </td>
