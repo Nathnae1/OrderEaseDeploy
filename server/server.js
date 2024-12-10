@@ -1079,6 +1079,55 @@ app.post("/send_di_to_db", async (req, res) => {
   }
 });
 
+// Add contacts
+app.post("/api/add_contact", (req, res) => {
+  const { company_name, region, city, tin, contact_person, phone_number, email_address, website_url, address, industry_sector, parent_company } = req.body;
+
+  console.log('this contact', req.body);
+
+  // Validation (you can enhance this part with better checks)
+  if (!company_name || !contact_person || !phone_number || !email_address) {
+    return res.status(400).json({ error: 'Company name, contact person, phone number, and email address are required.' });
+  }
+
+  // SQL query to insert the data into the database
+  const query = `INSERT INTO companies (company_name, region, city, tin, contact_person, phone_number, email_address, website_url, address, industry_sector, parent_company)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+  // Values to be inserted into the database
+  const values = [
+    company_name,
+    region,
+    city,
+    tin,
+    contact_person,
+    phone_number,
+    email_address,
+    website_url,
+    address,
+    industry_sector,
+    parent_company
+  ];
+
+  // Execute the query to insert data into the database
+  pool.query(query, values, (err, result) => {
+    if (err) {
+      console.error('Error inserting data: ', err);
+      return res.status(500).json({ error: 'Error adding the contact' });
+    }
+
+    // Return a success message if insertion is successful
+    return res.status(201).json({
+      message: 'Contact added successfully',
+      data: {
+        id: result.insertId, // Return the ID of the newly inserted contact
+        company_name,
+        contact_person
+      }
+    });
+  });
+});
+
 // Login code
 //Use an environment variable in production
 const JWT_SECRET = 'your_secret_key_1234';

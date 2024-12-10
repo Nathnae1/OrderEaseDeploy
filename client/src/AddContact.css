@@ -1,0 +1,100 @@
+/* Scoped styles for AddContact component */
+
+/* Root container for AddContact form */
+.add-contact-form-container {
+  background-color: #ffffff;
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.add-contact-form-container h1 {
+  text-align: center;
+  color: hsl(214, 46%, 40%);
+  margin-bottom: 1.5rem;
+}
+
+/* Flexbox for Side-by-Side Label and Input */
+.add-contact-form-group {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.add-contact-form-group label {
+  flex: 1;
+  font-size: 0.9rem;
+  color: #333;
+  margin-right: 1rem;
+  font-weight: bold;
+}
+
+.add-contact-form-group input[type="text"],
+.add-contact-form-group input[type="email"],
+.add-contact-form-group input[type="tel"],
+.add-contact-form-group input[type="url"] {
+  flex: 2;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.add-contact-form-group input[type="text"]:focus,
+.add-contact-form-group input[type="email"]:focus,
+.add-contact-form-group input[type="tel"]:focus,
+.add-contact-form-group input[type="url"]:focus {
+  border-color: hsl(51, 100%, 55%);
+  outline: none;
+}
+
+/* Button Styling */
+.add-contact-form-container button {
+  background-color: hsl(214, 46%, 40%);
+  color: #ffffff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: block;
+  margin: 0 auto;
+}
+
+.add-contact-form-container button:hover {
+  background-color: hsl(51, 100%, 55%);
+}
+
+.add-contact-form-container button:active {
+  background-color: hsl(214, 46%, 30%);
+}
+
+/* Form Layout */
+.add-contact-form-container form label,
+form input {
+  width: 100%;
+  display: block;
+}
+
+form input:not([type="submit"]) {
+  margin-bottom: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .add-contact-form-group {
+    flex-direction: column;
+    margin-bottom: 1rem;
+  }
+
+  .add-contact-form-container {
+    padding: 1.5rem;
+  }
+
+  button {
+    width: 100%;
+  }
+}
