@@ -85,7 +85,7 @@ function DeliveryInstructionFetch() {
       {diData.length > 0 && <div className='fetched-di-container'>
         <div className="get-top-section">
                 <p>Ref No: {diData[0].diRefNum}</p>
-                {/* <p>Date: {formatDate(new Date())}</p> */}
+                <p>Date: {diData[0].diDate.split('T')[0]}</p>
                 <p>Name: {diData[0].Name}</p>
         </div>
 
@@ -220,7 +220,7 @@ function DeliveryInstructionFetch() {
                                 onChange={(e) => handleChange(e, index, 'deliveredQty')}
                               />
                             ) : (
-                              diItem.orderedQty
+                              diItem.deliveredQty
                             )}
                           </td>
                           

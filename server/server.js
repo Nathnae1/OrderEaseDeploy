@@ -527,6 +527,89 @@ app.put("/update_sales_order/:itemId", (req, res) => {
   })
 });
 
+// Updadte delivery instruction item route
+app.put("/update_delivery_instruction/:itemId", (req, res) => {
+  const id = req.params.itemId;
+  const year = req.query.year;
+
+  const tableName = generateDiTableName(year);
+
+  // Escape table name for safety
+  const escapedTableName = mysql.escapeId(tableName);
+
+  const data = req.body;
+
+  // checking for empty values
+  for (const [key, value] of Object.entries(data)) {
+    if (value === null || value === undefined || value === '') {
+      // Return immediately to prevent further execution
+      return res.status(400).json({ error: `${key} is required` });
+    }
+  }
+
+  const q = `UPDATE ${escapedTableName} 
+            SET qoId = ?,
+                soId = ?,
+                diRefNum = ?,
+                soRefNum = ?,
+                qoRefNum = ?, 
+                sales_rep_id = ?, 
+                Name = ?, 
+                qoDate = ?,
+                soDate = ?,
+                diDate = ?, 
+                BillTo = ?, 
+                Size = ?, 
+                itemDescription = ?,
+                itemCode = ?,
+                Colour = ?,
+                Volt = ?,
+                Unit = ?, 
+                orderedQty = ?,
+                deliveredQty = ?,
+                Packing = ?, 
+                UnitPrice = ?, 
+                tolerance = ?,
+                AMD = ? 
+            WHERE id = ?`;
+
+  const values = [
+    data.qoId,
+    data.soId,
+    data.diRefNum,
+    data.soRefNum,
+    data.qoRefNum,
+    data.sales_rep_id,
+    data.Name,
+    data.qoDate.split('T')[0],
+    data.soDate.split('T')[0],
+    data.diDate.split('T')[0],
+    data.BillTo,
+    data.Size,
+    data.itemDescription,
+    data.itemCode,
+    data.Colour,
+    data.Volt,
+    data.Unit,
+    data.orderedQty,
+    data.deliveredQty,
+    data.Packing,
+    data.UnitPrice,
+    data.tolerance,
+    data.AMD,
+    id
+  ];
+
+  pool.query(q,values, (err, data) => {
+    if(err) {
+      console.error('Updating error:', err);
+      return res.status(500).json({error: 'Error Updating data' });
+    } else{
+      res.send({message: 'Data updated successfully'})
+    }
+  })
+});
+
 // Route for last quotation reference number
 app.get("/get_ref", (req, res) => {
 
