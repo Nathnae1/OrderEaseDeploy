@@ -30,12 +30,10 @@ const AddContact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log('react form data', formData);
-
     try {
       const response = await axios.post('http://localhost:5000/api/add_contact', formData);
 
-      if (response.status === 200) {
+      if (response.status === 201) {
         alert('Contact added successfully!');
         setFormData({
           company_name: '',
@@ -49,7 +47,7 @@ const AddContact = () => {
           address: '',
           industry_sector: '',
           parent_company: '',
-        });
+        });    
       }
     } catch (error) {
       console.error('Error adding contact:', error);

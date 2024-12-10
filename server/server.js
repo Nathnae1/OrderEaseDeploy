@@ -1083,8 +1083,6 @@ app.post("/send_di_to_db", async (req, res) => {
 app.post("/api/add_contact", (req, res) => {
   const { company_name, region, city, tin, contact_person, phone_number, email_address, website_url, address, industry_sector, parent_company } = req.body;
 
-  console.log('this contact', req.body);
-
   // Validation (you can enhance this part with better checks)
   if (!company_name || !contact_person || !phone_number || !email_address) {
     return res.status(400).json({ error: 'Company name, contact person, phone number, and email address are required.' });

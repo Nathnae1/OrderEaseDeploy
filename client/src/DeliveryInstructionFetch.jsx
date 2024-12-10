@@ -246,7 +246,7 @@ function DeliveryInstructionFetch() {
           </div> 
 
           <div>
-                <p>Tolerance</p>
+                {/* <p>Tolerance</p> */}
           </div>  
       </div> }
 
