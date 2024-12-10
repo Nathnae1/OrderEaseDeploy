@@ -326,6 +326,28 @@ app.delete("/delete_sales_order/:itemId", (req, res) => {
   })
 });
 
+// Delete sales order item route
+app.delete("/delete_delivery_instruction/:itemId", (req, res) => {
+  const id = req.params.itemId;
+  const year = req.query.year;
+
+  const tableName = generateDiTableName(year);
+  
+  // Escape table name for safety
+  const escapedTableName = mysql.escapeId(tableName);
+  
+  const q = `DELETE FROM ${escapedTableName} WHERE id= ?`;
+  pool.query(q,[id], (err, data) => {
+    if(err) {
+      console.error('Deleting error:', err);
+      return res.status(500).json({error: 'Error deleting data' });
+    } else{
+      res.send({message: 'Data deleted successfully'})
+    }
+  })
+});
+
+
 // Updadte quotation item route
 app.put("/update_quotation/:id", (req, res) => {
   const id = req.params.id;
@@ -435,19 +457,18 @@ app.put("/update_sales_order/:itemId", (req, res) => {
 
   const tableName = generateSoTableName(year);
 
-  console.log('This data from server', id, year);
-
   // Escape table name for safety
   const escapedTableName = mysql.escapeId(tableName);
 
   const data = req.body;
 
   // checking for empty values
-  // Object.values(data).forEach((item) => {
-  //   if (!item) {
-  //          return res.status(400).json({ error: ` is required` });
-  //        }
-  // })
+  for (const [key, value] of Object.entries(data)) {
+    if (value === null || value === undefined || value === '') {
+      // Return immediately to prevent further execution
+      return res.status(400).json({ error: `${key} is required` });
+    }
+  }
 
   const q = `UPDATE ${escapedTableName} 
             SET qoId = ?,

@@ -43,9 +43,41 @@ function DeliveryInstructionFetch() {
     }
   }
 
+  // handle change of each input of table row
   const handleChange = (e, index, field) => { 
+    const { value } = e.target;
+    const updatedData = [...diData];
+    updatedData[index] = { ...updatedData[index], [field]: value };
 
-    console.log('Handle Change');
+    setdiData(updatedData);  
+  };
+
+  // handle update of di items
+  const handleSave = async (itemId, rowIndex) => {
+    const itemDate = new Date(diData[rowIndex].diDate);
+    const year = itemDate.getFullYear();
+    
+    const updatedRow = diData[rowIndex];
+    
+    try {
+      await axios.put(`http://localhost:5000/update_delivery_instruction/${itemId}?year=${year}`, updatedRow);
+      setEditingIndex(null);
+    } catch (error) {
+      console.error('Error saving data:', error.message);
+    }
+  };
+
+  // handle deletion of so items
+  const handleDelete = async (itemId, rowIndex) => {
+    const itemDate = new Date(diData[rowIndex].diDate);
+    const year = itemDate.getFullYear();
+
+    try {
+      await axios.delete(`http://localhost:5000/delete_delivery_instruction/${itemId}?year=${year}`);
+      setdiData(diData.filter(item => item.id !== itemId));
+    } catch (error) {
+      console.error('Error deleting data:', error.message);
+    }
   };
 
   return (
