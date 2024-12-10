@@ -17,6 +17,10 @@ import DeliveryInstructionCreate from './DeliveryInstructionCreate';
 import DeliveryInstructionFetch from './DeliveryInstructionFetch';
 
 import LoginCard from './LoginCard'
+
+import AddContact from './AddContact';
+import EditContact from './EditContact'; 
+
 import './App.css'
 
 function App() {
@@ -40,6 +44,12 @@ function App() {
             <Route path="/create_di" element={<ProtectedRoute element={<DeliveryInstructionCreate />} programmaticDIAccess={true} />} />
             
             <Route path="/fetch_di" element={<ProtectedRoute element={<DeliveryInstructionFetch />} />} />
+
+             {/* Add Contacts Route */}
+            <Route path="/add_contact" element={<ProtectedRoute element={<AddContact />} />} />
+
+            {/* Edit Contacts Route */}
+            <Route path="/edit_contact" element={<ProtectedRoute element={<EditContact />} />} />
 
             <Route path="/" element={<Navigate to="/login" />} />
 

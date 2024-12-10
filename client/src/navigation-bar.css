@@ -3,6 +3,41 @@
   display: none;
 }
 
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-button {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.dropdown-content {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  padding: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+.dropdown-link {
+  padding: 5px 10px;
+  text-decoration: none;
+  color: black;
+}
+
+.dropdown-link:hover {
+  background-color: #8d8383;
+}
+
 .active-link {
   font-weight: bold;
   text-decoration: underline;
@@ -60,3 +95,13 @@ nav button:active {
 .is-authenticated button {
   margin-left: 2rem;
 }
+
+.is-authenticated {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+
+
+

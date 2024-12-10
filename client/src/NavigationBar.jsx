@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import './navigation-bar.css';
 
 const NavigationBar = () => {
   const { isAuthenticated, logout } = useAuth();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   return (
     <nav className={isAuthenticated ? 'is-authenticated' : 'hidden'}>
@@ -46,6 +47,26 @@ const NavigationBar = () => {
           >
             Fetch Delivery
           </NavLink>
+
+          {/* Dropdown for Contacts */}
+          <div
+            className="dropdown"
+            onMouseEnter={() => setIsDropdownOpen(true)}
+            onMouseLeave={() => setIsDropdownOpen(false)}
+          >
+            <button className="dropdown-button">Contacts</button>
+            {isDropdownOpen && (
+              <div className="dropdown-content">
+                <NavLink to="/add_contact" className="dropdown-link">
+                  Add Contacts
+                </NavLink>
+                <NavLink to="/edit_contact" className="dropdown-link">
+                  Edit Contacts
+                </NavLink>
+              </div>
+            )}
+          </div>
+
           <button
             onClick={() => {
               localStorage.removeItem('token');
