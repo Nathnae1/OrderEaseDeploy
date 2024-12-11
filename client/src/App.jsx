@@ -23,6 +23,7 @@ import EditContact from './EditContact';
 
 import SalesOrderPrint from './SalesOrderPrint';
 import DeliveryInstructionPrint from './DeliveryInstructionPrint';
+import ItemPricesUpdate from './ItemPricesUpdate';
 
 import './App.css'
 
@@ -56,6 +57,8 @@ function App() {
 
             {/* Edit Contacts Route */}
             <Route path="/edit_contact" element={<ProtectedRoute element={<EditContact />} />} />
+
+            <Route path="/update_item_prices" element={<ProtectedRoute element={<ItemPricesUpdate />} />} />
 
             <Route path="/" element={<Navigate to="/login" />} />
 

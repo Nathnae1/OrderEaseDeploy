@@ -67,6 +67,13 @@ const NavigationBar = () => {
             )}
           </div>
 
+          <NavLink
+            to="/update_item_prices"
+            className={({ isActive }) => (isActive ? 'active-link' : '')}
+          >
+            Update Prices
+          </NavLink>
+
           <button
             onClick={() => {
               localStorage.removeItem('token');
