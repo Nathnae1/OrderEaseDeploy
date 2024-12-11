@@ -3,15 +3,15 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 
-import './SalesOrderPrintStyle.css'; // Add custom styles for printing
+import './DeliveryInstructionPrintStyle.css'; // Add custom styles for printing
 
-function SalesOrderPrint() {
+function DeliveryInstructionPrint() {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const year = queryParams.get('year');
   
 
-  const { soId } = useParams();
+  const { diId } = useParams();
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -19,13 +19,13 @@ function SalesOrderPrint() {
 
   // Clear the flag after the user enters the /print page:
   useEffect(() => {
-    localStorage.removeItem('SalesOrderPrint'); // Clear the programmatic access flag
+    localStorage.removeItem('DeliveryInstructionPrint'); // Clear the programmatic access flag
   }, []);
 
   useEffect(() => {
-    const fetchSalesOrder = async () => {
+    const fetchDeliveryInstruction = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/get_sales_order/${soId}?year=${year}`);
+        const response = await axios.get(`http://localhost:5000/get_delivery_instruction/${diId}?year=${year}`);
         setData(response.data);
         console.log('This from print ', response.data);
       } catch (error) {
@@ -34,19 +34,9 @@ function SalesOrderPrint() {
         setIsLoading(false);
       }
     };
-    fetchSalesOrder();
-  }, [soId]);
+    fetchDeliveryInstruction();
+  }, [diId]);
 
-  useEffect(() => {
-    const calculateTotal = () => {
-      const totalBeforeVAT = data.reduce((acc, row) => acc + (parseFloat(row.BeforeVAT) || 0), 0);
-      setTotal(totalBeforeVAT);
-    };
-
-    if (data.length > 0) {
-      calculateTotal();
-    }
-  }, [data]);
 
   // Trigger print dialog only after total is calculated
   useEffect(() => {
@@ -64,7 +54,7 @@ function SalesOrderPrint() {
     <div>
       {data.length > 0 && <div className="print-container">
         <div>
-          <h3>Sales Order</h3>
+          <h3>Delivery Instruction</h3>
         </div>
         <div className="top-right-info">
           <p>Ref No: {data[0].soRefNum}</p>
@@ -85,10 +75,9 @@ function SalesOrderPrint() {
               <th>Colour</th>
               <th>Volt</th>
               <th>Unit</th>
-              <th>Qty</th>
+              <th>Ordered Qty</th>
               <th>Packing</th>
-              <th>Unit Price</th>
-              <th>Total</th>
+              <th>Actual Length</th>
             </tr>
           </thead>
           <tbody>
@@ -101,25 +90,23 @@ function SalesOrderPrint() {
                 <td>{item.Colour}</td>
                 <td>{item.Volt}</td>
                 <td>{item.Unit}</td>
-                <td>{item.QTY}</td>
+                <td>{item.orderedQty}</td>
                 <td>{item.Packing}</td>
-                <td>{item.UnitPrice}</td>
-                <td>{item.BeforeVAT}</td>
+                <td>{item.deliveredQty}</td>
               </tr>
             ))}
           </tbody>
         </table>
         <div className="bottom-section">
           <div className="tolerance-note">
-            <p>Signature: _________________</p>
+            
             <p>Delivered items are subject to +/-5% manufacturing tolerance</p>
-  
+            
           </div>
 
-          <div className="total-prices">
-            <p>Total Before VAT: {total}</p>
-            <p>VAT: {(total * 0.15).toFixed(2)}</p>
-            <p>Total including VAT: {(total * 1.15).toFixed(2)}</p>
+          <div className="remark">
+            <p>Remark:</p>
+            <p>Signature:______________</p>
           </div>
         </div>
       </div>}
@@ -127,4 +114,4 @@ function SalesOrderPrint() {
   );
 }
 
-export default SalesOrderPrint;
+export default DeliveryInstructionPrint;

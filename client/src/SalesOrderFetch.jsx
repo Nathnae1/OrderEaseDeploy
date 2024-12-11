@@ -23,7 +23,6 @@ function SalesOrderFetch() {
 
   // Define the navigate function
   const navigate = useNavigate();
-
   
   // hook to calculate the total
   useEffect(() => {

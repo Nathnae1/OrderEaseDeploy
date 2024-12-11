@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function DeliveryInstructionFetch() {
 
@@ -14,6 +15,9 @@ function DeliveryInstructionFetch() {
 
   const [editingIndex, setEditingIndex] = useState(null); // Track which row is being edited
 
+  // Define the navigate function
+  const navigate = useNavigate();
+  
   useEffect(() => {
     // Function to format the date as YYYY-MM-DD
     const formatDate = (date) => {
@@ -79,6 +83,15 @@ function DeliveryInstructionFetch() {
       console.error('Error deleting data:', error.message);
     }
   };
+
+  const handlePrint = () => {
+    localStorage.setItem('DeliveryInstructionPrint', 'true');
+    const selectedDate = new Date(diDate);
+    const year = selectedDate.getFullYear();
+    
+
+    navigate(`/delivery_instruction/print/${diId}?year=${year}`)
+  }
 
   return (
     <div>
@@ -264,6 +277,12 @@ function DeliveryInstructionFetch() {
         <input type="text" value={diId} placeholder="Enter no" onChange={(e) => setDiId(e.target.value)}/>
         <button onClick={handleDiFetch}>Fetch</button>
       </div>
+
+      {diData.length > 0 &&
+        <div>
+           <button onClick={handlePrint}>Print</button>
+        </div>
+      }
       
       
 

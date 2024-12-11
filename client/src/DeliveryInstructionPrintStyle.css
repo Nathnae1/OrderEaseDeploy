@@ -51,13 +51,13 @@
   text-align: left; /* Explicitly align text to the left */
 }
 
-.total-prices {
+.remark {
   flex: 1; /* Allow the column to take equal space */
   padding: 10px; /* Add padding inside the column */
   border: 1px solid #ddd; /* Add a subtle border */
   border-radius: 8px; /* Rounded corners */
   background-color: #f9f9f9; /* Light background color */
-  text-align: right; /* Align text in this column to the right */
+  text-align: left; /* Align text in this column to the right */
 }
 
 

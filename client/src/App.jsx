@@ -22,6 +22,7 @@ import AddContact from './AddContact';
 import EditContact from './EditContact'; 
 
 import SalesOrderPrint from './SalesOrderPrint';
+import DeliveryInstructionPrint from './DeliveryInstructionPrint';
 
 import './App.css'
 
@@ -47,6 +48,8 @@ function App() {
             <Route path="/create_di" element={<ProtectedRoute element={<DeliveryInstructionCreate />} programmaticDIAccess={true} />} />
             
             <Route path="/fetch_di" element={<ProtectedRoute element={<DeliveryInstructionFetch />} />} />
+
+            <Route path="/delivery_instruction/print/:diId" element={<ProtectedRoute element={<DeliveryInstructionPrint />} printDiProgrammaticAccess={true} />} />
 
              {/* Add Contacts Route */}
             <Route path="/add_contact" element={<ProtectedRoute element={<AddContact />} />} />
