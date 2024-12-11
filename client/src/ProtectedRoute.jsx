@@ -2,13 +2,15 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 
-const ProtectedRoute = ({ element: Component, programmaticAccess = false, printProgrammaticAccess= false, programmaticDIAccess= false}) => {
+const ProtectedRoute = ({ element: Component, programmaticAccess = false, printProgrammaticAccess= false, programmaticDIAccess= false, printSoProgrammaticAccess = false}) => {
   const { isAuthenticated } = useAuth();
 
   // Check for programmatic access flag
   const fromQuotation = localStorage.getItem('fromQuotation');
   const fromSO = localStorage.getItem('fromSO');
   const Print = localStorage.getItem('QuotationPrint');
+  const soPrint = localStorage.getItem('SalesOrderPrint');
+
 
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
@@ -24,6 +26,10 @@ const ProtectedRoute = ({ element: Component, programmaticAccess = false, printP
   
 
   if (printProgrammaticAccess && Print !== 'true') {
+    return <Navigate to="/get_quotation" />;
+  }
+
+  if (printSoProgrammaticAccess && soPrint !== 'true') {
     return <Navigate to="/get_quotation" />;
   }
 

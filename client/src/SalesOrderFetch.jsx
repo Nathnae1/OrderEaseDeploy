@@ -135,6 +135,16 @@ function SalesOrderFetch() {
     }
   };
 
+  const handlePrint = () => {
+    localStorage.setItem('SalesOrderPrint', 'true');
+    const selectedDate = new Date(soDate);
+    const year = selectedDate.getFullYear();
+    
+
+    navigate(`/sales_order/print/${soId}?year=${year}`)
+  }
+
+
   return (
     <div>
       {soData.length > 0 && <div className='fetched-so-container'>
@@ -357,7 +367,11 @@ function SalesOrderFetch() {
         <input type="text" value={soId} placeholder="Enter no" onChange={(e) => setSoId(e.target.value)}/>
         <button onClick={handleSoFetch}>Fetch</button>
       </div>
-      
+      {soData.length > 0 &&
+        <div>
+           <button onClick={handlePrint}>Print</button>
+        </div>
+      }
       {soData.length > 0 &&
         <div>
           <button className='create-di-button' onClick={(e) => handleCreateDI(e)}>Create DI</button>

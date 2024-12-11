@@ -21,6 +21,8 @@ import LoginCard from './LoginCard'
 import AddContact from './AddContact';
 import EditContact from './EditContact'; 
 
+import SalesOrderPrint from './SalesOrderPrint';
+
 import './App.css'
 
 function App() {
@@ -40,6 +42,7 @@ function App() {
 
             <Route path="/create_so" element={<ProtectedRoute element={<SalesOrderCreate />} programmaticAccess={true} />} />
             <Route path="/fetch_so" element={<ProtectedRoute element={<SalesOrderFetch />} />} />
+            <Route path="/sales_order/print/:soId" element={<ProtectedRoute element={<SalesOrderPrint />} printSoProgrammaticAccess={true} />} />
 
             <Route path="/create_di" element={<ProtectedRoute element={<DeliveryInstructionCreate />} programmaticDIAccess={true} />} />
             
