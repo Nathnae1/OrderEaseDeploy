@@ -93,7 +93,7 @@ nav button:active {
 }
 
 .is-authenticated button {
-  margin-left: 2rem;
+  margin-left: 0rem;
 }
 
 .is-authenticated {

@@ -610,6 +610,30 @@ app.put("/update_delivery_instruction/:itemId", (req, res) => {
   })
 });
 
+// Update item price by id
+app.put('/api/items/update/price:id', (req, res) => {
+  const itemId = req.params.id;
+  const { price } = req.body;
+
+  if (isNaN(price) || price <= 0) {
+    return res.status(400).json({ error: 'Invalid price value.' });
+  }
+
+  const query = 'UPDATE items SET price = ? WHERE idItems = ?';
+  pool.query(query, [price, itemId], (err, result) => {
+    if (err) {
+      console.error('Error updating price:', err.message);
+      return res.status(500).json({ error: 'Failed to update price.' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Item not found.' });
+    }
+
+    res.json({ message: 'Price updated successfully.' });
+  });
+});
+
 // Route for last quotation reference number
 app.get("/get_ref", (req, res) => {
 

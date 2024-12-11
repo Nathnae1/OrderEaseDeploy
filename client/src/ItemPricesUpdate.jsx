@@ -36,7 +36,7 @@ const ItemPricesUpdate = () => {
   const handleSave = async (id) => {
     const itemToUpdate = items.find((item) => item.idItems === id);
     try {
-      await axios.put(`http://localhost:5000/api/items/${id}`, {
+      await axios.put(`http://localhost:5000/api/items/update/price${id}`, {
         price: itemToUpdate.price,
       });
       alert('Price updated successfully!');
@@ -50,7 +50,7 @@ const ItemPricesUpdate = () => {
     try {
       await Promise.all(
         items.map((item) =>
-          axios.put(`http://localhost:5000/api/items/${item.idItems}`, {
+          axios.put(`http://localhost:5000/api/items/update/price${item.idItems}`, {
             price: item.price,
           })
         )
