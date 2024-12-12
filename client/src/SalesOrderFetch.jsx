@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-
+import './SalesOrderFetchStyle.css';
 
 function SalesOrderFetch() {  
 
@@ -366,13 +366,10 @@ function SalesOrderFetch() {
         <input type="text" value={soId} placeholder="Enter no" onChange={(e) => setSoId(e.target.value)}/>
         <button onClick={handleSoFetch}>Fetch</button>
       </div>
+      
       {soData.length > 0 &&
         <div>
-           <button onClick={handlePrint}>Print</button>
-        </div>
-      }
-      {soData.length > 0 &&
-        <div>
+          <button className='di-print-button' onClick={handlePrint}>Print</button>
           <button className='create-di-button' onClick={(e) => handleCreateDI(e)}>Create DI</button>
 
           <button className='create-di-button' onClick={(e) => handleCreateSelectedDI(e)}>Create Selected DI</button>

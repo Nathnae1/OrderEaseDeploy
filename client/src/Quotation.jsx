@@ -447,10 +447,10 @@ function Quotation() {
           <button onClick={handleFetch}>Fetch</button>
           
           {isFetched && data.length > 0 && <div>
-            <button onClick={handlePrint}>Print</button>
+            <button className="print-button" onClick={handlePrint}>Print</button>
 
-            <button onClick={handleAddItem}>Add Item</button>
-            <button onClick={handleEditAddData}>Add Data</button>
+            <button className="add-item-button" onClick={handleAddItem}>Add Item</button>
+            <button className="add-data-button" onClick={handleEditAddData}>Add Data</button>
             <button className="create-so-button" onClick={(e) => handleCreateSO(e)}>Create SO</button>
 
             <button className="create-so-button" onClick={(e) => handleCreateSelectedSO(e)}>Create Selected SO</button>

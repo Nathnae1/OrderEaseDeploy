@@ -280,7 +280,7 @@ function DeliveryInstructionFetch() {
 
       {diData.length > 0 &&
         <div>
-           <button onClick={handlePrint}>Print</button>
+           <button className='di-print-button' onClick={handlePrint}>Print</button>
         </div>
       }
       
