@@ -1,4 +1,6 @@
 const express = require('express');
+require('dotenv').config();
+
 
 // for interacting with the mysql db
 const mysql = require('mysql2')
@@ -28,15 +30,21 @@ app.use(bodyParser.json());
 // Parse JSON bodies
 app.use(express.json());
 
-const port = 5000;
+const port = process.env.PORT || 5000; // Use PORT from .env or default to 5000
 
+// host: "localhost",
+//   connectionLimit: 10,
+//   user: "root",
+//   password: "password",
+//   database: "mydb"
 // create a connection pool - not single connectin
 const pool = mysql.createPool({
-  host: "localhost",
-  connectionLimit: 10,
-  user: "root",
-  password: "password",
-  database: "mydb"
+  host: process.env.DB_HOST,       // From .env
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT,
+  connectionLimit: 10
 })
 
 // Middleware to handle conncetion errors
@@ -1152,7 +1160,7 @@ app.post("/api/add_contact", (req, res) => {
 
 // Login code
 //Use an environment variable in production
-const JWT_SECRET = 'your_secret_key_1234';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Middleware to verify token
 // authenticateToken middleware verifies the JWT token sent in the Authorization header
@@ -1178,7 +1186,6 @@ app.post('/api/login', async (req, res) => {
   try {
     // Execute a query to retrieve the user by email
     const results = await pool.promise().query('SELECT * FROM users WHERE email = ?', [email]);
-    console.log('this is results', results);
 
     const singleResult = results[0];
     const user = singleResult[0];
