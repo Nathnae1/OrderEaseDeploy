@@ -109,13 +109,13 @@ th {
 }
 
 .suggest-billTo {
-  width: 160px; /* adjust the width as needed */
+  width: 140px; /* adjust the width as needed */
 }
 
 .suggest-billTo .css-ka7ti6-MuiAutocomplete-root .MuiOutlinedInput-root .MuiAutocomplete-input {
   padding: 10px 10px;
   height: 25px;
-  width: 100%;
+  width: 140px;
 }
 
 .suggest-billTo .css-ka7ti6-MuiAutocomplete-root .MuiOutlinedInput-root {
