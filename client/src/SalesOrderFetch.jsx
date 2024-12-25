@@ -56,7 +56,7 @@ function SalesOrderFetch() {
       //Setting soYear for delivery Creation
       setSoYear(year);
 
-      const response = await axios.get(`http://localhost:5000/get_sales_order/${soId}?year=${year}`);
+      const response = await axios.get(`https://ordereasedeploy-backend.onrender.com/get_sales_order/${soId}?year=${year}`);
       setSoData(response.data)
       
     } catch (error) {
@@ -112,7 +112,7 @@ function SalesOrderFetch() {
     const year = itemDate.getFullYear();
 
     try {
-      await axios.delete(`http://localhost:5000/delete_sales_order/${itemId}?year=${year}`);
+      await axios.delete(`https://ordereasedeploy-backend.onrender.com/delete_sales_order/${itemId}?year=${year}`);
       setSoData(soData.filter(item => item.id !== itemId));
     } catch (error) {
       console.error('Error deleting data:', error.message);
@@ -127,7 +127,7 @@ function SalesOrderFetch() {
     console.log('this is so from react', updatedRow);
     
     try {
-      await axios.put(`http://localhost:5000/update_sales_order/${itemId}?year=${year}`, updatedRow);
+      await axios.put(`https://ordereasedeploy-backend.onrender.com/update_sales_order/${itemId}?year=${year}`, updatedRow);
       setEditingIndex(null);
     } catch (error) {
       console.error('Error saving data:', error.message);

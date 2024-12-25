@@ -115,7 +115,7 @@ function EditAddItem({noOfItems, identityData, sendData, setSendData}) {
         // Check the data before sending to server
         const dataToSend = AddData;
         // Use Axios to send a POST request
-        const response = await axios.post(`http://localhost:5000/add/edit${queryString}`, dataToSend);
+        const response = await axios.post(`https://ordereasedeploy-backend.onrender.com/add/edit${queryString}`, dataToSend);
   
         if (response.status === 200) {
           console.log('Data submitted successfully!');

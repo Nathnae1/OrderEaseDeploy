@@ -17,7 +17,7 @@ export const useCompanyData = () => {
     } else {
       const fetchbillToInfo = async () => {
         try {
-          const response = await axios.get('http://localhost:5000/suggestions/billto');
+          const response = await axios.get('https://ordereasedeploy-backend.onrender.com/suggestions/billto');
           cachedData = response.data;
           setbillToInfo(cachedData);
         } catch (err) {

@@ -11,7 +11,7 @@ const ItemPricesUpdate = () => {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/suggestions/items'); // Replace with your endpoint
+        const response = await axios.get('https://ordereasedeploy-backend.onrender.com/suggestions/items'); // Replace with your endpoint
         setItems(response.data);
       } catch (err) {
         setError('Failed to load items');
@@ -36,7 +36,7 @@ const ItemPricesUpdate = () => {
   const handleSave = async (id) => {
     const itemToUpdate = items.find((item) => item.idItems === id);
     try {
-      await axios.put(`http://localhost:5000/api/items/update/price${id}`, {
+      await axios.put(`https://ordereasedeploy-backend.onrender.com/api/items/update/price${id}`, {
         price: itemToUpdate.price,
       });
       alert('Price updated successfully!');
@@ -50,7 +50,7 @@ const ItemPricesUpdate = () => {
     try {
       await Promise.all(
         items.map((item) =>
-          axios.put(`http://localhost:5000/api/items/update/price${item.idItems}`, {
+          axios.put(`https://ordereasedeploy-backend.onrender.com/api/items/update/price${item.idItems}`, {
             price: item.price,
           })
         )

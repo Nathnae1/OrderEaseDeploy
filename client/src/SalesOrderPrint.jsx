@@ -25,7 +25,7 @@ function SalesOrderPrint() {
   useEffect(() => {
     const fetchSalesOrder = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/get_sales_order/${soId}?year=${year}`);
+        const response = await axios.get(`https://ordereasedeploy-backend.onrender.com/get_sales_order/${soId}?year=${year}`);
         setData(response.data);
         console.log('This from print ', response.data);
       } catch (error) {

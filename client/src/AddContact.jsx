@@ -31,7 +31,7 @@ const AddContact = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:5000/api/add_contact', formData);
+      const response = await axios.post('https://ordereasedeploy-backend.onrender.com/api/add_contact', formData);
 
       if (response.status === 201) {
         alert('Contact added successfully!');

@@ -17,7 +17,7 @@ export const useSalesData = () => {
     } else {
       const fetchSalesInfo = async () => {
         try {
-          const response = await axios.get('http://localhost:5000/suggestions/sales/person');
+          const response = await axios.get('https://ordereasedeploy-backend.onrender.com/suggestions/sales/person');
           cachedData = response.data;
           setSalesInfo(cachedData);
         } catch (err) {

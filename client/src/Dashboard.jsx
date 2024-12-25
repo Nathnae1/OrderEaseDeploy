@@ -12,7 +12,7 @@ const Dashboard = () => {
     if (!isAuthenticated) {
       navigate('/login');
     } else {
-      axios.get('http://localhost:5000/api/protected', {
+      axios.get('https://ordereasedeploy-backend.onrender.com/api/protected', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }

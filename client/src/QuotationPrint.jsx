@@ -25,7 +25,7 @@ function QuotationPrint() {
   useEffect(() => {
     const fetchQuotation = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/get_quotation/${id}?year=${year}&month=${month}`);
+        const response = await axios.get(`https://ordereasedeploy-backend.onrender.com/get_quotation/${id}?year=${year}&month=${month}`);
         setData(response.data);
         console.log('This from print ', response.data);
       } catch (error) {

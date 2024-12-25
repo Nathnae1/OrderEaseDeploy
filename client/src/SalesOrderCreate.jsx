@@ -56,7 +56,7 @@ function SalesOrderCreate() {
       setIsLoading(true);
   
       try {
-        let url = `http://localhost:5000/get_quotation_for_so/${qoToSoRef}?year=${year}&month=${month}`;
+        let url = `https://ordereasedeploy-backend.onrender.com/get_quotation_for_so/${qoToSoRef}?year=${year}&month=${month}`;
         if (selectedRows) {
           url += `&filterIds=${selectedRows}`;
         }
@@ -132,7 +132,7 @@ function SalesOrderCreate() {
       // Check the data before sending to server
       const dataToSend = quotationData;
       // Use Axios to send a POST request
-      const response = await axios.post('http://localhost:5000/send_so_to_db', dataToSend);
+      const response = await axios.post('https://ordereasedeploy-backend.onrender.com/send_so_to_db', dataToSend);
 
       if (response.status === 201) {
         setSoRefNumber(response.data.soId)

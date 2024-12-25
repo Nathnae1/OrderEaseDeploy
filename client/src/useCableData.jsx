@@ -17,7 +17,7 @@ export const useCableData = () => {
     } else {
       const fetchItemsDetail = async () => {
         try {
-          const response = await axios.get('http://localhost:5000/suggestions/items');
+          const response = await axios.get('https://ordereasedeploy-backend.onrender.com/suggestions/items');
           cachedData = response.data;
           setItemsDetail(cachedData);
         } catch (err) {

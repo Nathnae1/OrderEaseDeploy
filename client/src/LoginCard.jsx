@@ -17,7 +17,7 @@ function LoginCard() {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:5000/api/login', { email, password });
+      const response = await axios.post('https://ordereasedeploy-backend.onrender.com/api/login', { email, password });
       const { token } = response.data;
       localStorage.setItem('token', token);
       login();
