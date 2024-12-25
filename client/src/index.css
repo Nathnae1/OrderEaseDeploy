@@ -81,7 +81,6 @@ th {
 }
 .css-f7t77y .MuiAutocomplete-inputRoot .MuiAutocomplete-input {
     width: 140px;
-    min-width: 30px;
 }
 .suggest-size .MuiAutocomplete-option:hover {
   background-color: #f0f0f0;
