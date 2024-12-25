@@ -111,6 +111,10 @@ th {
 .suggest-billTo {
   width: 140px; /* adjust the width as needed */
 }
+.css-f7t77y .MuiOutlinedInput-root .MuiAutocomplete-input {
+    padding: 7.5px 4px 7.5px 5px;
+    width: 140px;
+}
 .css-f7t77y .MuiAutocomplete-inputRoot .MuiAutocomplete-input {
     width: 140px;
     min-width: 130px;
