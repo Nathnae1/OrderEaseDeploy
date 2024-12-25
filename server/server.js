@@ -32,12 +32,7 @@ app.use(express.json());
 
 const port = process.env.PORT || 5000; // Use PORT from .env or default to 5000
 
-// host: "localhost",
-//   connectionLimit: 10,
-//   user: "root",
-//   password: "password",
-//   database: "mydb"
-// create a connection pool - not single connectin
+
 const pool = mysql.createPool({
   host: process.env.DB_HOST,       // From .env
   user: process.env.DB_USER,
