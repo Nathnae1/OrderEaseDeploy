@@ -109,6 +109,7 @@ th {
 }
 
 .suggest-billTo {
+  display: block;
   width: 140px; /* adjust the width as needed */
 }
 .MuiInputBase-input {
