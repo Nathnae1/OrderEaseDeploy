@@ -129,11 +129,6 @@ function DeliveryInstructionCreate() {
           
           {error && <p>Error: {error}</p>}
           
-          {!isLoading && !error && (
-            <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
-              {JSON.stringify(soData, null, 2)}
-            </pre>
-          )}
         </div>
 
         <div className='table-container'>
