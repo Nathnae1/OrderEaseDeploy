@@ -168,12 +168,17 @@ th {
 }
 .suggest-billTo .css-f7t77y .MuiOutlinedInput-root {
     padding: 9px;
-    width: 170px;
+    width: 180px;
 }
 .color-selection-input .css-f7t77y .MuiOutlinedInput-root {
     padding: 9px;
     width: 160px;
     height: 30px;
+}
+
+.suggest-sales-person .css-f7t77y .MuiOutlinedInput-root {
+    padding: 9px;
+    width: 150px;
 }
 
 
