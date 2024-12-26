@@ -170,6 +170,11 @@ th {
     padding: 9px;
     width: 150px;
 }
+.color-selection-input .css-f7t77y .MuiOutlinedInput-root {
+    padding: 9px;
+    width: 160px;
+    height: 30px;
+}
 
 
 
