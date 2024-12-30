@@ -182,5 +182,9 @@ th {
     width: 150px;
 }
 
+.success-message {
+  background-color: green;
+  padding: 10px;
+}
 
 

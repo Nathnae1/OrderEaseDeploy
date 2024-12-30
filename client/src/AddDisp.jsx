@@ -62,7 +62,7 @@ const dataKeys = ['ref','salesRepId','name', 'date','billTo','size', 'descriptio
         // Set a timeout to hide the success message after 10 seconds
         setTimeout(() => {
           setIsSubmitted(false);
-        }, 2000);
+        }, 4000);
 
         // reset the form fields
         let tempRef = ref;
