@@ -13,6 +13,7 @@ function QuotationPrint() {
 
   const { id } = useParams();
   const [data, setData] = useState([]);
+  const [salesContact, setSalesContact] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [total, setTotal] = useState(0);
   const [hasPrinted, setHasPrinted] = useState(false); // Add a flag to track printing
@@ -22,6 +23,7 @@ function QuotationPrint() {
     localStorage.removeItem('QuotationPrint'); // Clear the programmatic access flag
   }, []);
 
+  // fetch quotation data
   useEffect(() => {
     const fetchQuotation = async () => {
       try {
@@ -37,6 +39,20 @@ function QuotationPrint() {
     fetchQuotation();
   }, [id]);
 
+  // Fetch contact address
+  useEffect(() => {
+    const fetchSalesPersonContact = async () => {
+      const salesId = data[0].sales_rep_id;
+      try {
+        const response = await axios.get(`https://ordereasedeploy-backend.onrender.com/sales/person/contact/${salesId}`);
+        setSalesContact(response.data);
+      } catch (error) {
+        console.error('Error fetching quotation:', error.message);
+      } 
+    };
+    fetchSalesPersonContact();
+  }, [data]);
+
   useEffect(() => {
     const calculateTotal = () => {
       const totalBeforeVAT = data.reduce((acc, row) => acc + (parseFloat(row.BeforeVAT) || 0), 0);
@@ -50,11 +66,11 @@ function QuotationPrint() {
 
   // Trigger print dialog only after total is calculated
   useEffect(() => {
-    if (!isLoading && data.length > 0 && total > 0 && !hasPrinted) {
+    if (!isLoading && data.length > 0 && salesContact.length > 0 && total > 0 && !hasPrinted) {
       window.print();
       setHasPrinted(true); // Ensure print is triggered only once
     }
-  }, [isLoading, data, total, hasPrinted]);
+  }, [isLoading, data, total, hasPrinted, salesContact]);
 
   if (isLoading) {
     return <p>Loading...</p>;
@@ -63,17 +79,22 @@ function QuotationPrint() {
   return (
     <div>
       {data.length > 0 && <div className="print-container">
-        <div></div>
-        <div className="top-right-info">
-          <p>Ref No: {data[0].refNum}</p>
-          <p>Date: {data[0].Date.split('T')[0]}</p>
-          <p>Name: {data[0].Name}</p>
+        <div className='top-section'>
+          <div className='quotation-style'>
+            <p className='qo-word'>Quotation</p>
+            <p className='company-name'>Z Corp LTD</p>
+          </div>
+          <div className="top-right-info">
+            <p>Ref No: qu/{data[0].refNum}/{new Date(data[0].Date).getFullYear()}</p>
+            <p>Date: {data[0].Date.split('T')[0]}</p>
+          </div>
         </div>
+
         <div className="bill-to">
           <p>Bill To: {data[0].BillTo}</p>
         </div>
 
-        <table>
+        <table className='data-table'>
           <thead>
             <tr>
               <th>No</th>
@@ -109,6 +130,16 @@ function QuotationPrint() {
             <p>VAT: {(total * 0.15).toFixed(2)}</p>
             <p>Total including VAT: {(total * 1.15).toFixed(2)}</p>
           </div>
+        </div>
+        <div className='contact-address'>
+          <p className='heading'>Contact Person</p>
+          <p>Name: {data[0].Name}</p>
+          {salesContact.length > 0 &&
+           <div>
+              <p>Mobile: {salesContact[0].phone_number}</p>
+              <p>Email: {salesContact[0].email}</p>
+           </div>
+          }
         </div>
       </div>}
     </div>

@@ -750,6 +750,18 @@ app.get("/suggestions/sales/person",(req, res) => {
   })
 })
 
+// Get Sales person contact info
+app.get("/sales/person/contact/:salesId",(req, res) => {
+  const idSales = req.params.salesId;
+  const q = "SELECT * FROM sales_representative WHERE sales_rep_id = ?";
+  pool.query(q, [idSales], (err, data) => {
+    if(err) {
+      console.error('Query error:', err);
+      return res.status(500).json({error: 'Query error' });
+    }
+    return res.json(data);
+  })
+})
 
 // Add items to to quotation table
 app.post("/add", async (req, res) => {

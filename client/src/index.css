@@ -65,7 +65,8 @@ th {
 }
 
 .table-input .item-delete {
-  background-color: red;
+  background-color: hsl(30, 84%, 37%);
+  color: hsl(0, 0%, 100%);
   border-style: none;
   padding: 4px 10px;
 }

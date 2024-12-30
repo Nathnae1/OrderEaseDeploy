@@ -13,8 +13,9 @@ function DeliveryInstructionPrint() {
 
   const { diId } = useParams();
   const [data, setData] = useState([]);
+  const [salesContact, setSalesContact] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [total, setTotal] = useState(0);
+  
   const [hasPrinted, setHasPrinted] = useState(false); // Add a flag to track printing
 
   // Clear the flag after the user enters the /print page:
@@ -22,6 +23,7 @@ function DeliveryInstructionPrint() {
     localStorage.removeItem('DeliveryInstructionPrint'); // Clear the programmatic access flag
   }, []);
 
+  // fetch delivery data
   useEffect(() => {
     const fetchDeliveryInstruction = async () => {
       try {
@@ -37,14 +39,28 @@ function DeliveryInstructionPrint() {
     fetchDeliveryInstruction();
   }, [diId]);
 
-
-  // Trigger print dialog only after total is calculated
+  // Fetch contact address
   useEffect(() => {
-    if (!isLoading && data.length > 0 && total > 0 && !hasPrinted) {
+    const fetchSalesPersonContact = async () => {
+      const salesId = data[0].sales_rep_id;
+      try {
+        const response = await axios.get(`https://ordereasedeploy-backend.onrender.com/sales/person/contact/${salesId}`);
+        setSalesContact(response.data);
+      } catch (error) {
+        console.error('Error fetching quotation:', error.message);
+      } 
+    };
+    fetchSalesPersonContact();
+  }, [data]);
+
+  // Trigger print dialog 
+  useEffect(() => {
+    console.log(isLoading, data.length,hasPrinted);
+    if (!isLoading && data.length > 0 && salesContact.length > 0 && !hasPrinted) {
       window.print();
       setHasPrinted(true); // Ensure print is triggered only once
     }
-  }, [isLoading, data, total, hasPrinted]);
+  }, [isLoading, data, hasPrinted, salesContact]);
 
   if (isLoading) {
     return <p>Loading...</p>;
@@ -53,19 +69,22 @@ function DeliveryInstructionPrint() {
   return (
     <div>
       {data.length > 0 && <div className="print-container">
-        <div>
-          <h3>Delivery Instruction</h3>
+        <div className='top-section'>
+          <div className='di-style'>
+            <p className='di-word'>Delivery Instruction</p>
+            <p className='company-name'>Z Corp LTD</p>
+          </div>
+          <div className="top-right-info">
+            <p>Ref No: di/{data[0].diRefNum}/{new Date(data[0].diDate).getFullYear()}</p>
+            <p>Date: {data[0].diDate.split('T')[0]}</p>
+          </div>
         </div>
-        <div className="top-right-info">
-          <p>Ref No: {data[0].soRefNum}</p>
-          <p>Date: {data[0].soDate.split('T')[0]}</p>
-          <p>Name: {data[0].Name}</p>
-        </div>
+        
         <div className="bill-to">
-          <h2>Bill To: {data[0].BillTo}</h2>
+          <p>Bill To: {data[0].BillTo}</p>
         </div>
 
-        <table>
+        <table className='data-table'>
           <thead>
             <tr>
               <th>No</th>
@@ -109,6 +128,18 @@ function DeliveryInstructionPrint() {
             <p>Signature:______________</p>
           </div>
         </div>
+        
+        <div className='contact-address'>
+          <p className='heading'>Contact Person</p>
+          <p>Name: {data[0].Name}</p>
+          {salesContact.length > 0 &&
+           <div>
+              <p>Mobile: {salesContact[0].phone_number}</p>
+              <p>Email: {salesContact[0].email}</p>
+           </div>
+          }
+        </div>
+
       </div>}
     </div>
   );
