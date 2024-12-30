@@ -27,7 +27,7 @@ function DeliveryInstructionPrint() {
   useEffect(() => {
     const fetchDeliveryInstruction = async () => {
       try {
-        const response = await axios.get(`https://ordereasedeploy-backend.onrender.com/get_delivery_instruction/${diId}?year=${year}`);
+        const response = await axios.get(`http://localhost:5000/get_delivery_instruction/${diId}?year=${year}`);
         setData(response.data);
         console.log('This from print ', response.data);
       } catch (error) {
@@ -44,7 +44,7 @@ function DeliveryInstructionPrint() {
     const fetchSalesPersonContact = async () => {
       const salesId = data[0].sales_rep_id;
       try {
-        const response = await axios.get(`https://ordereasedeploy-backend.onrender.com/sales/person/contact/${salesId}`);
+        const response = await axios.get(`http://localhost:5000/sales/person/contact/${salesId}`);
         setSalesContact(response.data);
       } catch (error) {
         console.error('Error fetching quotation:', error.message);
