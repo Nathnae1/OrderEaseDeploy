@@ -33,7 +33,7 @@ const NavigationBar = () => {
             to="/get_quotation"
             className={({ isActive }) => (isActive ? 'active-link' : '')}
           >
-            Quotation
+            Fetch Quotation
           </NavLink>
           <NavLink
             to="/fetch_so"

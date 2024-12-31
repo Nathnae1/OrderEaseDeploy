@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import Suggest from './Suggest';
 import BillToSuggestions from './BillToSuggestions';
 import ColorSelectionInput from './ColorSelectionInput';
 import SalesInput from './SalesInput';
+import api from './api';
 
 // InputField component for rendering input fields
 function InputField({ label, type = 'text', value, onChange }) {
@@ -54,7 +54,7 @@ const dataKeys = ['ref','salesRepId','name', 'date','billTo','size', 'descriptio
       // Check the data before sending to server
       const dataToSend = fullData;
       // Use Axios to send a POST request
-      const response = await axios.post('https://ordereasedeploy-backend.onrender.com/add', dataToSend);
+      const response = await api.post('/add', dataToSend);
 
       if (response.status === 200) {
         console.log('Data submitted successfully!');
@@ -62,7 +62,7 @@ const dataKeys = ['ref','salesRepId','name', 'date','billTo','size', 'descriptio
         // Set a timeout to hide the success message after 10 seconds
         setTimeout(() => {
           setIsSubmitted(false);
-        }, 4000);
+        }, 2000);
 
         // reset the form fields
         let tempRef = ref;
@@ -84,7 +84,7 @@ const dataKeys = ['ref','salesRepId','name', 'date','billTo','size', 'descriptio
 
   // Get the last reference number of the quotation
   useEffect(() => {
-    fetch('https://ordereasedeploy-backend.onrender.com/get_ref')
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/get_ref`)
       .then(response => response.json())
       .then(refData => {
         if (refData && refData[0]) {

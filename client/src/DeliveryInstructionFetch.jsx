@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import api from './api';
 
 function DeliveryInstructionFetch() {
 
@@ -39,7 +39,7 @@ function DeliveryInstructionFetch() {
       //Setting soYear for delivery Creation
       setDiYear(year);
 
-      const response = await axios.get(`https://ordereasedeploy-backend.onrender.com/get_delivery_instruction/${diId}?year=${year}`);
+      const response = await api.get(`/get_delivery_instruction/${diId}?year=${year}`);
       setdiData(response.data)
       
     } catch (error) {
@@ -64,7 +64,7 @@ function DeliveryInstructionFetch() {
     const updatedRow = diData[rowIndex];
     
     try {
-      await axios.put(`https://ordereasedeploy-backend.onrender.com/update_delivery_instruction/${itemId}?year=${year}`, updatedRow);
+      await api.put(`/update_delivery_instruction/${itemId}?year=${year}`, updatedRow);
       setEditingIndex(null);
     } catch (error) {
       console.error('Error saving data:', error.message);
@@ -77,7 +77,7 @@ function DeliveryInstructionFetch() {
     const year = itemDate.getFullYear();
 
     try {
-      await axios.delete(`https://ordereasedeploy-backend.onrender.com/delete_delivery_instruction/${itemId}?year=${year}`);
+      await api.delete(`/delete_delivery_instruction/${itemId}?year=${year}`);
       setdiData(diData.filter(item => item.id !== itemId));
     } catch (error) {
       console.error('Error deleting data:', error.message);

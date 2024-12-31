@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
+import api from './api';
 
 function DeliveryInstructionCreate() {
   const location = useLocation();
@@ -41,7 +42,7 @@ function DeliveryInstructionCreate() {
       setIsLoading(true);
   
       try {
-        let url = `https://ordereasedeploy-backend.onrender.com/get_so_for_di/${soToDi}?year=${year}`;
+        let url = `${import.meta.env.VITE_API_BASE_URL}/get_so_for_di/${soToDi}?year=${year}`;
         if (selectedRows) {
           url += `&filterIds=${selectedRows}`;
         }
@@ -85,7 +86,7 @@ function DeliveryInstructionCreate() {
       // Check the data before sending to server
       const dataToSend = soData;
       // Use Axios to send a POST request
-      const response = await axios.post('https://ordereasedeploy-backend.onrender.com/send_di_to_db', dataToSend);
+      const response = await api.post('/send_di_to_db', dataToSend);
 
       if (response.status === 201) {
         setSoRefNumber(response.data.diId)
@@ -118,6 +119,11 @@ function DeliveryInstructionCreate() {
           
           {error && <p>Error: {error}</p>}
           
+          {/* {!isLoading && !error && (
+            <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+              {JSON.stringify(soData, null, 2)}
+            </pre>
+          )} */}
         </div>
 
         <div className='table-container'>
