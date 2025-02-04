@@ -1,6 +1,5 @@
 const express = require('express');
-require('dotenv').config();
-
+const dotenv = require('dotenv');
 
 // for interacting with the mysql db
 const mysql = require('mysql2')
@@ -15,7 +14,8 @@ const bcrypt = require('bcryptjs')
 
 // for parsing JSON bodies
 const bodyParser = require('body-parser');
-const { error, log } = require('console');
+const { error, log, table } = require('console');
+const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 
@@ -30,17 +30,25 @@ app.use(bodyParser.json());
 // Parse JSON bodies
 app.use(express.json());
 
-const port = process.env.PORT || 5000; // Use PORT from .env or default to 5000
+// Load environment variables from .env file
+dotenv.config();
 
+const port = process.env.PORT;
 
+// create a connection pool - not single connectin
 const pool = mysql.createPool({
-  host: process.env.DB_HOST,       // From .env
+  host: process.env.DB_HOST,
   user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT,
-  connectionLimit: 10
-})
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
+  connectionLimit: Number(process.env.DB_CONNECTION_LIMIT),
+  dateStrings: true  // This ensures that date fields are returned as strings
+});
+
+// Use the JWT secret from environment variables
+const JWT_SECRET = process.env.JWT_SECRET;
+// Refresh Secret
+const REFRESH_SECRET = process.env.REFRESH_SECRET
 
 // Middleware to handle conncetion errors
 
@@ -89,6 +97,7 @@ app.get("/get_quotation/:id", (req, res) => {
 
   const q = `SELECT * FROM ${escapedTableName} WHERE refNum= ?`;
   pool.query(q,[id], (err, data) => {
+    console.log('backedn', data);
     if(err) {
       console.error('Query error:', err);
       return res.status(500).json({error: 'Query error' });
@@ -99,57 +108,88 @@ app.get("/get_quotation/:id", (req, res) => {
 })
 
 // Quotation route to fetch data to make Sales Order
-app.get("/get_quotation_for_so/:qoToSoRef", async (req, res) => {
+app.get("/get_quotation_for_so/:qoToSoRef", async (req, res, next) => {
   const ref = req.params.qoToSoRef;
   const year = req.query.year;
   const month = req.query.month;
   const idFilter = req.query.filterIds;
- 
+
   // Convert the ids string back to an array
   const selectedIds = idFilter ? idFilter.split(',').map(id => parseInt(id)) : [];
-  
+
   // Validate input
   if (!ref || !year || !month) {
     return res.status(400).json({ error: 'Missing required parameters' });
   }
 
-  const tableName = generateTableName(year, month);
+  // Checking SO table
+  const soTableName = generateSoTableName(year);
+  const escapedSoTableName = mysql.escapeId(soTableName);
+  const soQ = `SELECT * FROM ${escapedSoTableName} WHERE qoRefNum = ? AND MONTH(qoDate) = ?;`;
 
-  // Escape table name for safety
-  const escapedTableName = mysql.escapeId(tableName);
-
-  const q = `SELECT * FROM ${escapedTableName} WHERE refNum = ?;`;
-  const q2 = "SELECT * FROM items";
-  const q3 = `SELECT tin FROM companies WHERE company_name = ?;`;
 
   try {
-    // Fetch items data for volt, itemDesc for so
-    const [dataItem] = await pool.promise().query(q2);
-
-    // Fetch quotation data
-    // await calls to ensure they are executed sequentially in a synchronous manner.
-    const [dataQuotation] = await pool.promise().query(q, [ref]);
-
-    // Set the company name
-    let companyName = dataQuotation[0].BillTo;
-
-    // Fetch the TIN number of the company
-    const [dataTIN] = await pool.promise().query(q3, [companyName]);
-
-    // If selectedIds is provided, filter the data
-    let filteredData = dataQuotation;
-    if (selectedIds.length > 0) {
-      filteredData = dataQuotation.filter((quotation) => selectedIds.includes(quotation.id));
+    let soRows = [];
+    try {
+      [soRows] = await pool.promise().query(soQ, [ref, month]);
+      if (soRows.length > 0) {
+        // If a record exists, return the associated SO number
+        const soNum = soRows[0].soRefNum;
+        return res.status(200).json({ message: 'Record exists', soNum });
+      }
+    } catch(err) {
+      if (err.code === 'ER_NO_SUCH_TABLE') {
+        console.warn(`Sales Order table "${soTableName}" does not exist for year: ${year}`);
+        // Proceed with fetching other data since the SO table doesn't exist
+      } else {
+        // If there’s any other error with the query, throw it
+        throw err;
+      }
     }
-   
-    // Return the filtered or full data
-    return res.json(dataForSo(filteredData, dataItem, dataTIN));
+
+    // If no record exists, proceed to the next operation
+    // Continue to the next part of the logic to fetch quotation data
+    const tableName = generateTableName(year, month);
+    const escapedTableName = mysql.escapeId(tableName);
+
+    const q = `SELECT * FROM ${escapedTableName} WHERE refNum = ?;`;
+    const q2 = "SELECT * FROM items";
+    const q3 = `SELECT tin FROM companies WHERE company_name = ?;`;
+
+    // Fetch quotation data and items
+    try {
+      const [dataItem] = await pool.promise().query(q2);
+      const [dataQuotation] = await pool.promise().query(q, [ref]);
+
+      // Set the company name
+      let companyName = dataQuotation[0].BillTo;
+
+      // Fetch the TIN number of the company
+      const [dataTIN] = await pool.promise().query(q3, [companyName]);
+
+      // If selectedIds is provided, filter the data
+      let filteredData = dataQuotation;
+      if (selectedIds.length > 0) {
+        filteredData = dataQuotation.filter((quotation) => selectedIds.includes(quotation.id));
+      }
+
+      // Return the filtered or full data
+      return res.json(dataForSo(filteredData, dataItem, dataTIN));
+    } catch (err) {
+      console.error('Query error:', err);
+      return res.status(500).json({ error: 'Query error' });
+    }
 
   } catch (err) {
-    console.error('Query error:', err);
-    return res.status(500).json({ error: 'Query error' });
+    if (err.code === 'ER_NO_SUCH_TABLE') {
+      console.warn(`Sales Order table "${soTableName}" does not exist for year: ${year}`);
+      return res.status(404).json({ error: `Sales Order table does not exist for year ${year}` });
+    }
+    console.error('Database query error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 const dataForSo = (qoData, itemsData, companyTIN) => {
   
@@ -181,7 +221,7 @@ const dataForSo = (qoData, itemsData, companyTIN) => {
 app.get("/get_sales_order/:soId", (req, res) => {
   const soId = req.params.soId;
   const year = req.query.year;
-
+  
   // Validate input
   if (!soId || !year) {
     return res.status(400).json({ error: 'Missing required parameters' });
@@ -205,11 +245,11 @@ app.get("/get_sales_order/:soId", (req, res) => {
 })
 
 // Sales Order route to fetch data for di
-app.get("/get_so_for_di/:soToDi", (req, res) => {
+app.get("/get_so_for_di/:soToDi", async (req, res) => {
   const soId = req.params.soToDi;
   const year = req.query.year;
   const idFilter = req.query.filterIds;
- 
+
   // Convert the ids string back to an array
   const selectedIds = idFilter ? idFilter.split(',').map(id => parseInt(id)) : [];
 
@@ -218,26 +258,77 @@ app.get("/get_so_for_di/:soToDi", (req, res) => {
     return res.status(400).json({ error: 'Missing required parameters' });
   }
 
-  const tableName = generateSoTableName(year);
+  // Fetch DI data
+  const diTableName = generateDiTableName(year);
+  const escapedDiTableName = mysql.escapeId(diTableName);
 
-  // Escape table name for safety
-  const escapedTableName = mysql.escapeId(tableName);
+  const diQ = `SELECT soId, SUM(deliveredQty) AS totalDeliveredQty 
+               FROM ${escapedDiTableName} 
+               WHERE soRefNum = ? 
+               GROUP BY soId;`;
+  const soTableName = generateSoTableName(year);
+  const escapedSoTableName = mysql.escapeId(soTableName);
 
-  const q = `SELECT * FROM ${escapedTableName} WHERE soRefNum= ?`;
-  pool.query(q,[soId], (err, data) => {
-    if(err) {
-      console.error('Query error:', err);
-      return res.status(500).json({error: 'Query error' });
+  const soQ = `SELECT * FROM ${escapedSoTableName} WHERE soRefNum = ?;`;
+
+  try {
+    let diRows = [];
+    try {
+      // Aggregate deliveredQty by soId
+      [diRows] = await pool.promise().query(diQ, [soId]);
+    } catch (diError) {
+      // Handle case where the DI table does not exist
+      if (diError.code === 'ER_NO_SUCH_TABLE') {
+        console.warn(`DI table "${diTableName}" does not exist for year: ${year}`);
+      } else {
+        throw diError; // Re-throw if it's a different error
+      }
     }
-    // If selectedIds is provided, filter the data
-    let filteredData = data;
+
+    let [soRows] = await pool.promise().query(soQ, [soId]);
+
+    // Filter sales order rows by selected IDs if provided
     if (selectedIds.length > 0) {
-      filteredData = data.filter((item) => selectedIds.includes(item.id));
+      soRows = soRows.filter((item) => selectedIds.includes(item.id));
     }
-    return res.json(dataForDi(filteredData));
-  })
 
-})
+    if (soRows.length === 0) {
+      return res.status(404).json({ message: "Sales order not found" });
+    }
+
+    // Combine sales order data with aggregated delivery data
+    const deliveryMap = {};
+    diRows.forEach(diItem => {
+      deliveryMap[diItem.soId] = diItem.totalDeliveredQty;
+    });
+
+    const combinedData = soRows.map(soItem => {
+      const deliveredQty = deliveryMap[soItem.id] || 0;
+
+      return {
+        ...soItem,
+        deliveredQty,
+        status: deliveredQty >= soItem.QTY ? 'delivered' : 'undelivered',
+      };
+    });
+
+    // Filter delivered and undelivered items
+    const deliveredItems = combinedData.filter(item => item.status === 'delivered');
+    const undeliveredItems = dataForDi(combinedData.filter(item => item.status === 'undelivered'));
+
+    return res.status(200).json({
+      message: 'Sales order data retrieved',
+      deliveredItems,
+      undeliveredItems,
+      deliveredCount: deliveredItems.length,
+      undeliveredCount: undeliveredItems.length,
+    });
+  } catch (err) {
+    console.error('Database query error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 
 const dataForDi = (filteredData) => {
   
@@ -249,7 +340,6 @@ const dataForDi = (filteredData) => {
       ...remainingFields,
       diDate: new Date(), // Add diDate
       "tolerancePercentage": 5,
-      "deliveredQty": soItem.QTY,
       amd: 0, // Add amd with a fallback value
     };
   });
@@ -536,19 +626,21 @@ app.put("/update_delivery_instruction/:itemId", (req, res) => {
   const year = req.query.year;
 
   const tableName = generateDiTableName(year);
+  console.log("entering edit di for saving", id, year, tableName);
 
   // Escape table name for safety
   const escapedTableName = mysql.escapeId(tableName);
 
   const data = req.body;
 
-  // checking for empty values
+  // checking for empty values // null data exists with tolerance and amd
   for (const [key, value] of Object.entries(data)) {
     if (value === null || value === undefined || value === '') {
       // Return immediately to prevent further execution
       return res.status(400).json({ error: `${key} is required` });
     }
   }
+  console.log("passed empty values check.Values of the data", data);
 
   const q = `UPDATE ${escapedTableName} 
             SET qoId = ?,
@@ -637,80 +729,6 @@ app.put('/api/items/update/price:id', (req, res) => {
   });
 });
 
-// Route for last quotation reference number
-app.get("/get_ref", (req, res) => {
-
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0'); // Format month as two digits
-
-  // Create table name dynamically based on the year and month
-  const tableName = `quotation_${year}_${month}`;
-
-  // Check if the table exists
-  const checkTableQuery = `SHOW TABLES LIKE '${tableName}'`;
-
-  pool.query(checkTableQuery, (err, result) => {
-    if (err) {
-      console.error('Error checking table existence:', err);
-      return res.status(500).json({ error: 'Error checking table existence' });
-    }
-
-    // If the table does not exist, create it
-    if (result.length === 0) {
-      const createTableQuery = `
-        CREATE TABLE ${tableName} (
-          id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-          refNum INT NOT NULL,
-          sales_rep_id INT NOT NULL,
-          Name VARCHAR(100) NOT NULL,
-          Date DATE NOT NULL,
-          BillTo VARCHAR(255) NOT NULL,
-          Size VARCHAR(50) NOT NULL,
-          Description VARCHAR(50) NOT NULL,
-          QTY INT NOT NULL,
-          Colour VARCHAR(50) NOT NULL,
-          Packing VARCHAR(50) NOT NULL,
-          UnitPrice DECIMAL(10, 2) NOT NULL,
-          BeforeVAT DECIMAL(20, 2) NOT NULL
-        );
-      `;
-
-      pool.query(createTableQuery, (err, result) => {
-        if (err) {
-          console.error('Error creating table:', err);
-          return res.status(500).json({ error: 'Error creating table' });
-        }
-
-        console.log(`Table ${tableName} created successfully`);
-
-        // After creating the table, insert the first reference number (refNum = 1)
-        const insertRefQuery = `INSERT INTO ${tableName} (refNum) VALUES (1)`;
-
-        pool.query(insertRefQuery, (err, result) => {
-          if (err) {
-            console.error('Error inserting reference number:', err);
-            return res.status(500).json({ error: 'Error inserting reference number' });
-          }
-          console.log('Reference number 1 inserted');
-          return res.json({ refNum: 1 });
-        });
-      });
-
-    } else {
-      // Table exists, get the last reference number
-      const selectRefQuery = `SELECT refNum FROM ${tableName} ORDER BY refNum DESC LIMIT 1`;
-
-      pool.query(selectRefQuery, (err, data) => {
-        if (err) {
-          console.error('Query error:', err);
-          return res.status(500).json({ error: 'Query error' });
-        }
-        return res.json(data);
-      });
-    }
-  });
-});
 
 // Items size, desc and price route
 app.get("/suggestions/items", (req,res) => {
@@ -738,6 +756,34 @@ app.get("/suggestions/billto",(req, res) => {
   })
 })
 
+// Fetch all companies
+app.get('/companies', (req, res) => {
+  pool.query('SELECT * FROM companies', (err, results) => {
+    if (err) return res.status(500).json(err);
+    return res.json(results);
+  });
+});
+
+// Fetch a single company by ID
+app.get('/company/:id', (req, res) => {
+  const { id } = req.params;
+  pool.query('SELECT * FROM companies WHERE id = ?', [id], (err, result) => {
+    if (err) return res.status(500).json(err);
+    if (result.length === 0) return res.status(404).json({ message: 'Company not found' });
+    return res.json(result[0]);
+  });
+});
+
+// Update company details
+app.put('/company/:id', (req, res) => {
+  const { id } = req.params;
+  const updatedData = req.body;
+  pool.query('UPDATE companies SET ? WHERE id = ?', [updatedData, id], (err) => {
+    if (err) return res.status(500).json(err);
+    return res.json({ message: 'Company updated successfully' });
+  });
+});
+
 // Get Sales info
 app.get("/suggestions/sales/person",(req, res) => {
   const q = "SELECT sales_rep_id, first_name FROM sales_representative";
@@ -763,11 +809,73 @@ app.get("/sales/person/contact/:salesId",(req, res) => {
   })
 })
 
-// Add items to to quotation table
-app.post("/add", async (req, res) => {
-  const objectsArray = req.body; // Ensure this is an array of objects
+// get last reference of the quotation table
+// if table doesn't exist create it
+async function getLastRef() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  
+  // Dynamically generate the table name
+  const tableName = generateTableName(year, month);
+   
+  // Escape table name for safety
+  const escapedTableName = mysql.escapeId(tableName);
 
   try {
+      // Check if the table exists
+      const checkTableQuery = `SHOW TABLES LIKE '${tableName}'`;
+      const [result] = await pool.promise().query(checkTableQuery);
+
+      if (result.length === 0) {
+          // Table does not exist, create it
+          const createTableQuery = `
+              CREATE TABLE ${tableName} (
+                  id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+                  refNum INT NOT NULL,
+                  sales_rep_id INT NOT NULL,
+                  Name VARCHAR(100) NOT NULL,
+                  Date DATE NOT NULL,
+                  BillTo VARCHAR(255) NOT NULL,
+                  Size VARCHAR(50) NOT NULL,
+                  Description VARCHAR(50) NOT NULL,
+                  QTY INT NOT NULL,
+                  Colour VARCHAR(50) NOT NULL,
+                  Packing VARCHAR(50) NOT NULL,
+                  UnitPrice DECIMAL(10, 2) NOT NULL,
+                  BeforeVAT DECIMAL(20, 2) NOT NULL
+              );
+          `;
+          await pool.promise().query(createTableQuery);
+      }
+
+      // Table exists, get the last reference number
+      const selectRefQuery = `SELECT refNum FROM ${tableName} ORDER BY refNum DESC LIMIT 1`;
+      const [refResult] = await pool.promise().query(selectRefQuery);
+
+      // Return the last refNum or 0 if none exists
+      return refResult.length > 0 ? (++refResult[0].refNum) : 1;
+
+  } catch (err) {
+      console.error('Error in getLastRef:', err);
+      return 0; // Return 0 on error
+  }
+}
+
+
+// Add items to to quotation table
+app.post("/create/quotation", async (req, res) => {
+
+  try {
+     // Fetch the last reference number
+     const idRef = await getLastRef();
+
+     // Ensure `req.body` is an array of objects
+     const objectsArray = req.body.map((object) => ({
+       ...object,
+       ref: idRef, // Add idRef as refNum to each object
+     }));
+
     // Get the current year and month
     const today = new Date();
     const year = today.getFullYear();
@@ -814,7 +922,7 @@ app.post("/add", async (req, res) => {
     await Promise.all(insertionPromises);
 
     // Send response after all insertions
-    res.json("Proformas have been added");
+     res.json({ message: "Proformas have been added", idRef });
 
   } catch (err) {
     // Handle any errors that occurred during insertion
@@ -946,8 +1054,10 @@ app.post("/send_so_to_db", async (req, res) => {
       // Table exists, get the last reference number (id)
       const selectRefQuery = `SELECT soRefNum FROM ${tableName} ORDER BY id DESC LIMIT 1`;
       const result = await queryPromise(selectRefQuery);
-      if(result) {
+      if(result && result[0]) {
         soRefNumber = result[0].soRefNum + 1; // Increment the id to get the next reference number
+      } else {
+        soRefNumber = 1;
       }
     }
 
@@ -1054,8 +1164,8 @@ app.post("/send_di_to_db", async (req, res) => {
           deliveredQty INT NOT NULL,
           Packing VARCHAR(50) NOT NULL,
           UnitPrice DECIMAL(10, 2) NOT NULL,
-          tolerance INT NOT NULL,
-          AMD INT NOT NULL
+          tolerance INT,
+          AMD INT
         );
       `;
       await queryPromise(createTableQuery);
@@ -1066,8 +1176,10 @@ app.post("/send_di_to_db", async (req, res) => {
       // Table exists, get the last reference number (id)
       const selectRefQuery = `SELECT diRefNum FROM ${tableName} ORDER BY id DESC LIMIT 1`;
       const result = await queryPromise(selectRefQuery);
-      if(result) {
+      if(result && result[0]) {
         diRefNumber = result[0].diRefNum + 1; // Increment the id to get the next reference number
+      } else {
+        diRefNumber = 1;
       }
     }
 
@@ -1095,7 +1207,7 @@ app.post("/send_di_to_db", async (req, res) => {
       object.Volt,
       object.Unit,
       object.QTY,
-      object.deliveredQty,
+      object.toBeDelivered,
       object.Packing,
       object.UnitPrice,
       object.tolerancePercentage,
@@ -1165,9 +1277,7 @@ app.post("/api/add_contact", (req, res) => {
   });
 });
 
-// Login code
-//Use an environment variable in production
-const JWT_SECRET = process.env.JWT_SECRET;
+
 
 // Middleware to verify token
 // authenticateToken middleware verifies the JWT token sent in the Authorization header
@@ -1188,12 +1298,11 @@ const authenticateToken = (req, res, next) => {
 /// Endpoint to handle login
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
-  console.log('this is from react', email, password);
-
+  
   try {
     // Execute a query to retrieve the user by email
     const results = await pool.promise().query('SELECT * FROM users WHERE email = ?', [email]);
-
+    
     const singleResult = results[0];
     const user = singleResult[0];
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import api from './api';
+import { useNavigate } from 'react-router-dom';
 
 function DeliveryInstructionCreate() {
   const location = useLocation();
@@ -21,9 +22,17 @@ function DeliveryInstructionCreate() {
 
   const [editingIndex, setEditingIndex] = useState(null); // Track which row is being edited
 
-  const [diRefNumber, setSoRefNumber] = useState(null);
+  const [diRefNumber, setDiRefNumber] = useState(null);
   const [diSubmitted, setDiSubmitted] = useState(false); 
 
+  // Define the navigate function
+  const navigate = useNavigate();
+
+  //set delivered items data
+  const [deliveredData, setDeliveredData] = useState([]);
+
+  //set undelivered items data
+  const [unDeliveredData, setunDeliveredData] = useState([]);
 
   // Clear the flag after the user enters the /create_so page:
   useEffect(() => {
@@ -47,8 +56,27 @@ function DeliveryInstructionCreate() {
           url += `&filterIds=${selectedRows}`;
         }
         const response = await axios.get(url);
-        setSoData(response.data);
-       
+        if (response.data.message === 'Sales order data retrieved') {
+          // Display the record exists message with the SO number
+          // navigate(`/fetch_di`);
+          console.log(response.data.deliveredItems);
+          setDeliveredData(response.data.deliveredItems);
+          setunDeliveredData(response.data.undeliveredItems);
+
+          // Add `toBeDelivered` to each object in `undeliveredItems`
+          const updatedSoData = response.data.undeliveredItems.map((item) => ({
+            ...item,
+            toBeDelivered: Number(item.QTY) - Number(item.deliveredQty), 
+          }));
+
+          setSoData(updatedSoData);
+          // window.alert(`Record exists with DI number: ${response.data.deliveredCount}, ${response.data.deliveryStatus}`);
+        } else {
+          // Set the fetched quotation data
+          
+          console.log(response.data);
+          console.log(quotationData);
+        }  
       } catch (error) {
         setError(error.message);
       } finally {
@@ -66,16 +94,17 @@ function DeliveryInstructionCreate() {
     updatedData[index] = { ...updatedData[index], [field]: value };
 
     // Calculate BeforeVAT if UnitPrice or QTY changes
-    
-
     setSoData(updatedData);
   };
 
   const handleSave = () => {
-    console.log('save button');
+    setEditingIndex(null);
   }
-  const handleDelete = () => {
-    console.log('Handle Delete');
+  const handleDelete = async (id, rowIndex) => {
+    const updatedItems = [...soData];
+    updatedItems.splice(rowIndex, 1); // Splice removes 1 element at the given index
+
+    setSoData(updatedItems); // Update the state with the new array
   }
 
 
@@ -89,7 +118,7 @@ function DeliveryInstructionCreate() {
       const response = await api.post('/send_di_to_db', dataToSend);
 
       if (response.status === 201) {
-        setSoRefNumber(response.data.diId)
+        setDiRefNumber(response.data.diId)
         setDiSubmitted(true);
       
       } else {
@@ -101,7 +130,9 @@ function DeliveryInstructionCreate() {
   };
 
   const handlePrint = () => {
-    console.log('Pring option clicked');
+    localStorage.setItem('DeliveryInstructionPrint', 'true');
+    const year = new Date().getFullYear();
+    navigate(`/delivery_instruction/print/${diRefNumber}?year=${year}`)
   }
 
   const handleEdit = () => {
@@ -111,183 +142,140 @@ function DeliveryInstructionCreate() {
 
   return (
     <div>
+      {/* {deliveredData && (
+            <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+              <h1>Delivered Data</h1>
+              {JSON.stringify(deliveredData, null, 2)}
+            </pre>
+          )} */}
+
+      {deliveredData.length > 0 && <div>
+        <h2 style={{textAlign: "left" }}>Delivered Items</h2>
+          <table border="1" style={{ width: "50%", textAlign: "left" }}>
+            <thead>
+              <tr>
+                <th>Delivery ID</th>
+                <th>Size</th>
+                <th>Description</th>
+                <th>Ordered Qty</th>
+                <th>Delivered Qty</th>
+              </tr>
+            </thead>
+            <tbody>
+              {deliveredData.map((item) => (
+                <tr key={item.id}  style={{ textAlign: "center" }}>
+                  <td>{item.id}</td>
+                  <td>{item.Size}</td>
+                  <td>{item.itemDescription}</td>
+                  <td>{item.QTY}</td>
+                  <td>{item.deliveredQty}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+      </div>
+      }
+
       {!diSubmitted && <div className='di-on-creation'>
         <div>
-          <h1>This is Create Delivery Instruction for SO {soToDi} and year {year}</h1>
+          {soData.length > 0 &&<h1>This is Create Delivery Instruction for SO {soToDi}</h1>}
           
           {isLoading && <p>Loading...</p>}
           
           {error && <p>Error: {error}</p>}
           
-          {/* {!isLoading && !error && (
-            <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
-              {JSON.stringify(soData, null, 2)}
-            </pre>
-          )} */}
         </div>
 
-        <div className='table-container'>
-            <div className='di-table'>
-              <table>
-              <thead>
-                    <tr>
-                      <th>No</th>
-                      <th>Size</th>
-                      <th>Description</th>
-                      <th>Item Code</th>
-                      <th>Colour</th>
-                      <th>Volt</th>
-                      <th>Unit</th>
-                      <th>Ordered Qty</th>
-                      <th>Packing</th>
-                      <th>Actual Length</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                  {soData.map((item, index) => (
-                        <tr key={item.id}>
-                          <td className="no">{index + 1}</td>
-                          <td className="size">
-                            {editingIndex === index ? (
-                              <input
-                                type="text"
-                                value={item.Size}
-                                onChange={(e) => handleChange(e, index, 'Size')}
-                              />
-                            ) : (
-                              item.Size
-                            )}
-                          </td>
-                          
-                          <td className="description">
-                            {editingIndex === index ? (
-                              <input
-                                type="text"
-                                value={item.itemDescription}
-                                onChange={(e) => handleChange(e, index, 'itemDescription')}
-                              />
-                            ) : (
-                              item.itemDescription
-                            )}
-                          </td>
-
-                          <td className="itemCode">
-                            {editingIndex === index ? (
-                              <input
-                                type="text"
-                                value={item.itemCode}
-                                onChange={(e) => handleChange(e, index, 'itemCode')}
-                              />
-                            ) : (
-                              item.itemCode
-                            )}
-                          </td>
-
-                          <td className="colour">
-                            {editingIndex === index ? (
-                              <input
-                                type="text"
-                                value={item.Colour}
-                                onChange={(e) => handleChange(e, index, 'Colour')}
-                              />
-                            ) : (
-                              item.Colour
-                            )}
-                          </td>
-
-                          <td className="voltage">
-                            {editingIndex === index ? (
-                              <input
-                                type="text"
-                                value={item.Volt}
-                                onChange={(e) => handleChange(e, index, 'Volt')}
-                              />
-                            ) : (
-                              item.Volt
-                            )}
-                          </td>
-                          
-                          <td className="unit">
-                            {editingIndex === index ? (
-                              <input
-                                type="text"
-                                value={item.Unit}
-                                onChange={(e) => handleChange(e, index, 'Unit')}
-                              />
-                            ) : (
-                              item.Unit
-                            )}
-                          </td>
-
-                          <td className="qty">
-                            {editingIndex === index ? (
-                              <input
-                                type="number"
-                                value={item.QTY}
-                                onChange={(e) => handleChange(e, index, 'QTY')}
-                              />
-                            ) : (
-                              item.QTY
-                            )}
-                          </td>
-
-                          <td className="packing">
-                            {editingIndex === index ? (
-                              <input
-                                type="text"
-                                value={item.Packing}
-                                onChange={(e) => handleChange(e, index, 'Packing')}
-                              />
-                            ) : (
-                              item.Packing
-                            )}
-                          </td>
-                          
-                          <td className="final-delivered-qty">
-                            {editingIndex === index ? (
-                              <input
-                                type="number"
-                                value={item.deliveredQty}
-                                readOnly
-                              />
-                            ) : (
-                              item.deliveredQty
-                            )}
-                          </td>
-                          <td className="actions">
-                            {editingIndex === index ? (
-                              <>
-                                <button onClick={() => handleSave(item.id, index)}>Save</button>
-                                <button onClick={() => setEditingIndex(null)}>Cancel</button>
-                              </>
-                            ) : (
-                              <>
-                                <button onClick={() => setEditingIndex(index)}>Edit</button>
-                                <button className="item-delete" onClick={() => handleDelete(item.id, index)}>Delete</button>
-                              </>
-                            )}
-                          </td>
+        {soData.length > 0 && <div>
+         
+          <div className='table-container'>
+              <div className='di-table'>
+                <table>
+                  <thead>
+                        <tr>
+                          <th>No</th>
+                          <th>Size</th>
+                          <th>Description</th>
+                          <th>Item Code</th>
+                          <th>Colour</th>
+                          <th>Volt</th>
+                          <th>Unit</th>
+                          <th>Ordered Qty</th>
+                          <th>Packing</th>
+                          <th>To Be Delivered</th>
+                          <th>Actions</th>
                         </tr>
-                      ))}
-                  </tbody>
-              </table>
-            </div>
-        </div>
+                  </thead>
+                      <tbody>
+                      {soData.map((item, index) => (
+                            <tr key={item.id}>
+                              <td className="no">{index + 1}</td>
+                              
+                              <td className="size">{item.Size}</td>
+                              <td className="itemDescription">{item.itemDescription}</td>
+                              <td className="itemCode">{item.itemCode}</td>
+                              <td className="colour">{item.Colour}</td>
+                              <td className="voltage">{item.Volt}</td>
+                              <td className="unit">{item.Unit}</td>
+                              <td className="qty">{item.QTY}</td>
 
-        <div>
-          Click to Send to DB
-          <button className="submit-button" onClick={(e) => handleDIsubmitToDB(e)}>
-            Send Data
-          </button>
-        </div>  
+                              <td className="packing">
+                                {editingIndex === index ? (
+                                  <input
+                                    type="text"
+                                    value={item.Packing}
+                                    onChange={(e) => handleChange(e, index, 'Packing')}
+                                  />
+                                ) : (
+                                  item.Packing
+                                )}
+                              </td>
+                              
+                              <td className="to-be-delivered">
+                                {editingIndex === index ? (
+                                  <input
+                                    type="number"
+                                    value={item.toBeDelivered}
+                                    onChange={(e) => handleChange(e, index, 'toBeDelivered')}
+                                  />
+                                ) : (
+                                  item.toBeDelivered 
+                                )}
+                              </td>
+                              <td className="actions">
+                                {editingIndex === index ? (
+                                  <>
+                                    <button onClick={() => handleSave(item.id, index)}>Save</button>
+                                    <button onClick={() => setEditingIndex(null)}>Cancel</button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <button onClick={() => setEditingIndex(index)}>Edit</button>
+                                    <button className="item-delete" onClick={() => handleDelete(item.id, index)}>Delete</button>
+                                  </>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                </table>
+              </div>
+          </div>
+
+          <div>
+            Click to Send to DB
+            <button className="submit-button" onClick={(e) => handleDIsubmitToDB(e)}>
+              Send Data
+            </button>
+          </div> 
+        </div> } 
       </div>}
 
       {diSubmitted && <div className='di-after-creation'>
         <h1>Item Created Successfully!</h1>
         <p>Delivery Instruction ID: {diRefNumber}</p>
         <button onClick={handlePrint}>Print</button>
-        <button onClick={handleEdit}>Edit</button>
+        {/* <button onClick={handleEdit}>Edit</button> */}
       </div>}
 
     </div>

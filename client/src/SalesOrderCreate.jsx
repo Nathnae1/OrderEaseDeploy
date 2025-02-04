@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import api from './api';
+import { useNavigate } from 'react-router-dom';
 
 function SalesOrderCreate() {
   const location = useLocation();
@@ -22,6 +23,9 @@ function SalesOrderCreate() {
   const [soRefNumber, setSoRefNumber] = useState(null);
   const [soIsSubmitted, setSoIsSubmitted] = useState(false); 
 
+  // Define the navigate function
+  const navigate = useNavigate();
+
   // Clear the flag after the user enters the /create_so page:
   useEffect(() => {
     localStorage.removeItem('fromQuotation'); // Clear the programmatic access flag
@@ -36,8 +40,10 @@ function SalesOrderCreate() {
       if (!isNaN(date.getTime())) {
         // Extract the year and month
         const extractedYear = date.getFullYear();
-        const extractedMonth = date.getMonth() + 1; // getMonth() is zero-based, so we add 1
-
+        // Add leading zero if month is less than 10 
+        // getMonth() is zero-based, so we add 1
+        const extractedMonth = (date.getMonth() + 1).toString().padStart(2, '0'); 
+        
         setYear(extractedYear);
         setMonth(extractedMonth);
       } else {
@@ -48,7 +54,7 @@ function SalesOrderCreate() {
 
   useEffect(() => {
     const fetchQuotationData = async () => {
-      console.log('gettig data', qoToSoRef, year, month);
+      console.log('Getting data', qoToSoRef, year, month);
       if (!qoToSoRef || !year || !month) {
         return;
       }
@@ -60,10 +66,19 @@ function SalesOrderCreate() {
         if (selectedRows) {
           url += `&filterIds=${selectedRows}`;
         }
+  
         const response = await api.get(url);
-        setQuotationData(response.data);
-        console.log(response.data);
-        console.log(quotationData);
+  
+        if (response.data.message === 'Record exists' && response.data.soNum) {
+          // Display the record exists message with the SO number
+          navigate(`/fetch_so`);
+          window.alert(`Record exists with SO number: ${response.data.soNum}`);
+        } else {
+          // Set the fetched quotation data
+          setQuotationData(response.data);
+          console.log(response.data);
+          console.log(quotationData);
+        }
       } catch (error) {
         setError(error.message);
       } finally {
@@ -73,6 +88,7 @@ function SalesOrderCreate() {
   
     fetchQuotationData();
   }, [qoToSoRef, year, month, selectedRows]);
+  
 
   // hook to calculate the total
   useEffect(() => {
@@ -147,7 +163,9 @@ function SalesOrderCreate() {
   };
 
   const handlePrint = () => {
-    console.log('Print option clicked');
+    localStorage.setItem('SalesOrderPrint', 'true');
+    const year = new Date().getFullYear();
+    navigate(`/sales_order/print/${soRefNumber}?year=${year}`)
   }
 
   const handleEdit = () => {
@@ -356,7 +374,7 @@ function SalesOrderCreate() {
         <h1>Item Created Successfully!</h1>
         <p>Sales Order ID: {soRefNumber}</p>
         <button onClick={handlePrint}>Print</button>
-        <button onClick={handleEdit}>Edit</button>
+        {/* <button onClick={handleEdit}>Edit</button> */}
       </div>}
     </div>
   );
