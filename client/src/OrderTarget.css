@@ -1,0 +1,151 @@
+/* General Styles */
+.sales-target-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 32px;
+  background: hsl(0, 0%, 100%); /* White background */
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  font-family: 'Inter', sans-serif;
+}
+
+/* Navigation Tabs */
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  border-bottom: 2px solid hsl(0, 0%, 90%); /* Light gray border */
+}
+
+.top-nav button {
+  flex: 1;
+  padding: 12px;
+  background: hsl(0, 0%, 96%); /* Light gray background */
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  color: hsl(0, 0%, 40%); /* Dark gray text */
+}
+
+.top-nav button:hover {
+  background: hsl(0, 0%, 90%); /* Slightly darker on hover */
+}
+
+.top-nav .active {
+  background: hsl(214, 46%, 40%); /* Primary blue for active tab */
+  color: hsl(0, 0%, 100%); /* White text */
+}
+
+/* Form Section */
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: hsl(0, 0%, 20%); /* Dark gray text */
+}
+
+.form-select,
+.form-input {
+  padding: 12px;
+  border: 1px solid hsl(0, 0%, 80%); /* Light gray border */
+  border-radius: 8px;
+  font-size: 14px;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.form-select:focus,
+.form-input:focus {
+  border-color: hsl(214, 46%, 40%); /* Primary blue on focus */
+  outline: none;
+  box-shadow: 0 0 0 3px hsla(214, 46%, 40%, 0.2); /* Focus glow */
+}
+
+.form-input:disabled {
+  background: hsl(0, 0%, 96%); /* Light gray for disabled */
+  color: hsl(0, 0%, 60%); /* Gray text */
+}
+
+/* Target Display */
+.old-targets {
+  margin-top: 24px;
+  padding: 16px;
+  background: hsl(0, 0%, 96%); /* Light gray background */
+  border-radius: 8px;
+  border-left: 4px solid hsl(214, 46%, 40%); /* Primary blue accent */
+}
+
+.old-targets h3 {
+  margin-bottom: 12px;
+  color: hsl(214, 46%, 40%); /* Primary blue text */
+}
+
+.old-targets p {
+  font-size: 14px;
+  margin: 8px 0;
+  color: hsl(0, 0%, 20%); /* Dark gray text */
+}
+
+/* Loading & No Data */
+.loading-text {
+  text-align: center;
+  font-weight: 600;
+  color: hsl(214, 46%, 40%); /* Primary blue text */
+}
+
+.no-data {
+  text-align: center;
+  color: hsl(0, 0%, 60%); /* Gray text */
+  font-style: italic;
+}
+
+/* Form Container */
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+/* Submit Button */
+.submit-button,
+.fetch-button {
+  padding: 12px 24px;
+  margin-top: 16px;
+  max-width: 250px;
+  font-size: 16px;
+  font-weight: 600;
+  color: hsl(0, 0%, 100%); /* White text */
+  background: hsl(214, 46%, 40%); /* Primary blue background */
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit-button:hover,
+.fetch-button:hover {
+  background: hsl(214, 46%, 45%); /* Slightly lighter blue on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px hsla(214, 46%, 40%, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .sales-target-container {
+    width: 90%;
+    padding: 24px;
+  }
+
+  .top-nav button {
+    font-size: 14px;
+    padding: 10px;
+  }
+}

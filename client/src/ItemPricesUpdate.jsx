@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import './ItemPricesUpdate.css'; // Add styling for the interface
 import api from './api';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { updateCachedData } from './useCableData';
 
 const ItemPricesUpdate = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10); // Number of items per page
 
   // Fetch items from the server
   useEffect(() => {
@@ -42,9 +46,9 @@ const ItemPricesUpdate = () => {
       });
       // After a successful update, update the cached data
       updateCachedData(itemToUpdate);
-      alert('Price updated successfully!');
+      toast.success('Price updated successfully!');
     } catch (err) {
-      alert('Failed to update price. Please try again.');
+      toast.error('Failed to update price. Please try again.');
     }
   };
 
@@ -60,17 +64,35 @@ const ItemPricesUpdate = () => {
       );
       // After updating all prices, update the cached data for all items
       items.forEach(updateCachedData);
-      alert('All prices updated successfully!');
+      toast.success('All prices updated successfully!');
     } catch (err) {
-      alert('Failed to update all prices. Please try again.');
+      toast.error('Failed to update all prices. Please try again.');
     }
   };
+
+  // Pagination logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Calculate total pages
+  const totalPages = Math.ceil(items.length / itemsPerPage);
+
+  // Generate page numbers
+  const pageNumbers = [];
+  for (let i = 1; i <= totalPages; i++) {
+    pageNumbers.push(i);
+  }
+
+  // Handle page change
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
   return (
     <div className="update-prices-container">
+      <ToastContainer />
       <h1>Update Item Prices</h1>
       <table className="update-prices-table">
         <thead>
@@ -84,7 +106,7 @@ const ItemPricesUpdate = () => {
           </tr>
         </thead>
         <tbody>
-          {items.map((item) => (
+          {currentItems.map((item) => (
             <tr key={item.idItems}>
               <td>{item.size}</td>
               <td>{item.itemDescription}</td>
@@ -106,6 +128,32 @@ const ItemPricesUpdate = () => {
           ))}
         </tbody>
       </table>
+
+      {/* Pagination controls */}
+      <div className="pagination">
+        <button
+          onClick={() => paginate(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </button>
+        {pageNumbers.map((number) => (
+          <button
+            key={number}
+            onClick={() => paginate(number)}
+            className={currentPage === number ? 'active' : ''}
+          >
+            {number}
+          </button>
+        ))}
+        <button
+          onClick={() => paginate(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </button>
+      </div>
+
       <button className="save-all-button" onClick={handleSaveAll}>
         Save All
       </button>

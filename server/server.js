@@ -15,7 +15,6 @@ const bcrypt = require('bcryptjs')
 // for parsing JSON bodies
 const bodyParser = require('body-parser');
 const { error, log, table } = require('console');
-const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 
@@ -785,6 +784,18 @@ app.put('/company/:id', (req, res) => {
 });
 
 // Get Sales info
+app.get("/sales/persons",(req, res) => {
+  const q = "SELECT * FROM sales_representative";
+  pool.query(q, (err, data) => {
+    if(err) {
+      console.error('Query error:', err);
+      return res.status(500).json({error: 'Query error' });
+    }
+    return res.json(data);
+  })
+})
+
+// Get Sales info
 app.get("/suggestions/sales/person",(req, res) => {
   const q = "SELECT sales_rep_id, first_name FROM sales_representative";
   pool.query(q, (err, data) => {
@@ -808,6 +819,35 @@ app.get("/sales/person/contact/:salesId",(req, res) => {
     return res.json(data);
   })
 })
+
+// ✅ Route to Fetch Old Sales Targets
+app.get("/sales-target/:salespersonId", (req, res) => {
+  const { salespersonId } = req.params;
+  const { year } = req.query;
+
+  if (!salespersonId || !year) {
+    return res.status(400).json({ error: "Missing salesperson ID or year" });
+  }
+
+  const sql = `
+    SELECT Q1, Q2, Q3, Q4 FROM order_target
+    WHERE salespersonId = ? AND year = ?
+  `;
+
+  pool.query(sql, [salespersonId, year], (err, result) => {
+    if (err) {
+      console.error("Error fetching sales target:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    if (result.length === 0) {
+      return res.status(404).json({ error: "No target found for this year" });
+    }
+
+    res.json(result[0]); // Return sales target for the requested year
+  });
+});
+
 
 // get last reference of the quotation table
 // if table doesn't exist create it
@@ -1277,7 +1317,58 @@ app.post("/api/add_contact", (req, res) => {
   });
 });
 
+// Route to handle Sales Order Targets
+app.post("/sales-target", (req, res) => {
+  const tableName = "order_target";
+  const targetData = req.body;
 
+  // Check if the table exists, if not, create it
+  const createTableQuery = `
+    CREATE TABLE IF NOT EXISTS ${tableName} (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      salespersonId INT NOT NULL,
+      year INT NOT NULL,
+      Q1 INT DEFAULT 0,
+      Q2 INT DEFAULT 0,
+      Q3 INT DEFAULT 0,
+      Q4 INT DEFAULT 0,
+      UNIQUE KEY unique_salesperson_year (salespersonId, year)
+    );
+  `;
+
+  pool.query(createTableQuery, (err) => {
+    if (err) {
+      console.error("Error creating/checking table:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    insertData(targetData, res);
+  });
+});
+
+// Function to insert or update sales target data
+const insertData = (targetData, res) => {
+  const { salespersonId, year, targets } = targetData;
+
+  const insertQuery = `
+    INSERT INTO order_target (salespersonId, year, Q1, Q2, Q3, Q4)
+    VALUES (?, ?, ?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE 
+      Q1 = VALUES(Q1), 
+      Q2 = VALUES(Q2), 
+      Q3 = VALUES(Q3), 
+      Q4 = VALUES(Q4);
+  `;
+
+  const values = [salespersonId, year, targets.Q1, targets.Q2, targets.Q3, targets.Q4];
+
+  pool.query(insertQuery, values, (err, result) => {
+    if (err) {
+      console.error("Error inserting data:", err);
+      return res.status(500).json({ error: "Failed to insert data" });
+    }
+    res.json({ message: "Sales target updated successfully!" });
+  });
+};
 
 // Middleware to verify token
 // authenticateToken middleware verifies the JWT token sent in the Authorization header
