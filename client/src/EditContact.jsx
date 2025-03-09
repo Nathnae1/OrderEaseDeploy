@@ -109,9 +109,11 @@ function EditContact() {
           <label className="form-label">Parent Company:</label>
           <input type="text" name="parent_company" value={companyData.parent_company} onChange={handleChange} className="form-input" />
 
-          <button type="button" onClick={handleSubmit} className="submit-button">
-            Save Changes
-          </button>
+          <div>
+            <button type="button" onClick={handleSubmit} className="submit-button">
+              Save Changes
+            </button>
+          </div>
         </form>
       )}
     </div>
